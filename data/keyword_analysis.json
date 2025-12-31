@@ -1,0 +1,1863 @@
+{
+  "analyzed_at": "2026-01-01T03:12:08.385533",
+  "method": "keyword_frequency_analysis",
+  "keywords_used": {
+    "mass_premium": {
+      "mass": [
+        "저렴",
+        "가성비",
+        "싸게",
+        "저가",
+        "학생",
+        "부담없",
+        "데일리",
+        "매일",
+        "가격대비",
+        "착한가격",
+        "저렴한",
+        "싼"
+      ],
+      "premium": [
+        "고급",
+        "럭셔리",
+        "프리미엄",
+        "백화점",
+        "선물",
+        "고가",
+        "비싼",
+        "명품",
+        "특별한",
+        "귀한",
+        "고급스러운",
+        "럭셔리한"
+      ]
+    },
+    "necessity_luxury": {
+      "necessity": [
+        "필수",
+        "기본",
+        "매일쓰는",
+        "없으면안",
+        "꼭필요",
+        "생필품",
+        "필요한",
+        "기초",
+        "일상",
+        "매일",
+        "꾸준히",
+        "습관"
+      ],
+      "luxury": [
+        "힐링",
+        "기분전환",
+        "나를위한",
+        "사치",
+        "특별한날",
+        "보상",
+        "기분좋",
+        "행복",
+        "여유",
+        "휴식",
+        "편안",
+        "릴렉스"
+      ]
+    },
+    "tech_emotion": {
+      "tech": [
+        "성분",
+        "효과",
+        "개선",
+        "트러블",
+        "피부과",
+        "임상",
+        "기능",
+        "효능",
+        "피부결",
+        "각질",
+        "모공",
+        "주름",
+        "탄력",
+        "미백",
+        "보습력"
+      ],
+      "emotion": [
+        "향기",
+        "향",
+        "기분",
+        "예쁜",
+        "디자인",
+        "패키지",
+        "분위기",
+        "느낌",
+        "감성",
+        "무드",
+        "색감",
+        "텍스처",
+        "발림성"
+      ]
+    }
+  },
+  "brands": {
+    "라네즈": {
+      "review_count": 251,
+      "mass_premium": -28.1,
+      "necessity_luxury": -45.3,
+      "tech_emotion": 27.7,
+      "details": {
+        "mass_premium": {
+          "score": -28.1,
+          "mass_count": 73,
+          "premium_count": 41,
+          "total_keywords": 114,
+          "top_keywords": {
+            "데일리": 24,
+            "선물": 23,
+            "매일": 18,
+            "고급": 10,
+            "가성비": 8,
+            "저렴": 7,
+            "부담없": 5,
+            "싼": 5,
+            "비싼": 5,
+            "가격대비": 3
+          }
+        },
+        "necessity_luxury": {
+          "score": -45.3,
+          "necessity_count": 101,
+          "luxury_count": 38,
+          "total_keywords": 139,
+          "top_keywords": {
+            "기초": 34,
+            "꾸준히": 28,
+            "편안": 26,
+            "매일": 18,
+            "필수": 6,
+            "필요한": 6,
+            "기본": 5,
+            "행복": 4,
+            "일상": 3,
+            "기분좋": 3
+          }
+        },
+        "tech_emotion": {
+          "score": 27.7,
+          "tech_count": 291,
+          "emotion_count": 514,
+          "total_keywords": 805,
+          "top_keywords": {
+            "향": 209,
+            "느낌": 145,
+            "기분": 66,
+            "효과": 57,
+            "트러블": 46,
+            "성분": 36,
+            "각질": 35,
+            "보습력": 26,
+            "발림성": 26,
+            "탄력": 17
+          }
+        }
+      }
+    },
+    "라보에이치": {
+      "review_count": 233,
+      "mass_premium": -66.2,
+      "necessity_luxury": -65.3,
+      "tech_emotion": 13.6,
+      "details": {
+        "mass_premium": {
+          "score": -66.2,
+          "mass_count": 64,
+          "premium_count": 13,
+          "total_keywords": 77,
+          "top_keywords": {
+            "매일": 22,
+            "저렴": 18,
+            "저렴한": 6,
+            "가성비": 5,
+            "싼": 5,
+            "데일리": 4,
+            "선물": 4,
+            "비싼": 4,
+            "부담없": 2,
+            "프리미엄": 2
+          }
+        },
+        "necessity_luxury": {
+          "score": -65.3,
+          "necessity_count": 62,
+          "luxury_count": 13,
+          "total_keywords": 75,
+          "top_keywords": {
+            "꾸준히": 27,
+            "매일": 22,
+            "편안": 8,
+            "필수": 4,
+            "기본": 3,
+            "기초": 3,
+            "필요한": 2,
+            "기분좋": 2,
+            "생필품": 1,
+            "보상": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 13.6,
+          "tech_count": 191,
+          "emotion_count": 251,
+          "total_keywords": 442,
+          "top_keywords": {
+            "느낌": 111,
+            "향": 103,
+            "효과": 82,
+            "성분": 28,
+            "각질": 25,
+            "트러블": 20,
+            "기분": 17,
+            "개선": 10,
+            "디자인": 10,
+            "기능": 8
+          }
+        }
+      }
+    },
+    "롱테이크": {
+      "review_count": 206,
+      "mass_premium": 34.5,
+      "necessity_luxury": 7.1,
+      "tech_emotion": 87.7,
+      "details": {
+        "mass_premium": {
+          "score": 34.5,
+          "mass_count": 38,
+          "premium_count": 78,
+          "total_keywords": 116,
+          "top_keywords": {
+            "선물": 38,
+            "고급": 25,
+            "매일": 10,
+            "싼": 7,
+            "고급스러운": 7,
+            "저렴": 6,
+            "비싼": 6,
+            "데일리": 4,
+            "가성비": 3,
+            "저가": 3
+          }
+        },
+        "necessity_luxury": {
+          "score": 7.1,
+          "necessity_count": 26,
+          "luxury_count": 30,
+          "total_keywords": 56,
+          "top_keywords": {
+            "매일": 10,
+            "힐링": 9,
+            "편안": 9,
+            "기분좋": 8,
+            "꾸준히": 5,
+            "필수": 4,
+            "기초": 3,
+            "필요한": 2,
+            "여유": 2,
+            "기본": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 87.7,
+          "tech_count": 57,
+          "emotion_count": 868,
+          "total_keywords": 925,
+          "top_keywords": {
+            "향": 661,
+            "느낌": 77,
+            "기분": 50,
+            "향기": 36,
+            "효과": 21,
+            "패키지": 18,
+            "발림성": 12,
+            "보습력": 10,
+            "성분": 7,
+            "기능": 6
+          }
+        }
+      }
+    },
+    "마몽드": {
+      "review_count": 244,
+      "mass_premium": -49.5,
+      "necessity_luxury": -53.7,
+      "tech_emotion": -5.6,
+      "details": {
+        "mass_premium": {
+          "score": -49.5,
+          "mass_count": 74,
+          "premium_count": 25,
+          "total_keywords": 99,
+          "top_keywords": {
+            "매일": 18,
+            "가성비": 15,
+            "데일리": 14,
+            "저렴": 10,
+            "선물": 9,
+            "싼": 6,
+            "비싼": 6,
+            "부담없": 4,
+            "고급": 4,
+            "가격대비": 3
+          }
+        },
+        "necessity_luxury": {
+          "score": -53.7,
+          "necessity_count": 73,
+          "luxury_count": 22,
+          "total_keywords": 95,
+          "top_keywords": {
+            "꾸준히": 29,
+            "매일": 18,
+            "기초": 15,
+            "편안": 15,
+            "필요한": 5,
+            "필수": 3,
+            "힐링": 3,
+            "기본": 2,
+            "행복": 2,
+            "일상": 1
+          }
+        },
+        "tech_emotion": {
+          "score": -5.6,
+          "tech_count": 414,
+          "emotion_count": 370,
+          "total_keywords": 784,
+          "top_keywords": {
+            "향": 162,
+            "느낌": 120,
+            "모공": 99,
+            "성분": 75,
+            "효과": 73,
+            "각질": 38,
+            "트러블": 34,
+            "기분": 26,
+            "탄력": 24,
+            "감성": 23
+          }
+        }
+      }
+    },
+    "메디안": {
+      "review_count": 222,
+      "mass_premium": -55.6,
+      "necessity_luxury": -53.5,
+      "tech_emotion": 13.2,
+      "details": {
+        "mass_premium": {
+          "score": -55.6,
+          "mass_count": 84,
+          "premium_count": 24,
+          "total_keywords": 108,
+          "top_keywords": {
+            "가성비": 29,
+            "매일": 24,
+            "선물": 8,
+            "데일리": 7,
+            "저렴": 6,
+            "싼": 6,
+            "고급": 5,
+            "비싼": 5,
+            "특별한": 4,
+            "싸게": 3
+          }
+        },
+        "necessity_luxury": {
+          "score": -53.5,
+          "necessity_count": 76,
+          "luxury_count": 23,
+          "total_keywords": 99,
+          "top_keywords": {
+            "꾸준히": 30,
+            "매일": 24,
+            "편안": 20,
+            "생필품": 6,
+            "기본": 5,
+            "필요한": 5,
+            "일상": 3,
+            "기분좋": 3,
+            "필수": 2,
+            "습관": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 13.2,
+          "tech_count": 231,
+          "emotion_count": 301,
+          "total_keywords": 532,
+          "top_keywords": {
+            "느낌": 112,
+            "향": 108,
+            "효과": 85,
+            "성분": 36,
+            "미백": 33,
+            "디자인": 32,
+            "기분": 26,
+            "개선": 19,
+            "기능": 19,
+            "탄력": 18
+          }
+        }
+      }
+    },
+    "정글몬스터": {
+      "review_count": 125,
+      "mass_premium": -36.8,
+      "necessity_luxury": -62.5,
+      "tech_emotion": 25.6,
+      "details": {
+        "mass_premium": {
+          "score": -36.8,
+          "mass_count": 13,
+          "premium_count": 6,
+          "total_keywords": 19,
+          "top_keywords": {
+            "선물": 6,
+            "매일": 5,
+            "저렴": 3,
+            "가격대비": 2,
+            "가성비": 1,
+            "싸게": 1,
+            "부담없": 1
+          }
+        },
+        "necessity_luxury": {
+          "score": -62.5,
+          "necessity_count": 13,
+          "luxury_count": 3,
+          "total_keywords": 16,
+          "top_keywords": {
+            "필수": 5,
+            "매일": 5,
+            "편안": 3,
+            "꾸준히": 2,
+            "습관": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 25.6,
+          "tech_count": 16,
+          "emotion_count": 27,
+          "total_keywords": 43,
+          "top_keywords": {
+            "향": 20,
+            "효과": 10,
+            "성분": 4,
+            "디자인": 3,
+            "트러블": 1,
+            "기능": 1,
+            "향기": 1,
+            "기분": 1,
+            "느낌": 1,
+            "색감": 1
+          }
+        }
+      }
+    },
+    "메이크온": {
+      "review_count": 96,
+      "mass_premium": -33.3,
+      "necessity_luxury": -74.5,
+      "tech_emotion": -35.3,
+      "details": {
+        "mass_premium": {
+          "score": -33.3,
+          "mass_count": 40,
+          "premium_count": 20,
+          "total_keywords": 60,
+          "top_keywords": {
+            "매일": 19,
+            "선물": 9,
+            "저렴": 8,
+            "부담없": 5,
+            "고급": 4,
+            "싼": 3,
+            "데일리": 2,
+            "저렴한": 2,
+            "백화점": 2,
+            "고가": 2
+          }
+        },
+        "necessity_luxury": {
+          "score": -74.5,
+          "necessity_count": 48,
+          "luxury_count": 7,
+          "total_keywords": 55,
+          "top_keywords": {
+            "매일": 19,
+            "꾸준히": 13,
+            "기초": 9,
+            "필요한": 3,
+            "편안": 3,
+            "필수": 2,
+            "릴렉스": 2,
+            "일상": 1,
+            "습관": 1,
+            "행복": 1
+          }
+        },
+        "tech_emotion": {
+          "score": -35.3,
+          "tech_count": 115,
+          "emotion_count": 55,
+          "total_keywords": 170,
+          "top_keywords": {
+            "느낌": 38,
+            "효과": 36,
+            "모공": 25,
+            "기능": 12,
+            "탄력": 12,
+            "개선": 8,
+            "기분": 7,
+            "피부과": 6,
+            "주름": 5,
+            "트러블": 3
+          }
+        }
+      }
+    },
+    "에이피뷰티": {
+      "review_count": 226,
+      "mass_premium": 34.3,
+      "necessity_luxury": -43.3,
+      "tech_emotion": 0.2,
+      "details": {
+        "mass_premium": {
+          "score": 34.3,
+          "mass_count": 44,
+          "premium_count": 90,
+          "total_keywords": 134,
+          "top_keywords": {
+            "고급": 37,
+            "선물": 15,
+            "싼": 11,
+            "비싼": 10,
+            "매일": 9,
+            "고가": 8,
+            "저렴": 7,
+            "고급스러운": 7,
+            "부담없": 6,
+            "데일리": 5
+          }
+        },
+        "necessity_luxury": {
+          "score": -43.3,
+          "necessity_count": 43,
+          "luxury_count": 17,
+          "total_keywords": 60,
+          "top_keywords": {
+            "꾸준히": 18,
+            "편안": 16,
+            "매일": 9,
+            "기초": 8,
+            "필수": 3,
+            "필요한": 3,
+            "기본": 1,
+            "습관": 1,
+            "기분좋": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 0.2,
+          "tech_count": 221,
+          "emotion_count": 222,
+          "total_keywords": 443,
+          "top_keywords": {
+            "느낌": 113,
+            "향": 45,
+            "효과": 41,
+            "성분": 23,
+            "피부결": 19,
+            "탄력": 19,
+            "트러블": 18,
+            "발림성": 18,
+            "각질": 16,
+            "기능": 15
+          }
+        }
+      }
+    },
+    "비레디": {
+      "review_count": 219,
+      "mass_premium": -44.8,
+      "necessity_luxury": -68.0,
+      "tech_emotion": 4.7,
+      "details": {
+        "mass_premium": {
+          "score": -44.8,
+          "mass_count": 42,
+          "premium_count": 16,
+          "total_keywords": 58,
+          "top_keywords": {
+            "데일리": 17,
+            "선물": 11,
+            "매일": 7,
+            "저렴": 4,
+            "가성비": 3,
+            "부담없": 3,
+            "저렴한": 3,
+            "저가": 2,
+            "가격대비": 2,
+            "고급": 2
+          }
+        },
+        "necessity_luxury": {
+          "score": -68.0,
+          "necessity_count": 42,
+          "luxury_count": 8,
+          "total_keywords": 50,
+          "top_keywords": {
+            "꾸준히": 11,
+            "기초": 10,
+            "매일": 7,
+            "편안": 6,
+            "필수": 5,
+            "일상": 5,
+            "필요한": 4,
+            "힐링": 1,
+            "여유": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 4.7,
+          "tech_count": 181,
+          "emotion_count": 199,
+          "total_keywords": 380,
+          "top_keywords": {
+            "느낌": 89,
+            "트러블": 54,
+            "향": 53,
+            "효과": 37,
+            "모공": 21,
+            "기능": 17,
+            "각질": 16,
+            "발림성": 15,
+            "성분": 13,
+            "디자인": 12
+          }
+        }
+      }
+    },
+    "설화수": {
+      "review_count": 251,
+      "mass_premium": 30.9,
+      "necessity_luxury": -41.2,
+      "tech_emotion": 12.2,
+      "details": {
+        "mass_premium": {
+          "score": 30.9,
+          "mass_count": 85,
+          "premium_count": 161,
+          "total_keywords": 246,
+          "top_keywords": {
+            "선물": 61,
+            "고급": 41,
+            "고급스러운": 21,
+            "저렴": 16,
+            "데일리": 14,
+            "싼": 13,
+            "비싼": 11,
+            "매일": 10,
+            "특별한": 9,
+            "가성비": 8
+          }
+        },
+        "necessity_luxury": {
+          "score": -41.2,
+          "necessity_count": 96,
+          "luxury_count": 40,
+          "total_keywords": 136,
+          "top_keywords": {
+            "기초": 33,
+            "꾸준히": 29,
+            "편안": 28,
+            "기본": 11,
+            "매일": 10,
+            "힐링": 6,
+            "필수": 5,
+            "필요한": 4,
+            "일상": 4,
+            "기분좋": 4
+          }
+        },
+        "tech_emotion": {
+          "score": 12.2,
+          "tech_count": 378,
+          "emotion_count": 483,
+          "total_keywords": 861,
+          "top_keywords": {
+            "느낌": 172,
+            "향": 153,
+            "효과": 87,
+            "탄력": 51,
+            "성분": 42,
+            "각질": 42,
+            "주름": 37,
+            "디자인": 37,
+            "기분": 36,
+            "개선": 35
+          }
+        }
+      }
+    },
+    "아모레베이직": {
+      "review_count": 175,
+      "mass_premium": -63.8,
+      "necessity_luxury": -60.7,
+      "tech_emotion": 57.7,
+      "details": {
+        "mass_premium": {
+          "score": -63.8,
+          "mass_count": 86,
+          "premium_count": 19,
+          "total_keywords": 105,
+          "top_keywords": {
+            "가성비": 25,
+            "데일리": 19,
+            "매일": 14,
+            "저렴": 13,
+            "선물": 8,
+            "저렴한": 5,
+            "고급": 5,
+            "부담없": 4,
+            "가격대비": 3,
+            "싸게": 2
+          }
+        },
+        "necessity_luxury": {
+          "score": -60.7,
+          "necessity_count": 49,
+          "luxury_count": 12,
+          "total_keywords": 61,
+          "top_keywords": {
+            "매일": 14,
+            "필요한": 10,
+            "꾸준히": 7,
+            "기본": 6,
+            "일상": 6,
+            "편안": 6,
+            "필수": 4,
+            "기분전환": 3,
+            "기초": 2,
+            "힐링": 2
+          }
+        },
+        "tech_emotion": {
+          "score": 57.7,
+          "tech_count": 56,
+          "emotion_count": 209,
+          "total_keywords": 265,
+          "top_keywords": {
+            "향": 108,
+            "느낌": 39,
+            "효과": 21,
+            "디자인": 20,
+            "기분": 17,
+            "탄력": 7,
+            "성분": 6,
+            "향기": 6,
+            "기능": 5,
+            "피부결": 5
+          }
+        }
+      }
+    },
+    "아모레성수": {
+      "review_count": 157,
+      "mass_premium": -33.3,
+      "necessity_luxury": -100.0,
+      "tech_emotion": 42.9,
+      "details": {
+        "mass_premium": {
+          "score": -33.3,
+          "mass_count": 40,
+          "premium_count": 20,
+          "total_keywords": 60,
+          "top_keywords": {
+            "싼": 12,
+            "저렴": 8,
+            "비싼": 8,
+            "가성비": 7,
+            "매일": 7,
+            "고급": 6,
+            "저렴한": 3,
+            "가격대비": 2,
+            "선물": 2,
+            "고가": 2
+          }
+        },
+        "necessity_luxury": {
+          "score": -100.0,
+          "necessity_count": 11,
+          "luxury_count": 0,
+          "total_keywords": 11,
+          "top_keywords": {
+            "매일": 7,
+            "기본": 2,
+            "필수": 1,
+            "필요한": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 42.9,
+          "tech_count": 14,
+          "emotion_count": 35,
+          "total_keywords": 49,
+          "top_keywords": {
+            "탄력": 11,
+            "느낌": 10,
+            "디자인": 6,
+            "패키지": 5,
+            "발림성": 4,
+            "향": 3,
+            "예쁜": 3,
+            "색감": 3,
+            "기능": 2,
+            "모공": 1
+          }
+        }
+      }
+    },
+    "아모레퍼시픽": {
+      "review_count": 60,
+      "mass_premium": 0.0,
+      "necessity_luxury": -75.0,
+      "tech_emotion": 34.8,
+      "details": {
+        "mass_premium": {
+          "score": 0.0,
+          "mass_count": 11,
+          "premium_count": 11,
+          "total_keywords": 22,
+          "top_keywords": {
+            "백화점": 3,
+            "저렴": 2,
+            "데일리": 2,
+            "싼": 2,
+            "고급": 2,
+            "비싼": 2,
+            "가성비": 1,
+            "부담없": 1,
+            "매일": 1,
+            "가격대비": 1
+          }
+        },
+        "necessity_luxury": {
+          "score": -75.0,
+          "necessity_count": 14,
+          "luxury_count": 2,
+          "total_keywords": 16,
+          "top_keywords": {
+            "기초": 10,
+            "편안": 2,
+            "필수": 1,
+            "필요한": 1,
+            "매일": 1,
+            "꾸준히": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 34.8,
+          "tech_count": 30,
+          "emotion_count": 62,
+          "total_keywords": 92,
+          "top_keywords": {
+            "느낌": 21,
+            "향": 19,
+            "기분": 11,
+            "트러블": 7,
+            "성분": 6,
+            "각질": 4,
+            "향기": 4,
+            "모공": 3,
+            "주름": 3,
+            "탄력": 3
+          }
+        }
+      }
+    },
+    "아이오페": {
+      "review_count": 243,
+      "mass_premium": 4.4,
+      "necessity_luxury": -78.0,
+      "tech_emotion": -25.3,
+      "details": {
+        "mass_premium": {
+          "score": 4.4,
+          "mass_count": 65,
+          "premium_count": 71,
+          "total_keywords": 136,
+          "top_keywords": {
+            "선물": 33,
+            "매일": 18,
+            "데일리": 16,
+            "고급": 13,
+            "저렴": 10,
+            "싼": 8,
+            "비싼": 8,
+            "가성비": 6,
+            "저렴한": 5,
+            "고급스러운": 5
+          }
+        },
+        "necessity_luxury": {
+          "score": -78.0,
+          "necessity_count": 113,
+          "luxury_count": 14,
+          "total_keywords": 127,
+          "top_keywords": {
+            "꾸준히": 49,
+            "기초": 24,
+            "매일": 18,
+            "편안": 12,
+            "기본": 8,
+            "필요한": 6,
+            "필수": 5,
+            "일상": 3,
+            "기분좋": 1,
+            "여유": 1
+          }
+        },
+        "tech_emotion": {
+          "score": -25.3,
+          "tech_count": 552,
+          "emotion_count": 329,
+          "total_keywords": 881,
+          "top_keywords": {
+            "느낌": 147,
+            "효과": 113,
+            "탄력": 85,
+            "향": 82,
+            "주름": 68,
+            "개선": 63,
+            "성분": 59,
+            "피부결": 33,
+            "기능": 28,
+            "트러블": 27
+          }
+        }
+      }
+    },
+    "앞바다즈": {
+      "review_count": 179,
+      "mass_premium": -9.3,
+      "necessity_luxury": -50.0,
+      "tech_emotion": 77.5,
+      "details": {
+        "mass_premium": {
+          "score": -9.3,
+          "mass_count": 47,
+          "premium_count": 39,
+          "total_keywords": 86,
+          "top_keywords": {
+            "선물": 28,
+            "저렴": 26,
+            "싼": 8,
+            "비싼": 8,
+            "매일": 5,
+            "싸게": 3,
+            "데일리": 3,
+            "가성비": 1,
+            "저렴한": 1,
+            "고급": 1
+          }
+        },
+        "necessity_luxury": {
+          "score": -50.0,
+          "necessity_count": 6,
+          "luxury_count": 2,
+          "total_keywords": 8,
+          "top_keywords": {
+            "매일": 5,
+            "기초": 1,
+            "힐링": 1,
+            "여유": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 77.5,
+          "tech_count": 8,
+          "emotion_count": 63,
+          "total_keywords": 71,
+          "top_keywords": {
+            "디자인": 30,
+            "느낌": 14,
+            "기분": 11,
+            "효과": 4,
+            "색감": 4,
+            "탄력": 2,
+            "예쁜": 2,
+            "모공": 1,
+            "주름": 1,
+            "분위기": 1
+          }
+        }
+      }
+    },
+    "에뛰드": {
+      "review_count": 224,
+      "mass_premium": -69.9,
+      "necessity_luxury": -73.6,
+      "tech_emotion": 22.9,
+      "details": {
+        "mass_premium": {
+          "score": -69.9,
+          "mass_count": 96,
+          "premium_count": 17,
+          "total_keywords": 113,
+          "top_keywords": {
+            "데일리": 42,
+            "가성비": 21,
+            "저렴": 17,
+            "매일": 11,
+            "고가": 4,
+            "저렴한": 3,
+            "특별한": 3,
+            "고급": 2,
+            "선물": 2,
+            "고급스러운": 2
+          }
+        },
+        "necessity_luxury": {
+          "score": -73.6,
+          "necessity_count": 46,
+          "luxury_count": 7,
+          "total_keywords": 53,
+          "top_keywords": {
+            "꾸준히": 13,
+            "매일": 11,
+            "기초": 8,
+            "필수": 6,
+            "편안": 4,
+            "기본": 3,
+            "필요한": 2,
+            "일상": 2,
+            "습관": 1,
+            "힐링": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 22.9,
+          "tech_count": 135,
+          "emotion_count": 215,
+          "total_keywords": 350,
+          "top_keywords": {
+            "느낌": 76,
+            "향": 47,
+            "효과": 38,
+            "각질": 26,
+            "발림성": 21,
+            "모공": 19,
+            "기분": 17,
+            "트러블": 14,
+            "색감": 12,
+            "패키지": 11
+          }
+        }
+      }
+    },
+    "에스쁘아": {
+      "review_count": 229,
+      "mass_premium": -56.0,
+      "necessity_luxury": -36.8,
+      "tech_emotion": 35.5,
+      "details": {
+        "mass_premium": {
+          "score": -56.0,
+          "mass_count": 85,
+          "premium_count": 24,
+          "total_keywords": 109,
+          "top_keywords": {
+            "데일리": 50,
+            "저렴": 9,
+            "고급": 9,
+            "가성비": 7,
+            "선물": 6,
+            "매일": 4,
+            "특별한": 4,
+            "싸게": 3,
+            "저렴한": 3,
+            "저가": 2
+          }
+        },
+        "necessity_luxury": {
+          "score": -36.8,
+          "necessity_count": 26,
+          "luxury_count": 12,
+          "total_keywords": 38,
+          "top_keywords": {
+            "편안": 11,
+            "꾸준히": 7,
+            "필수": 5,
+            "일상": 4,
+            "매일": 4,
+            "기초": 3,
+            "필요한": 2,
+            "기본": 1,
+            "기분좋": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 35.5,
+          "tech_count": 137,
+          "emotion_count": 288,
+          "total_keywords": 425,
+          "top_keywords": {
+            "느낌": 91,
+            "향": 47,
+            "효과": 29,
+            "각질": 26,
+            "디자인": 26,
+            "탄력": 21,
+            "패키지": 21,
+            "색감": 19,
+            "주름": 18,
+            "예쁜": 18
+          }
+        }
+      }
+    },
+    "에스트라": {
+      "review_count": 241,
+      "mass_premium": -36.8,
+      "necessity_luxury": -61.6,
+      "tech_emotion": -10.2,
+      "details": {
+        "mass_premium": {
+          "score": -36.8,
+          "mass_count": 52,
+          "premium_count": 24,
+          "total_keywords": 76,
+          "top_keywords": {
+            "매일": 13,
+            "선물": 12,
+            "저렴": 11,
+            "가성비": 8,
+            "특별한": 7,
+            "데일리": 6,
+            "싸게": 4,
+            "고가": 4,
+            "저렴한": 3,
+            "부담없": 2
+          }
+        },
+        "necessity_luxury": {
+          "score": -61.6,
+          "necessity_count": 80,
+          "luxury_count": 19,
+          "total_keywords": 99,
+          "top_keywords": {
+            "꾸준히": 31,
+            "기초": 23,
+            "편안": 15,
+            "매일": 13,
+            "필요한": 6,
+            "필수": 3,
+            "일상": 2,
+            "기분좋": 2,
+            "기본": 1,
+            "습관": 1
+          }
+        },
+        "tech_emotion": {
+          "score": -10.2,
+          "tech_count": 426,
+          "emotion_count": 347,
+          "total_keywords": 773,
+          "top_keywords": {
+            "느낌": 138,
+            "향": 121,
+            "트러블": 96,
+            "효과": 95,
+            "성분": 54,
+            "감성": 39,
+            "개선": 29,
+            "모공": 26,
+            "피부과": 24,
+            "각질": 24
+          }
+        }
+      }
+    },
+    "아모스 프로페셔널": {
+      "review_count": 214,
+      "mass_premium": -49.3,
+      "necessity_luxury": -95.5,
+      "tech_emotion": 51.9,
+      "details": {
+        "mass_premium": {
+          "score": -49.3,
+          "mass_count": 50,
+          "premium_count": 17,
+          "total_keywords": 67,
+          "top_keywords": {
+            "매일": 13,
+            "싼": 13,
+            "비싼": 13,
+            "저렴": 7,
+            "데일리": 5,
+            "저렴한": 5,
+            "가성비": 4,
+            "선물": 2,
+            "싸게": 1,
+            "저가": 1
+          }
+        },
+        "necessity_luxury": {
+          "score": -95.5,
+          "necessity_count": 43,
+          "luxury_count": 1,
+          "total_keywords": 44,
+          "top_keywords": {
+            "꾸준히": 24,
+            "매일": 13,
+            "필수": 3,
+            "필요한": 2,
+            "습관": 1,
+            "기분좋": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 51.9,
+          "tech_count": 65,
+          "emotion_count": 205,
+          "total_keywords": 270,
+          "top_keywords": {
+            "향": 124,
+            "느낌": 47,
+            "효과": 23,
+            "기분": 13,
+            "각질": 12,
+            "트러블": 7,
+            "기능": 7,
+            "성분": 6,
+            "향기": 6,
+            "개선": 4
+          }
+        }
+      }
+    },
+    "라 리베라": {
+      "review_count": 269,
+      "mass_premium": -2.1,
+      "necessity_luxury": -46.0,
+      "tech_emotion": 27.8,
+      "details": {
+        "mass_premium": {
+          "score": -2.1,
+          "mass_count": 48,
+          "premium_count": 46,
+          "total_keywords": 94,
+          "top_keywords": {
+            "선물": 33,
+            "매일": 26,
+            "저렴": 6,
+            "학생": 4,
+            "데일리": 4,
+            "싼": 4,
+            "비싼": 4,
+            "고급": 3,
+            "프리미엄": 3,
+            "특별한": 3
+          }
+        },
+        "necessity_luxury": {
+          "score": -46.0,
+          "necessity_count": 73,
+          "luxury_count": 27,
+          "total_keywords": 100,
+          "top_keywords": {
+            "매일": 26,
+            "꾸준히": 21,
+            "편안": 13,
+            "필수": 10,
+            "기분좋": 7,
+            "기본": 6,
+            "필요한": 5,
+            "습관": 3,
+            "기초": 2,
+            "행복": 2
+          }
+        },
+        "tech_emotion": {
+          "score": 27.8,
+          "tech_count": 260,
+          "emotion_count": 460,
+          "total_keywords": 720,
+          "top_keywords": {
+            "향": 253,
+            "느낌": 88,
+            "성분": 69,
+            "각질": 68,
+            "효과": 47,
+            "기분": 35,
+            "발림성": 32,
+            "향기": 23,
+            "탄력": 22,
+            "보습력": 16
+          }
+        }
+      }
+    },
+    "오설록": {
+      "review_count": 223,
+      "mass_premium": 69.4,
+      "necessity_luxury": 32.3,
+      "tech_emotion": 93.6,
+      "details": {
+        "mass_premium": {
+          "score": 69.4,
+          "mass_count": 44,
+          "premium_count": 244,
+          "total_keywords": 288,
+          "top_keywords": {
+            "선물": 102,
+            "고급": 67,
+            "고급스러운": 32,
+            "프리미엄": 28,
+            "저렴": 12,
+            "매일": 9,
+            "싼": 7,
+            "특별한": 7,
+            "저렴한": 6,
+            "비싼": 6
+          }
+        },
+        "necessity_luxury": {
+          "score": 32.3,
+          "necessity_count": 22,
+          "luxury_count": 43,
+          "total_keywords": 65,
+          "top_keywords": {
+            "힐링": 13,
+            "여유": 11,
+            "편안": 11,
+            "매일": 9,
+            "일상": 7,
+            "휴식": 4,
+            "기본": 2,
+            "필요한": 2,
+            "행복": 2,
+            "필수": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 93.6,
+          "tech_count": 13,
+          "emotion_count": 396,
+          "total_keywords": 409,
+          "top_keywords": {
+            "향": 246,
+            "느낌": 57,
+            "기분": 36,
+            "패키지": 18,
+            "디자인": 17,
+            "향기": 11,
+            "분위기": 7,
+            "개선": 5,
+            "성분": 4,
+            "감성": 3
+          }
+        }
+      }
+    },
+    "이니스프리": {
+      "review_count": 222,
+      "mass_premium": -48.8,
+      "necessity_luxury": -32.0,
+      "tech_emotion": 15.8,
+      "details": {
+        "mass_premium": {
+          "score": -48.8,
+          "mass_count": 90,
+          "premium_count": 31,
+          "total_keywords": 121,
+          "top_keywords": {
+            "데일리": 24,
+            "가성비": 21,
+            "저렴": 15,
+            "매일": 13,
+            "고급": 10,
+            "저렴한": 5,
+            "선물": 5,
+            "특별한": 4,
+            "부담없": 3,
+            "가격대비": 3
+          }
+        },
+        "necessity_luxury": {
+          "score": -32.0,
+          "necessity_count": 68,
+          "luxury_count": 35,
+          "total_keywords": 103,
+          "top_keywords": {
+            "편안": 21,
+            "꾸준히": 19,
+            "필수": 13,
+            "매일": 13,
+            "필요한": 11,
+            "휴식": 7,
+            "기본": 4,
+            "기초": 4,
+            "일상": 3,
+            "여유": 3
+          }
+        },
+        "tech_emotion": {
+          "score": 15.8,
+          "tech_count": 243,
+          "emotion_count": 334,
+          "total_keywords": 577,
+          "top_keywords": {
+            "향": 123,
+            "느낌": 120,
+            "효과": 56,
+            "모공": 37,
+            "성분": 35,
+            "기분": 26,
+            "디자인": 23,
+            "트러블": 21,
+            "각질": 17,
+            "탄력": 16
+          }
+        }
+      }
+    },
+    "일리윤": {
+      "review_count": 221,
+      "mass_premium": -70.0,
+      "necessity_luxury": -45.3,
+      "tech_emotion": 32.8,
+      "details": {
+        "mass_premium": {
+          "score": -70.0,
+          "mass_count": 85,
+          "premium_count": 15,
+          "total_keywords": 100,
+          "top_keywords": {
+            "매일": 20,
+            "가성비": 18,
+            "데일리": 17,
+            "저렴": 15,
+            "저렴한": 5,
+            "선물": 5,
+            "부담없": 4,
+            "가격대비": 3,
+            "고급": 3,
+            "학생": 2
+          }
+        },
+        "necessity_luxury": {
+          "score": -45.3,
+          "necessity_count": 69,
+          "luxury_count": 26,
+          "total_keywords": 95,
+          "top_keywords": {
+            "꾸준히": 31,
+            "편안": 25,
+            "매일": 20,
+            "필수": 7,
+            "기본": 4,
+            "기초": 3,
+            "습관": 2,
+            "필요한": 1,
+            "일상": 1,
+            "힐링": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 32.8,
+          "tech_count": 158,
+          "emotion_count": 312,
+          "total_keywords": 470,
+          "top_keywords": {
+            "향": 167,
+            "느낌": 72,
+            "성분": 46,
+            "효과": 32,
+            "보습력": 26,
+            "감성": 20,
+            "트러블": 19,
+            "발림성": 16,
+            "기분": 14,
+            "기능": 10
+          }
+        }
+      }
+    },
+    "퍼즐우드": {
+      "review_count": 46,
+      "mass_premium": 69.2,
+      "necessity_luxury": 77.8,
+      "tech_emotion": 94.6,
+      "details": {
+        "mass_premium": {
+          "score": 69.2,
+          "mass_count": 6,
+          "premium_count": 33,
+          "total_keywords": 39,
+          "top_keywords": {
+            "선물": 16,
+            "고급": 12,
+            "고급스러운": 4,
+            "부담없": 2,
+            "저렴": 1,
+            "가성비": 1,
+            "저렴한": 1,
+            "싼": 1,
+            "비싼": 1
+          }
+        },
+        "necessity_luxury": {
+          "score": 77.8,
+          "necessity_count": 2,
+          "luxury_count": 16,
+          "total_keywords": 18,
+          "top_keywords": {
+            "편안": 8,
+            "힐링": 3,
+            "휴식": 3,
+            "필요한": 2,
+            "기분좋": 2
+          }
+        },
+        "tech_emotion": {
+          "score": 94.6,
+          "tech_count": 9,
+          "emotion_count": 325,
+          "total_keywords": 334,
+          "top_keywords": {
+            "향": 226,
+            "느낌": 39,
+            "향기": 20,
+            "디자인": 15,
+            "기분": 9,
+            "패키지": 7,
+            "보습력": 4,
+            "성분": 3,
+            "분위기": 3,
+            "감성": 3
+          }
+        }
+      }
+    },
+    "프리메라": {
+      "review_count": 258,
+      "mass_premium": -34.0,
+      "necessity_luxury": -59.0,
+      "tech_emotion": -6.9,
+      "details": {
+        "mass_premium": {
+          "score": -34.0,
+          "mass_count": 63,
+          "premium_count": 31,
+          "total_keywords": 94,
+          "top_keywords": {
+            "데일리": 16,
+            "선물": 12,
+            "저렴": 11,
+            "매일": 11,
+            "부담없": 7,
+            "가성비": 5,
+            "고급": 5,
+            "백화점": 5,
+            "고가": 4,
+            "싸게": 3
+          }
+        },
+        "necessity_luxury": {
+          "score": -59.0,
+          "necessity_count": 97,
+          "luxury_count": 25,
+          "total_keywords": 122,
+          "top_keywords": {
+            "꾸준히": 32,
+            "기초": 28,
+            "편안": 15,
+            "필수": 13,
+            "매일": 11,
+            "필요한": 6,
+            "행복": 5,
+            "기본": 4,
+            "힐링": 3,
+            "일상": 2
+          }
+        },
+        "tech_emotion": {
+          "score": -6.9,
+          "tech_count": 497,
+          "emotion_count": 433,
+          "total_keywords": 930,
+          "top_keywords": {
+            "향": 166,
+            "느낌": 162,
+            "효과": 93,
+            "성분": 82,
+            "각질": 82,
+            "트러블": 45,
+            "개선": 40,
+            "주름": 32,
+            "피부결": 29,
+            "감성": 29
+          }
+        }
+      }
+    },
+    "한율": {
+      "review_count": 235,
+      "mass_premium": -39.4,
+      "necessity_luxury": -42.4,
+      "tech_emotion": 11.5,
+      "details": {
+        "mass_premium": {
+          "score": -39.4,
+          "mass_count": 69,
+          "premium_count": 30,
+          "total_keywords": 99,
+          "top_keywords": {
+            "데일리": 18,
+            "가성비": 17,
+            "매일": 17,
+            "선물": 12,
+            "저렴": 7,
+            "고급": 4,
+            "특별한": 4,
+            "가격대비": 3,
+            "고가": 3,
+            "학생": 2
+          }
+        },
+        "necessity_luxury": {
+          "score": -42.4,
+          "necessity_count": 94,
+          "luxury_count": 38,
+          "total_keywords": 132,
+          "top_keywords": {
+            "꾸준히": 28,
+            "편안": 24,
+            "기초": 19,
+            "매일": 17,
+            "일상": 9,
+            "힐링": 8,
+            "필수": 7,
+            "기본": 6,
+            "필요한": 6,
+            "기분좋": 4
+          }
+        },
+        "tech_emotion": {
+          "score": 11.5,
+          "tech_count": 420,
+          "emotion_count": 529,
+          "total_keywords": 949,
+          "top_keywords": {
+            "향": 223,
+            "느낌": 157,
+            "효과": 85,
+            "트러블": 61,
+            "모공": 53,
+            "성분": 47,
+            "탄력": 44,
+            "기분": 43,
+            "감성": 36,
+            "발림성": 29
+          }
+        }
+      }
+    },
+    "해피바스": {
+      "review_count": 224,
+      "mass_premium": -61.4,
+      "necessity_luxury": -1.0,
+      "tech_emotion": 65.0,
+      "details": {
+        "mass_premium": {
+          "score": -61.4,
+          "mass_count": 134,
+          "premium_count": 32,
+          "total_keywords": 166,
+          "top_keywords": {
+            "가성비": 36,
+            "저렴": 26,
+            "매일": 22,
+            "데일리": 18,
+            "싼": 10,
+            "고급": 10,
+            "비싼": 8,
+            "저렴한": 6,
+            "부담없": 5,
+            "가격대비": 5
+          }
+        },
+        "necessity_luxury": {
+          "score": -1.0,
+          "necessity_count": 51,
+          "luxury_count": 50,
+          "total_keywords": 101,
+          "top_keywords": {
+            "편안": 39,
+            "매일": 22,
+            "꾸준히": 16,
+            "일상": 7,
+            "힐링": 5,
+            "기본": 3,
+            "행복": 2,
+            "필수": 1,
+            "기초": 1,
+            "습관": 1
+          }
+        },
+        "tech_emotion": {
+          "score": 65.0,
+          "tech_count": 192,
+          "emotion_count": 904,
+          "total_keywords": 1096,
+          "top_keywords": {
+            "향": 562,
+            "느낌": 108,
+            "기분": 98,
+            "성분": 65,
+            "향기": 61,
+            "보습력": 40,
+            "효과": 34,
+            "패키지": 20,
+            "감성": 17,
+            "트러블": 14
+          }
+        }
+      }
+    },
+    "헤라": {
+      "review_count": 246,
+      "mass_premium": 8.8,
+      "necessity_luxury": -32.5,
+      "tech_emotion": 30.7,
+      "details": {
+        "mass_premium": {
+          "score": 8.8,
+          "mass_count": 99,
+          "premium_count": 118,
+          "total_keywords": 217,
+          "top_keywords": {
+            "고급": 55,
+            "데일리": 40,
+            "고급스러운": 25,
+            "선물": 17,
+            "싼": 16,
+            "저렴": 13,
+            "비싼": 12,
+            "매일": 8,
+            "가성비": 7,
+            "싸게": 5
+          }
+        },
+        "necessity_luxury": {
+          "score": -32.5,
+          "necessity_count": 55,
+          "luxury_count": 28,
+          "total_keywords": 83,
+          "top_keywords": {
+            "편안": 21,
+            "기초": 14,
+            "꾸준히": 14,
+            "매일": 8,
+            "필수": 7,
+            "일상": 6,
+            "필요한": 3,
+            "기본": 2,
+            "기분좋": 2,
+            "여유": 2
+          }
+        },
+        "tech_emotion": {
+          "score": 30.7,
+          "tech_count": 252,
+          "emotion_count": 475,
+          "total_keywords": 727,
+          "top_keywords": {
+            "향": 158,
+            "느낌": 140,
+            "효과": 59,
+            "모공": 45,
+            "기분": 30,
+            "각질": 26,
+            "발림성": 26,
+            "주름": 24,
+            "디자인": 24,
+            "패키지": 22
+          }
+        }
+      }
+    },
+    "홀리추얼": {
+      "review_count": 237,
+      "mass_premium": 26.7,
+      "necessity_luxury": -49.2,
+      "tech_emotion": 10.3,
+      "details": {
+        "mass_premium": {
+          "score": 26.7,
+          "mass_count": 44,
+          "premium_count": 76,
+          "total_keywords": 120,
+          "top_keywords": {
+            "고급": 35,
+            "매일": 18,
+            "선물": 13,
+            "데일리": 12,
+            "고가": 11,
+            "싼": 6,
+            "비싼": 6,
+            "고급스러운": 6,
+            "부담없": 3,
+            "저가": 2
+          }
+        },
+        "necessity_luxury": {
+          "score": -49.2,
+          "necessity_count": 94,
+          "luxury_count": 32,
+          "total_keywords": 126,
+          "top_keywords": {
+            "꾸준히": 31,
+            "기초": 28,
+            "편안": 21,
+            "매일": 18,
+            "필요한": 8,
+            "필수": 3,
+            "기본": 3,
+            "습관": 3,
+            "힐링": 3,
+            "기분좋": 3
+          }
+        },
+        "tech_emotion": {
+          "score": 10.3,
+          "tech_count": 348,
+          "emotion_count": 428,
+          "total_keywords": 776,
+          "top_keywords": {
+            "향": 175,
+            "느낌": 140,
+            "효과": 86,
+            "탄력": 48,
+            "주름": 40,
+            "기분": 32,
+            "각질": 31,
+            "성분": 30,
+            "트러블": 25,
+            "피부결": 25
+          }
+        }
+      }
+    }
+  }
+}

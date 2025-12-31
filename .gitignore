@@ -1,0 +1,37 @@
+# API Keys - 절대 커밋 금지!
+.env
+*.env
+secrets.toml
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.so
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Test outputs
+*.output
+test_result*.json
+full_test_results.json
+bad_cases_retest*.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+.cache/
+html/

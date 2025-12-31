@@ -1,0 +1,282 @@
+{
+  "analyzed_at": "2026-01-01T02:33:27.330151",
+  "method": "price_analysis",
+  "overall_stats": {
+    "avg_price": 53757,
+    "median_price": 25079,
+    "min_avg": 8532,
+    "max_avg": 417922
+  },
+  "brands": {
+    "라네즈": {
+      "product_count": 83,
+      "avg_price": 25276,
+      "median_price": 23040,
+      "min_price": 2000,
+      "max_price": 72800,
+      "avg_discount_rate": 26.3,
+      "price_score": 0.1
+    },
+    "라보에이치": {
+      "product_count": 25,
+      "avg_price": 21425,
+      "median_price": 18000,
+      "min_price": 5520,
+      "max_price": 38700,
+      "avg_discount_rate": 26.2,
+      "price_score": -22.1
+    },
+    "려": {
+      "product_count": 35,
+      "avg_price": 21120,
+      "median_price": 17900,
+      "min_price": 5950,
+      "max_price": 56400,
+      "avg_discount_rate": 25.9,
+      "price_score": -23.9
+    },
+    "롱테이크": {
+      "product_count": 18,
+      "avg_price": 28833,
+      "median_price": 28000,
+      "min_price": 5000,
+      "max_price": 42000,
+      "avg_discount_rate": 17.0,
+      "price_score": 1.0
+    },
+    "마몽드": {
+      "product_count": 63,
+      "avg_price": 24337,
+      "median_price": 21900,
+      "min_price": 2000,
+      "max_price": 69900,
+      "avg_discount_rate": 23.0,
+      "price_score": -4.5
+    },
+    "메디안": {
+      "product_count": 30,
+      "avg_price": 8532,
+      "median_price": 6950,
+      "min_price": 3450,
+      "max_price": 27800,
+      "avg_discount_rate": 38.3,
+      "price_score": -100
+    },
+    "정글몬스터": {
+      "product_count": 51,
+      "avg_price": 21853,
+      "median_price": 17900,
+      "min_price": 5900,
+      "max_price": 69900,
+      "avg_discount_rate": 0,
+      "price_score": -19.5
+    },
+    "메이크온": {
+      "product_count": 9,
+      "avg_price": 417922,
+      "median_price": 315000,
+      "min_price": 2800,
+      "max_price": 1899000,
+      "avg_discount_rate": 23.3,
+      "price_score": 100
+    },
+    "에이피뷰티": {
+      "product_count": 33,
+      "avg_price": 187064,
+      "median_price": 153000,
+      "min_price": 12600,
+      "max_price": 603000,
+      "avg_discount_rate": 10.0,
+      "price_score": 41.2
+    },
+    "비레디": {
+      "product_count": 22,
+      "avg_price": 25158,
+      "median_price": 24950,
+      "min_price": 10000,
+      "max_price": 49900,
+      "avg_discount_rate": 28.8,
+      "price_score": 0.0
+    },
+    "설화수": {
+      "product_count": 78,
+      "avg_price": 138583,
+      "median_price": 105300,
+      "min_price": 29700,
+      "max_price": 520000,
+      "avg_discount_rate": 10.0,
+      "price_score": 28.9
+    },
+    "아모레베이직": {
+      "product_count": 17,
+      "avg_price": 14559,
+      "median_price": 8400,
+      "min_price": 2570,
+      "max_price": 72000,
+      "avg_discount_rate": 10.5,
+      "price_score": -63.6
+    },
+    "아모레성수": {
+      "product_count": 16,
+      "avg_price": 16562,
+      "median_price": 15000,
+      "min_price": 13000,
+      "max_price": 26000,
+      "avg_discount_rate": 0,
+      "price_score": -51.5
+    },
+    "아모레퍼시픽": {
+      "product_count": 5,
+      "avg_price": 113760,
+      "median_price": 81000,
+      "min_price": 37800,
+      "max_price": 198000,
+      "avg_discount_rate": 10.0,
+      "price_score": 22.6
+    },
+    "아이오페": {
+      "product_count": 61,
+      "avg_price": 48713,
+      "median_price": 41250,
+      "min_price": 11250,
+      "max_price": 128250,
+      "avg_discount_rate": 19.6,
+      "price_score": 6.0
+    },
+    "앞바다즈": {
+      "product_count": 20,
+      "avg_price": 19070,
+      "median_price": 15900,
+      "min_price": 2500,
+      "max_price": 49000,
+      "avg_discount_rate": 25.0,
+      "price_score": -36.3
+    },
+    "에뛰드": {
+      "product_count": 137,
+      "avg_price": 12128,
+      "median_price": 10500,
+      "min_price": 1280,
+      "max_price": 35000,
+      "avg_discount_rate": 22.2,
+      "price_score": -78.3
+    },
+    "에스쁘아": {
+      "product_count": 74,
+      "avg_price": 21586,
+      "median_price": 18700,
+      "min_price": 2000,
+      "max_price": 47200,
+      "avg_discount_rate": 22.0,
+      "price_score": -21.1
+    },
+    "에스트라": {
+      "product_count": 55,
+      "avg_price": 41946,
+      "median_price": 40320,
+      "min_price": 17000,
+      "max_price": 82500,
+      "avg_discount_rate": 17.8,
+      "price_score": 4.3
+    },
+    "아모스 프로페셔널": {
+      "product_count": 31,
+      "avg_price": 27194,
+      "median_price": 28000,
+      "min_price": 17000,
+      "max_price": 36000,
+      "avg_discount_rate": 0,
+      "price_score": 0.5
+    },
+    "라 리베라": {
+      "product_count": 82,
+      "avg_price": 41270,
+      "median_price": 29900,
+      "min_price": 1000,
+      "max_price": 174000,
+      "avg_discount_rate": 32.2,
+      "price_score": 4.1
+    },
+    "오설록": {
+      "product_count": 104,
+      "avg_price": 19102,
+      "median_price": 14850,
+      "min_price": 6000,
+      "max_price": 135000,
+      "avg_discount_rate": 10.9,
+      "price_score": -36.1
+    },
+    "이니스프리": {
+      "product_count": 185,
+      "avg_price": 18208,
+      "median_price": 16800,
+      "min_price": 1500,
+      "max_price": 82080,
+      "avg_discount_rate": 26.8,
+      "price_score": -41.5
+    },
+    "일리윤": {
+      "product_count": 62,
+      "avg_price": 19225,
+      "median_price": 17050,
+      "min_price": 5800,
+      "max_price": 41800,
+      "avg_discount_rate": 28.6,
+      "price_score": -35.4
+    },
+    "퍼즐우드": {
+      "product_count": 3,
+      "avg_price": 25000,
+      "median_price": 21000,
+      "min_price": 21000,
+      "max_price": 33000,
+      "avg_discount_rate": 0,
+      "price_score": -0.5
+    },
+    "프리메라": {
+      "product_count": 57,
+      "avg_price": 36160,
+      "median_price": 32800,
+      "min_price": 5950,
+      "max_price": 109200,
+      "avg_discount_rate": 18.0,
+      "price_score": 2.8
+    },
+    "한율": {
+      "product_count": 53,
+      "avg_price": 45412,
+      "median_price": 28810,
+      "min_price": 6300,
+      "max_price": 177300,
+      "avg_discount_rate": 20.2,
+      "price_score": 5.2
+    },
+    "해피바스": {
+      "product_count": 51,
+      "avg_price": 8887,
+      "median_price": 8500,
+      "min_price": 4900,
+      "max_price": 19900,
+      "avg_discount_rate": 27.2,
+      "price_score": -97.9
+    },
+    "헤라": {
+      "product_count": 94,
+      "avg_price": 64594,
+      "median_price": 46800,
+      "min_price": 7200,
+      "max_price": 288000,
+      "avg_discount_rate": 13.4,
+      "price_score": 10.1
+    },
+    "홀리추얼": {
+      "product_count": 18,
+      "avg_price": 99222,
+      "median_price": 80000,
+      "min_price": 35000,
+      "max_price": 280000,
+      "avg_discount_rate": 0,
+      "price_score": 18.9
+    }
+  }
+}

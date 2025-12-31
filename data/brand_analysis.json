@@ -1,0 +1,243 @@
+{
+  "analyzed_at": "2026-01-01T04:30:00",
+  "analysis_method": "리뷰 키워드 및 맥락 분석 기반",
+  "axes_description": {
+    "mass_premium": "Mass(-100) ~ Premium(+100): 대중적/가성비 vs 고급/프리미엄",
+    "necessity_luxury": "필수재(-100) ~ 사치재(+100): 기본케어/필수품 vs 기분전환/자기보상",
+    "tech_emotion": "기술(-100) ~ 감성(+100): 성분/효능 중심 vs 향기/경험 중심"
+  },
+  "brands": {
+    "라네즈": {
+      "review_count": 251,
+      "mass_premium": 10,
+      "necessity_luxury": -20,
+      "tech_emotion": 30,
+      "reasoning": "대중적 인지도 높음. 슬리핑마스크 등 데일리 케어 제품 중심. 사은품/가성비 언급 많음. 향과 사용감 강조.",
+      "keywords": ["슬리핑마스크", "보습", "촉촉", "사은품", "데일리", "향"]
+    },
+    "라보에이치": {
+      "review_count": 233,
+      "mass_premium": -20,
+      "necessity_luxury": -50,
+      "tech_emotion": -30,
+      "reasoning": "두피케어 전문 브랜드. 기능성/효능 중심 리뷰. 탈모방지, 두피건강 등 필수적 케어 니즈.",
+      "keywords": ["두피", "탈모방지", "시원한", "샴푸", "기능성", "두피케어"]
+    },
+    "롱테이크": {
+      "review_count": 206,
+      "mass_premium": 50,
+      "necessity_luxury": 60,
+      "tech_emotion": 80,
+      "reasoning": "향수/크림향수 브랜드. 우디머스크, 감성적 향 경험 강조. 프리미엄 니치향수 느낌.",
+      "keywords": ["향수", "우디", "머스크", "향기", "고급스러운", "분위기"]
+    },
+    "마몽드": {
+      "review_count": 244,
+      "mass_premium": -10,
+      "necessity_luxury": -10,
+      "tech_emotion": 20,
+      "reasoning": "플로라글로우 등 대중적 라인. 리미티드에디션, 로즈성분 등 감성적 요소. 가성비 좋음.",
+      "keywords": ["플로라글로우", "로즈", "PHA", "마스크", "리미티드", "화장잘먹"]
+    },
+    "메디안": {
+      "review_count": 222,
+      "mass_premium": -60,
+      "necessity_luxury": -80,
+      "tech_emotion": -40,
+      "reasoning": "치약/칫솔 생활필수품. 저렴한 가격대, 기능성(잇몸건강, 구취제거) 중심.",
+      "keywords": ["치약", "칫솔", "잇몸", "구취", "소금", "미세모"]
+    },
+    "정글몬스터": {
+      "review_count": 125,
+      "mass_premium": 0,
+      "necessity_luxury": -30,
+      "tech_emotion": 10,
+      "reasoning": "반려동물 케어 브랜드. 강아지 칫솔/클리퍼 등 필수용품. 실용성 강조.",
+      "keywords": ["강아지", "칫솔", "클리퍼", "반려동물", "부드러운", "위생"]
+    },
+    "메이크온": {
+      "review_count": 96,
+      "mass_premium": 60,
+      "necessity_luxury": 40,
+      "tech_emotion": -20,
+      "reasoning": "뷰티디바이스 브랜드. 고가 제품, 피부관리기기. 기술/효능 중심.",
+      "keywords": ["피부관리기기", "수분케어", "모공", "LED", "스킨케어", "홈케어"]
+    },
+    "에이피뷰티": {
+      "review_count": 226,
+      "mass_premium": 30,
+      "necessity_luxury": 10,
+      "tech_emotion": 20,
+      "reasoning": "아모레퍼시픽 쿠션 브랜드. 메이크업 제품, 케이스 디자인 언급. 중간 가격대.",
+      "keywords": ["쿠션", "파운데이션", "커버력", "케이스", "발림성", "메이크업"]
+    },
+    "비레디": {
+      "review_count": 219,
+      "mass_premium": -20,
+      "necessity_luxury": -20,
+      "tech_emotion": 10,
+      "reasoning": "남성 화장품 브랜드. 톤업로션, 쿠션 등 데일리 제품. 실용적 접근.",
+      "keywords": ["남성", "톤업", "쿠션", "자외선차단", "간편", "데일리"]
+    },
+    "설화수": {
+      "review_count": 251,
+      "mass_premium": 80,
+      "necessity_luxury": 30,
+      "tech_emotion": 50,
+      "reasoning": "프리미엄 한방 브랜드. 고급스러운 패키지, 윤조 시리즈. 선물용으로 인기.",
+      "keywords": ["윤조", "한방", "고급", "선물", "프리미엄", "패키지"]
+    },
+    "아모레베이직": {
+      "review_count": 175,
+      "mass_premium": -50,
+      "necessity_luxury": -60,
+      "tech_emotion": -10,
+      "reasoning": "화장솜, 면봉 등 기초 소모품. 저렴하고 실용적. 필수재 성격 강함.",
+      "keywords": ["화장솜", "순면", "5겹", "기초", "소모품", "실용"]
+    },
+    "아모레성수": {
+      "review_count": 157,
+      "mass_premium": 40,
+      "necessity_luxury": 30,
+      "tech_emotion": 60,
+      "reasoning": "메이크업 브러쉬 전문. 우드핸들 디자인, 감성적 브랜딩. 체험형 매장.",
+      "keywords": ["브러쉬", "우드핸들", "성수", "디자인", "메이크업", "체험"]
+    },
+    "아모레퍼시픽": {
+      "review_count": 60,
+      "mass_premium": 70,
+      "necessity_luxury": 20,
+      "tech_emotion": 30,
+      "reasoning": "모 브랜드 프리미엄 라인. 엔자임필 등 기능성 제품. 고가 브랜드 이미지.",
+      "keywords": ["엔자임필", "클렌징", "프리미엄", "고급", "기초", "에센스"]
+    },
+    "아이오페": {
+      "review_count": 243,
+      "mass_premium": 40,
+      "necessity_luxury": 0,
+      "tech_emotion": -30,
+      "reasoning": "기능성 스킨케어. 바이오컨디셔닝, 레티놀 등 성분 중심. 과학적 접근.",
+      "keywords": ["레티놀", "바이오", "컨디셔닝", "에센스", "성분", "기능성"]
+    },
+    "앞바다즈": {
+      "review_count": 179,
+      "mass_premium": -30,
+      "necessity_luxury": 50,
+      "tech_emotion": 80,
+      "reasoning": "캐릭터 굿즈 브랜드. 인형, 담요 등 감성상품. 귀여움, 힐링 강조.",
+      "keywords": ["인형", "캐릭터", "귀여운", "담요", "굿즈", "힐링"]
+    },
+    "에뛰드": {
+      "review_count": 224,
+      "mass_premium": -40,
+      "necessity_luxury": 20,
+      "tech_emotion": 40,
+      "reasoning": "영타겟 색조 브랜드. 저렴한 가격, 트렌디한 컬러. 재미있는 메이크업 경험.",
+      "keywords": ["쉐딩", "모공클렌징", "컬러", "트렌디", "학생", "가성비"]
+    },
+    "에스쁘아": {
+      "review_count": 229,
+      "mass_premium": 30,
+      "necessity_luxury": 20,
+      "tech_emotion": 50,
+      "reasoning": "색조 전문 브랜드. 아이브로우, 틴트 등. 발색, 지속력 강조. 세련된 이미지.",
+      "keywords": ["브로우펜슬", "발색", "지속력", "틴트", "세련된", "컬러"]
+    },
+    "에스트라": {
+      "review_count": 241,
+      "mass_premium": 10,
+      "necessity_luxury": -40,
+      "tech_emotion": -50,
+      "reasoning": "더마 스킨케어 브랜드. 아토베리어 라인, 민감피부용. 피부과 추천.",
+      "keywords": ["아토베리어", "민감성", "피부과", "장벽", "진정", "더마"]
+    },
+    "아모스 프로페셔널": {
+      "review_count": 214,
+      "mass_premium": 20,
+      "necessity_luxury": -40,
+      "tech_emotion": -40,
+      "reasoning": "두피케어 전문. 샴푸, 두피팩 등 기능성 제품. 두피건선 등 문제해결 중심.",
+      "keywords": ["두피", "샴푸", "각질", "두피케어", "민감성", "전문가"]
+    },
+    "라 리베라": {
+      "review_count": 269,
+      "mass_premium": 0,
+      "necessity_luxury": -10,
+      "tech_emotion": 40,
+      "reasoning": "바디케어 브랜드. 선밀크, 여성청결제 등. 순한 성분과 향기 강조.",
+      "keywords": ["선밀크", "바디로션", "여성청결제", "순한", "향기", "민감피부"]
+    },
+    "오설록": {
+      "review_count": 223,
+      "mass_premium": 30,
+      "necessity_luxury": 50,
+      "tech_emotion": 70,
+      "reasoning": "제주 차 브랜드. 디퓨저, 밀크티 등. 향기와 힐링 경험 중심. 선물용 인기.",
+      "keywords": ["차", "녹차", "디퓨저", "향기", "제주", "선물"]
+    },
+    "이니스프리": {
+      "review_count": 222,
+      "mass_premium": -30,
+      "necessity_luxury": -20,
+      "tech_emotion": 30,
+      "reasoning": "자연주의 브랜드. 핸드크림, 화장솜 등 데일리 제품. 친환경 이미지.",
+      "keywords": ["자연주의", "핸드크림", "화장솜", "친환경", "제주", "데일리"]
+    },
+    "일리윤": {
+      "review_count": 221,
+      "mass_premium": -30,
+      "necessity_luxury": -50,
+      "tech_emotion": -20,
+      "reasoning": "저자극 바디케어. 세라마이드, 아토로션 등. 민감피부/아기용. 필수케어.",
+      "keywords": ["세라마이드", "저자극", "바디로션", "민감성", "보습", "아토"]
+    },
+    "퍼즐우드": {
+      "review_count": 46,
+      "mass_premium": 50,
+      "necessity_luxury": 60,
+      "tech_emotion": 80,
+      "reasoning": "니치향 브랜드. 핸드크림, 디퓨저 등. 고급스러운 패키지와 향. 비건 제품.",
+      "keywords": ["니치향", "디퓨저", "핸드크림", "비건", "고급", "향기"]
+    },
+    "프리메라": {
+      "review_count": 258,
+      "mass_premium": 30,
+      "necessity_luxury": 0,
+      "tech_emotion": 20,
+      "reasoning": "자연유래 스킨케어. 필링, 오일 등 기능성 제품. 순한 성분 강조.",
+      "keywords": ["필링", "오일", "자연유래", "순한", "스킨케어", "밀착"]
+    },
+    "한율": {
+      "review_count": 235,
+      "mass_premium": 20,
+      "necessity_luxury": -30,
+      "tech_emotion": 10,
+      "reasoning": "한방 스킨케어. 어린쑥 크림 등 기능성. 트러블케어, 민감피부 진정.",
+      "keywords": ["어린쑥", "수분크림", "한방", "트러블", "진정", "민감피부"]
+    },
+    "해피바스": {
+      "review_count": 224,
+      "mass_premium": -50,
+      "necessity_luxury": -40,
+      "tech_emotion": 30,
+      "reasoning": "바디워시/비누 브랜드. 저렴한 가격, 다양한 향. 데일리 목욕용품.",
+      "keywords": ["바디워시", "비누", "향기", "거품", "클렌징폼", "저렴"]
+    },
+    "헤라": {
+      "review_count": 246,
+      "mass_premium": 70,
+      "necessity_luxury": 30,
+      "tech_emotion": 40,
+      "reasoning": "프리미엄 메이크업 브랜드. 블랙쿠션 등 베스트셀러. 고급스러운 이미지.",
+      "keywords": ["블랙쿠션", "프라이머", "커버력", "지속력", "프리미엄", "고급"]
+    },
+    "홀리추얼": {
+      "review_count": 237,
+      "mass_premium": 50,
+      "necessity_luxury": 30,
+      "tech_emotion": -10,
+      "reasoning": "홈 에스테틱 브랜드. 필링패드, 앰플 등 전문케어. 성분(글루타치온) 강조.",
+      "keywords": ["에스테틱", "필링패드", "앰플", "글루타치온", "홈케어", "전문"]
+    }
+  }
+}
