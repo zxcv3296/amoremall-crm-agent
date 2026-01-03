@@ -397,7 +397,13 @@ class MessageGenerator:
             str: 보강된 본문 (300~350자)
         """
         TARGET_LEN = 320  # 목표 글자수
-        name = persona.get('display_name') or persona.get('name', '고객')
+        # name은 이름만 추출 (나이 제외)
+        display_name = persona.get('display_name') or persona.get('name', '고객')
+        # "김서연(42세)" -> "김서연" 추출
+        if '(' in display_name:
+            name = display_name.split('(')[0]
+        else:
+            name = display_name
         skin_type = persona.get('skin_type', '피부')
         concerns = persona.get('concerns') or ['피부고민']
         concern = concerns[0] if concerns else '피부고민'

@@ -82,7 +82,7 @@ def combine_scores():
 
     return combined
 
-def cluster_brands(combined_data, n_clusters=8):
+def cluster_brands(combined_data, n_clusters=7):
     """K-means 클러스터링"""
     brands = list(combined_data.keys())
     features = []
@@ -165,7 +165,7 @@ def main():
     print(f"\n{len(combined)}개 브랜드 점수 종합 완료\n")
 
     # 클러스터링
-    combined, cluster_info = cluster_brands(combined, n_clusters=8)
+    combined, cluster_info = cluster_brands(combined, n_clusters=7)
 
     # 클러스터별 브랜드 정리
     clusters = {}

@@ -7,6 +7,7 @@
 import streamlit as st
 import sys
 import os
+import base64
 
 # 모듈 경로 추가
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -15,8 +16,24 @@ from data.personas import personas, brand_tones, PURPOSE_OPTIONS
 from core.rag_engine import ProductRAG
 from core.message_generator import MessageGenerator
 from ml.purpose_recommender import PurposeRecommender
+from ml.persona_classifier import PersonaClassifier
 from core.churn_calculator import get_churn_details, get_dormancy_status, check_purpose_eligibility
 from core.customer_analytics import get_full_customer_analysis, get_quick_summary, classify_customer_type, get_shopping_persona, get_message_priority
+
+# 폰트 로드 함수
+def load_font_as_base64(font_path):
+    """폰트 파일을 base64로 인코딩"""
+    try:
+        with open(font_path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    except:
+        return None
+
+# 폰트 경로
+FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pont", "Arita Dotum KR")
+FONT_MEDIUM = os.path.join(FONT_DIR, "AritaDotumKR-Medium.ttf")
+FONT_BOLD = os.path.join(FONT_DIR, "AritaDotumKR-Bold.ttf")
+FONT_SEMIBOLD = os.path.join(FONT_DIR, "AritaDotumKR-SemiBold.ttf")
 
 # 페이지 설정
 st.set_page_config(
@@ -26,158 +43,534 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 커스텀 CSS
-st.markdown("""
+# 폰트 base64 로드
+font_medium_b64 = load_font_as_base64(FONT_MEDIUM)
+font_bold_b64 = load_font_as_base64(FONT_BOLD)
+font_semibold_b64 = load_font_as_base64(FONT_SEMIBOLD)
+
+# 폰트 face 정의
+font_face_css = ""
+if font_medium_b64:
+    font_face_css += f"""
+    @font-face {{
+        font-family: 'Arita Dotum';
+        src: url(data:font/truetype;charset=utf-8;base64,{font_medium_b64}) format('truetype');
+        font-weight: 500;
+    }}
+    """
+if font_bold_b64:
+    font_face_css += f"""
+    @font-face {{
+        font-family: 'Arita Dotum';
+        src: url(data:font/truetype;charset=utf-8;base64,{font_bold_b64}) format('truetype');
+        font-weight: 700;
+    }}
+    """
+if font_semibold_b64:
+    font_face_css += f"""
+    @font-face {{
+        font-family: 'Arita Dotum';
+        src: url(data:font/truetype;charset=utf-8;base64,{font_semibold_b64}) format('truetype');
+        font-weight: 600;
+    }}
+    """
+
+# 커스텀 CSS - 새로운 디자인 (#3074FF, #F1F1F1, #AAAAAA)
+st.markdown(f"""
 <style>
+    {font_face_css}
+
+    /* 전체 폰트 적용 */
+    html, body, [class*="css"], .stMarkdown, .stText, p, h1, h2, h3, h4, h5, h6, span, div {{
+        font-family: 'Arita Dotum', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    }}
+
     /* 메인 컨테이너 */
-    .main {
-        background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-    }
+    .main {{
+        background: #F1F1F1;
+    }}
+
+    /* 사이드바 스타일 */
+    [data-testid="stSidebar"] {{
+        background: white;
+        box-shadow: 5px 0 10px rgba(0,0,0,0.05);
+    }}
+
+    [data-testid="stSidebar"] [data-testid="stMarkdown"] {{
+        color: #333;
+    }}
+
+    /* 사이드바 텍스트 겹침 방지 */
+    [data-testid="stSidebar"] .stMarkdown p,
+    [data-testid="stSidebar"] .stMarkdown h1,
+    [data-testid="stSidebar"] .stMarkdown h2,
+    [data-testid="stSidebar"] .stMarkdown h3,
+    [data-testid="stSidebar"] .stMarkdown h4 {{
+        white-space: normal;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }}
+
+    /* 사이드바 expander 내부 테이블 */
+    [data-testid="stSidebar"] .cost-table {{
+        width: 100%;
+        table-layout: fixed;
+    }}
+
+    [data-testid="stSidebar"] .cost-table td {{
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }}
+
+    /* 사이드바 카드 오버플로우 */
+    [data-testid="stSidebar"] .model-card {{
+        overflow: hidden;
+    }}
+
+    [data-testid="stSidebar"] .model-card p {{
+        margin: 0.2rem 0;
+        line-height: 1.4;
+    }}
+
+    /* ===== Material Icons 깨진 텍스트 완전 숨김 ===== */
+
+    /* Streamlit Expander 기본 스타일 재정의 */
+    [data-testid="stExpander"] {{
+        border: none !important;
+    }}
+
+    [data-testid="stExpander"] summary {{
+        list-style: none !important;
+        cursor: pointer;
+    }}
+
+    [data-testid="stExpander"] summary::-webkit-details-marker {{
+        display: none !important;
+    }}
+
+    /* 아이콘 컨테이너 완전 숨김 - 더 강력한 선택자 */
+    [data-testid="stExpander"] [data-testid="stExpanderToggleIcon"],
+    [data-testid="stExpander"] summary svg,
+    [data-testid="stExpander"] summary [data-testid="stIconMaterial"],
+    [data-testid="stExpander"] summary span[class*="icon"],
+    [data-testid="stExpander"] summary > div > div:first-child:not([data-testid="stMarkdownContainer"]) {{
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        position: absolute !important;
+        left: -9999px !important;
+    }}
+
+    /* Expander 헤더 레이아웃 */
+    [data-testid="stExpander"] details > summary {{
+        padding: 0.8rem 1rem !important;
+        background: white !important;
+        border-radius: 8px !important;
+        position: relative !important;
+    }}
+
+    [data-testid="stExpander"] details > summary > div {{
+        display: flex !important;
+        align-items: center !important;
+        margin-left: 1.2rem !important;
+    }}
+
+    /* CSS 기반 화살표 아이콘 - summary에 직접 적용 */
+    [data-testid="stExpander"] details > summary::before {{
+        content: "▶" !important;
+        position: absolute !important;
+        left: 1rem !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        font-size: 0.7rem !important;
+        color: #666 !important;
+        font-family: Arial, sans-serif !important;
+        display: inline-block !important;
+        z-index: 10 !important;
+    }}
+
+    [data-testid="stExpander"] details[open] > summary::before {{
+        content: "▼" !important;
+    }}
+
+    /* Expander 헤더 텍스트 스타일 */
+    [data-testid="stExpander"] summary p,
+    [data-testid="stExpander"] summary span {{
+        margin: 0 !important;
+        font-weight: 500 !important;
+    }}
+
+    /* 사이드바 collapse 버튼 숨기기 */
+    [data-testid="stSidebar"] button[kind="headerNoPadding"],
+    [data-testid="collapsedControl"],
+    button[data-testid="baseButton-headerNoPadding"],
+    [data-testid="stSidebar"] > div > div:first-child > div > button {{
+        display: none !important;
+    }}
 
     /* 타이틀 스타일 */
-    .title-container {
-        background: linear-gradient(120deg, #f093fb 0%, #f5576c 100%);
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
+    .title-container {{
+        background: #3074FF;
+        padding: 1.5rem 2rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+    }}
 
-    .title-text {
+    .title-text {{
         color: white;
-        font-size: 2.2rem;
-        font-weight: bold;
+        font-size: 1.8rem;
+        font-weight: 700;
         margin: 0;
-        text-align: center;
-    }
+        text-align: left;
+    }}
 
-    .subtitle-text {
-        color: rgba(255,255,255,0.9);
-        font-size: 1.1rem;
-        text-align: center;
-        margin-top: 0.5rem;
-    }
+    .subtitle-text {{
+        color: rgba(255,255,255,0.85);
+        font-size: 0.95rem;
+        text-align: left;
+        margin-top: 0.3rem;
+    }}
 
-    /* 카드 스타일 */
-    .info-card {
+    /* 카드 스타일 - 새로운 섀도우 */
+    .info-card {{
         background: white;
-        padding: 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        padding: 1.2rem 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.15);
         margin-bottom: 1rem;
-        border-left: 4px solid #f5576c;
-    }
+        border-left: 4px solid #3074FF;
+    }}
 
-    .brand-card {
+    .brand-card {{
         background: white;
-        padding: 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        padding: 1.2rem 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.15);
         margin-bottom: 1rem;
-        border-left: 4px solid #4CAF50;
-    }
+        border-left: 4px solid #3074FF;
+    }}
 
     /* 메시지 결과 박스 */
-    .message-result {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 2rem;
-        border-radius: 15px;
+    .message-result {{
+        background: white;
+        color: #333;
+        padding: 1.5rem;
+        border-radius: 12px;
         margin-top: 1rem;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        box-shadow: 0 5px 10px rgba(0,0,0,0.15);
         animation: fadeIn 0.5s ease-out;
-    }
+        border: 1px solid #E0E0E0;
+    }}
 
-    .message-title-box {
-        background: rgba(255,255,255,0.2);
+    .message-title-box {{
+        background: #F1F1F1;
         padding: 1rem;
         border-radius: 8px;
         margin-bottom: 1rem;
-    }
+        border-left: 3px solid #3074FF;
+    }}
 
-    .message-body-box {
-        background: rgba(255,255,255,0.1);
-        padding: 1.5rem;
+    .message-body-box {{
+        background: #FAFAFA;
+        padding: 1.2rem;
         border-radius: 8px;
         line-height: 1.8;
-    }
+        border: 1px solid #E0E0E0;
+    }}
 
     /* 상품 카드 */
-    .product-card {
+    .product-card {{
         background: white;
         padding: 1.2rem;
         border-radius: 10px;
         margin: 0.5rem 0;
-        border: 2px solid #f0f0f0;
+        border: 1px solid #E0E0E0;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.15);
         transition: all 0.3s ease;
         animation: fadeIn 0.3s ease-out;
-    }
+    }}
 
-    .product-card:hover {
-        border-color: #f5576c;
-        box-shadow: 0 4px 8px rgba(245,87,108,0.2);
+    .product-card:hover {{
+        border-color: #3074FF;
+        box-shadow: 0 8px 15px rgba(48,116,255,0.2);
         transform: translateY(-2px);
-    }
+    }}
 
     /* 버튼 */
-    .stButton>button {
-        background: linear-gradient(120deg, #f093fb 0%, #f5576c 100%);
+    .stButton>button {{
+        background: #3074FF;
         color: white;
         border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 25px;
-        font-weight: bold;
-        font-size: 1.1rem;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(245,87,108,0.3);
-    }
+        box-shadow: 0 5px 10px rgba(48,116,255,0.3);
+    }}
 
-    .stButton>button:hover {
+    .stButton>button:hover {{
+        background: #2563EB;
         transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(245,87,108,0.4);
-    }
+        box-shadow: 0 8px 15px rgba(48,116,255,0.4);
+    }}
 
     /* 팁 박스 */
-    .tip-box {
-        background: #fff3cd;
-        border-left: 4px solid #ffc107;
+    .tip-box {{
+        background: #EBF4FF;
+        border-left: 4px solid #3074FF;
         padding: 1rem;
         border-radius: 8px;
         margin: 1rem 0;
-    }
+        color: #333;
+    }}
+
+    /* 섹션 헤더 */
+    .section-header {{
+        background: white;
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.8rem;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+        border-left: 4px solid #3074FF;
+    }}
+
+    .section-header h3 {{
+        margin: 0;
+        color: #333;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }}
 
     /* 애니메이션 */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeIn {{
+        from {{ opacity: 0; transform: translateY(20px); }}
+        to {{ opacity: 1; transform: translateY(0); }}
+    }}
 
     /* 푸터 */
-    .footer {
+    .footer {{
         text-align: center;
-        padding: 2rem;
-        color: #999;
-        border-top: 1px solid #eee;
+        padding: 1.5rem;
+        color: #AAAAAA;
+        border-top: 1px solid #E0E0E0;
         margin-top: 2rem;
-    }
+        background: white;
+        border-radius: 12px;
+    }}
 
     /* 복사 버튼 */
-    .copy-btn {
-        background: rgba(255,255,255,0.3);
+    .copy-btn {{
+        background: #3074FF;
         border: none;
         padding: 0.5rem 1rem;
         border-radius: 5px;
         color: white;
         cursor: pointer;
         margin-top: 0.5rem;
-    }
+    }}
+
+    /* selectbox 스타일 */
+    .stSelectbox > div > div {{
+        background: white;
+        border: 1px solid #E0E0E0;
+        border-radius: 8px;
+    }}
+
+    /* 경고/정보 박스 색상 */
+    .warning-box {{
+        background: #FFF8E1;
+        border-left: 4px solid #FFB300;
+        padding: 0.8rem;
+        border-radius: 4px;
+        margin: 0.5rem 0;
+    }}
+
+    .success-box {{
+        background: #E8F5E9;
+        border-left: 4px solid #4CAF50;
+        padding: 0.5rem 0.8rem;
+        border-radius: 4px;
+        margin: 0.5rem 0;
+    }}
+
+    /* expander 스타일 */
+    .streamlit-expanderHeader {{
+        background: white;
+        border-radius: 8px;
+    }}
+
+    /* Expander 내부 컨텐츠 겹침 방지 */
+    [data-testid="stExpander"] [data-testid="stExpanderDetails"] {{
+        padding-top: 0.5rem !important;
+    }}
+
+    [data-testid="stExpander"] [data-testid="stExpanderDetails"] p,
+    [data-testid="stExpander"] [data-testid="stExpanderDetails"] div {{
+        position: relative !important;
+        z-index: 1 !important;
+    }}
+
+    /* Expander 헤더와 컨텐츠 사이 간격 */
+    [data-testid="stExpander"] details[open] > div {{
+        margin-top: 0.5rem !important;
+    }}
+
+    /* Expander 내부 텍스트 오버플로우 처리 */
+    [data-testid="stExpander"] .stMarkdown {{
+        overflow: visible !important;
+        word-wrap: break-word !important;
+    }}
+
+    /* Expander 내부 카드 스타일 - 겹침 방지 */
+    [data-testid="stExpander"] [data-testid="stExpanderDetails"] > div > div {{
+        clear: both !important;
+    }}
+
+    /* Expander 내부 그리드/컬럼 겹침 방지 */
+    [data-testid="stExpander"] [data-testid="column"] {{
+        overflow: visible !important;
+    }}
+
+    [data-testid="stExpander"] [data-testid="column"] > div {{
+        height: auto !important;
+        min-height: fit-content !important;
+    }}
+
+    /* Expander 열릴 때 컨텐츠 표시 보장 */
+    [data-testid="stExpander"] details[open] [data-testid="stExpanderDetails"] {{
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        overflow: visible !important;
+    }}
+
+    /* 메트릭 카드 */
+    .metric-card {{
+        background: white;
+        padding: 0.8rem;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+        border-top: 3px solid #3074FF;
+    }}
+
+    /* 스크롤바 */
+    ::-webkit-scrollbar {{
+        width: 8px;
+        height: 8px;
+    }}
+
+    ::-webkit-scrollbar-track {{
+        background: #F1F1F1;
+    }}
+
+    ::-webkit-scrollbar-thumb {{
+        background: #AAAAAA;
+        border-radius: 4px;
+    }}
+
+    ::-webkit-scrollbar-thumb:hover {{
+        background: #888;
+    }}
 </style>
+
+<script>
+// Material Icons 깨진 텍스트 제거 스크립트 (더 강력한 버전)
+function removeIconText() {{
+    // 제거할 텍스트 패턴들
+    const patterns = [
+        /keyboard_arrow_down/gi,
+        /keyboard_arrow_up/gi,
+        /keyboard_double_arrow_left/gi,
+        /keyboard_double_arrow_right/gi,
+        /keyboard[_a-z]*/gi,
+        /expand_more/gi,
+        /expand_less/gi,
+        /chevron_right/gi,
+        /chevron_left/gi,
+        /arrow_drop_down/gi,
+        /arrow_drop_up/gi
+    ];
+
+    // 모든 텍스트 노드 탐색
+    const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+        null,
+        false
+    );
+
+    let node;
+    const nodesToModify = [];
+
+    while (node = walker.nextNode()) {{
+        if (node.textContent) {{
+            let shouldModify = false;
+            for (const pattern of patterns) {{
+                if (pattern.test(node.textContent)) {{
+                    shouldModify = true;
+                    break;
+                }}
+            }}
+            if (shouldModify) {{
+                nodesToModify.push(node);
+            }}
+        }}
+    }}
+
+    nodesToModify.forEach(node => {{
+        let text = node.textContent;
+        patterns.forEach(pattern => {{
+            text = text.replace(pattern, '');
+        }});
+        node.textContent = text.trim();
+    }});
+
+    // Expander 헤더 내의 겹치는 요소 직접 숨김
+    document.querySelectorAll('[data-testid="stExpander"] summary').forEach(summary => {{
+        // 첫 번째 자식 div 내의 아이콘 관련 요소 숨김
+        const iconElements = summary.querySelectorAll('svg, [class*="icon"], [data-testid*="Icon"]');
+        iconElements.forEach(el => {{
+            el.style.display = 'none';
+            el.style.visibility = 'hidden';
+            el.style.width = '0';
+            el.style.height = '0';
+            el.style.position = 'absolute';
+            el.style.left = '-9999px';
+        }});
+    }});
+}}
+
+// 페이지 로드 후 실행
+document.addEventListener('DOMContentLoaded', removeIconText);
+
+// Streamlit 리렌더링 대응 (MutationObserver)
+const observer = new MutationObserver(function(mutations) {{
+    removeIconText();
+}});
+
+// body가 준비되면 observer 시작
+if (document.body) {{
+    observer.observe(document.body, {{ childList: true, subtree: true }});
+    removeIconText();
+}} else {{
+    document.addEventListener('DOMContentLoaded', function() {{
+        observer.observe(document.body, {{ childList: true, subtree: true }});
+        removeIconText();
+    }});
+}}
+</script>
 """, unsafe_allow_html=True)
 
 # 타이틀 섹션
 st.markdown("""
 <div class="title-container">
-    <h1 class="title-text">💄 아모레몰 CRM 메시지 자동 생성</h1>
+    <h1 class="title-text">아모레몰 CRM Agent</h1>
     <p class="subtitle-text">RAG + LLM 기반 개인화 마케팅 메시지 생성 시스템</p>
 </div>
 """, unsafe_allow_html=True)
@@ -213,6 +606,10 @@ if 'ai_purpose_recommendation' not in st.session_state:
     st.session_state.ai_purpose_recommendation = None
 if 'last_persona_id' not in st.session_state:
     st.session_state.last_persona_id = None
+if 'persona_classifier' not in st.session_state:
+    st.session_state.persona_classifier = PersonaClassifier()
+if 'ml_persona_prediction' not in st.session_state:
+    st.session_state.ml_persona_prediction = None
 
 # API 키는 세션에만 저장 (환경변수에 노출하지 않음)
 # 필요시 generator/recommender에 직접 전달
@@ -263,95 +660,71 @@ with st.sidebar:
         st.markdown("""
         <style>
             .model-card {
-                padding: 0.8rem;
+                padding: 0.6rem;
                 border-radius: 8px;
-                margin-bottom: 0.5rem;
+                margin-bottom: 0.4rem;
                 border-left: 4px solid;
+                overflow: hidden;
             }
             .model-recommend {
-                background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-                border-left-color: #4CAF50;
+                background: #EBF4FF;
+                border-left-color: #3074FF;
             }
             .model-good {
                 background: #f3f4f6;
                 border-left-color: #9CA3AF;
             }
-            .cost-table {
-                font-size: 0.75rem;
-                color: #666;
-                margin-top: 0.3rem;
+            .model-card p {
+                margin: 0.15rem 0 !important;
+                line-height: 1.3 !important;
+                white-space: normal !important;
             }
-            .cost-table td {
-                padding: 0.1rem 0.3rem;
+            .cost-info {
+                font-size: 0.7rem;
+                color: #666;
+                margin-top: 0.2rem;
             }
         </style>
 
         <div class="model-card model-recommend">
-            <p style="margin:0; font-weight:bold; color:#2E7D32;">🥇 GPT-4o-mini (추천)</p>
-            <p style="margin:0.3rem 0 0 0; font-size:0.85rem; color:#555;">
-                📈 품질: 85-90점 | ⭐ 안정성: ★★★★★
-            </p>
-            <table class="cost-table">
-                <tr><td>💰 1건</td><td>₩0.33</td><td>| 10건</td><td>₩3.3</td></tr>
-                <tr><td>📅 100건/일</td><td>₩990/월</td><td>| 1000건/일</td><td>₩9,900/월</td></tr>
-            </table>
-            <p style="margin:0.3rem 0 0 0; font-size:0.75rem; color:#2E7D32;">
-                → 검증된 모델, 최고 가성비
-            </p>
+            <p style="font-weight:bold; color:#3074FF; font-size:0.9rem;">🥇 GPT-4o-mini (추천)</p>
+            <p style="font-size:0.75rem; color:#555;">품질: 85-90점 | 안정성: ★★★★★</p>
+            <p class="cost-info">💰 ₩0.33/건 | 📅 ₩990/월(100건)</p>
         </div>
 
         <div class="model-card model-good">
-            <p style="margin:0; font-weight:bold; color:#333;">🥈 GPT-4.1-mini</p>
-            <p style="margin:0.3rem 0 0 0; font-size:0.85rem; color:#555;">
-                📈 품질: 88-92점 | ⭐ 안정성: ★★★★☆
-            </p>
-            <table class="cost-table">
-                <tr><td>💰 1건</td><td>₩0.88</td><td>| 10건</td><td>₩8.8</td></tr>
-                <tr><td>📅 100건/일</td><td>₩2,640/월</td><td>| 1000건/일</td><td>₩26,400/월</td></tr>
-            </table>
+            <p style="font-weight:bold; color:#333; font-size:0.9rem;">🥈 GPT-4.1-mini</p>
+            <p style="font-size:0.75rem; color:#555;">품질: 88-92점 | 안정성: ★★★★☆</p>
+            <p class="cost-info">💰 ₩0.88/건 | 📅 ₩2,640/월</p>
         </div>
 
         <div class="model-card model-good">
-            <p style="margin:0; font-weight:bold; color:#333;">🥉 GPT-4.1-nano</p>
-            <p style="margin:0.3rem 0 0 0; font-size:0.85rem; color:#555;">
-                📈 품질: 80-85점 | ⭐ 안정성: ★★★★☆
-            </p>
-            <table class="cost-table">
-                <tr><td>💰 1건</td><td>₩0.22</td><td>| 10건</td><td>₩2.2</td></tr>
-                <tr><td>📅 100건/일</td><td>₩660/월</td><td>| 1000건/일</td><td>₩6,600/월</td></tr>
-            </table>
+            <p style="font-weight:bold; color:#333; font-size:0.9rem;">🥉 GPT-4.1-nano</p>
+            <p style="font-size:0.75rem; color:#555;">품질: 80-85점 | 안정성: ★★★★☆</p>
+            <p class="cost-info">💰 ₩0.22/건 | 📅 ₩660/월</p>
         </div>
 
         <div class="model-card model-good">
-            <p style="margin:0; font-weight:bold; color:#333;">🔥 GPT-4.1</p>
-            <p style="margin:0.3rem 0 0 0; font-size:0.85rem; color:#555;">
-                📈 품질: 95점+ | ⭐ 안정성: ★★★★★
-            </p>
-            <table class="cost-table">
-                <tr><td>💰 1건</td><td>₩4.4</td><td>| 10건</td><td>₩44</td></tr>
-                <tr><td>📅 100건/일</td><td>₩13,200/월</td><td>| 1000건/일</td><td>₩132,000/월</td></tr>
-            </table>
+            <p style="font-weight:bold; color:#333; font-size:0.9rem;">🔥 GPT-4.1</p>
+            <p style="font-size:0.75rem; color:#555;">품질: 95점+ | 안정성: ★★★★★</p>
+            <p class="cost-info">💰 ₩4.4/건 | 📅 ₩13,200/월</p>
         </div>
 
         <div class="model-card model-good">
-            <p style="margin:0; font-weight:bold; color:#333;">🆓 Qwen 2.5 7B</p>
-            <p style="margin:0.3rem 0 0 0; font-size:0.85rem; color:#555;">
-                📈 품질: 70-80점 | ⭐ 안정성: ★★★☆☆
-            </p>
-            <table class="cost-table">
-                <tr><td colspan="4" style="color:#4CAF50; font-weight:bold;">💰 무료 (HuggingFace Inference API)</td></tr>
-            </table>
+            <p style="font-weight:bold; color:#333; font-size:0.9rem;">🆓 Qwen 2.5 7B</p>
+            <p style="font-size:0.75rem; color:#555;">품질: 70-80점 | 안정성: ★★★☆☆</p>
+            <p class="cost-info" style="color:#4CAF50;">💰 무료 (HuggingFace)</p>
         </div>
 
-        <p style="margin:0.5rem 0 0 0; font-size:0.7rem; color:#999; text-align:center;">
-            * 입력 ~400토큰 + 출력 ~300토큰 기준 (환율 ₩1,400/$)
+        <p style="margin:0.3rem 0 0 0; font-size:0.65rem; color:#999; text-align:center;">
+            * 환율 ₩1,400/$ 기준
         </p>
         """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     # 페르소나 선택
-    st.markdown("#### 👤 고객 페르소나")
+    st.markdown("#### 👤 고객")
     persona_names = [f"{p['display_name']} - {p['skin_type']}" for p in personas]
     selected_idx = st.selectbox(
         "페르소나 선택",
@@ -373,26 +746,68 @@ with st.sidebar:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ========== AI 발신 목적 추천 (하이브리드) ==========
+    # ========== AI 발신 목적 추천 (Rule-based 자동 실행) ==========
     st.markdown("#### 🎯 AI 발신 목적 추천")
 
-    # 페르소나 변경 감지 → AI 추천 갱신
+    # 페르소나 변경 감지 → AI 추천 + ML 페르소나 예측 자동 갱신
     if st.session_state.last_persona_id != selected_persona['id']:
         st.session_state.last_persona_id = selected_persona['id']
-        st.session_state.ai_purpose_recommendation = None  # 초기화
+        # 고객 변경 시 자동으로 추천 실행 (Rule-based라 API 키 불필요)
+        try:
+            recommender = PurposeRecommender()
+            st.session_state.ai_purpose_recommendation = recommender.recommend_purpose(selected_persona)
+        except Exception as e:
+            st.session_state.ai_purpose_recommendation = None
 
-    # AI 추천 실행 버튼
-    if st.button("🤖 AI 분석 실행", use_container_width=True, key="ai_recommend"):
-        if st.session_state.api_key:
-            with st.spinner("🔍 고객 데이터 분석 중..."):
-                try:
-                    recommender = PurposeRecommender(api_key=st.session_state.api_key)
-                    result = recommender.recommend_purpose(selected_persona)
-                    st.session_state.ai_purpose_recommendation = result
-                except Exception as e:
-                    st.error(f"AI 추천 실패: {str(e)}")
-        else:
-            st.warning("API 키가 필요합니다")
+        # ML 페르소나 예측 실행
+        try:
+            # 고객 데이터를 ML 입력 형식으로 변환
+            ml_input = {
+                "age": selected_persona.get('age', 30),
+                "skin_type": selected_persona.get('skin_type', '복합성'),
+                "primary_brand": selected_persona.get('brand', {}).get('primary_brand', ''),
+                "loyalty": selected_persona.get('brand', {}).get('loyalty', '중'),
+                "diversity": selected_persona.get('brand', {}).get('diversity', 0.5),
+                "discount_sensitivity": selected_persona.get('promotion', {}).get('discount_sensitivity', '중간'),
+                "full_price_ratio": selected_persona.get('promotion', {}).get('full_price_ratio', 0.5),
+                "coupon_usage_rate": selected_persona.get('promotion', {}).get('coupon_usage_rate', 0.5),
+                "visit_frequency": selected_persona.get('activity', {}).get('visit_frequency', '중'),
+                "total_count": selected_persona.get('purchase', {}).get('total_count', 0),
+                "avg_amount": selected_persona.get('purchase', {}).get('avg_amount', 30000),
+                "membership_tier": selected_persona.get('membership', {}).get('tier', 'M')[0] if selected_persona.get('membership', {}).get('tier') else 'M'
+            }
+            st.session_state.ml_persona_prediction = st.session_state.persona_classifier.predict(ml_input)
+        except Exception as e:
+            st.session_state.ml_persona_prediction = None
+
+    # 초기 로드 시에도 추천 실행
+    if st.session_state.ai_purpose_recommendation is None:
+        try:
+            recommender = PurposeRecommender()
+            st.session_state.ai_purpose_recommendation = recommender.recommend_purpose(selected_persona)
+        except Exception:
+            pass
+
+    # 초기 로드 시 ML 페르소나 예측도 실행
+    if st.session_state.ml_persona_prediction is None:
+        try:
+            ml_input = {
+                "age": selected_persona.get('age', 30),
+                "skin_type": selected_persona.get('skin_type', '복합성'),
+                "primary_brand": selected_persona.get('brand', {}).get('primary_brand', ''),
+                "loyalty": selected_persona.get('brand', {}).get('loyalty', '중'),
+                "diversity": selected_persona.get('brand', {}).get('diversity', 0.5),
+                "discount_sensitivity": selected_persona.get('promotion', {}).get('discount_sensitivity', '중간'),
+                "full_price_ratio": selected_persona.get('promotion', {}).get('full_price_ratio', 0.5),
+                "coupon_usage_rate": selected_persona.get('promotion', {}).get('coupon_usage_rate', 0.5),
+                "visit_frequency": selected_persona.get('activity', {}).get('visit_frequency', '중'),
+                "total_count": selected_persona.get('purchase', {}).get('total_count', 0),
+                "avg_amount": selected_persona.get('purchase', {}).get('avg_amount', 30000),
+                "membership_tier": selected_persona.get('membership', {}).get('tier', 'M')[0] if selected_persona.get('membership', {}).get('tier') else 'M'
+            }
+            st.session_state.ml_persona_prediction = st.session_state.persona_classifier.predict(ml_input)
+        except Exception:
+            pass
 
     # AI 추천 결과 표시
     ai_rec = st.session_state.ai_purpose_recommendation
@@ -401,8 +816,8 @@ with st.sidebar:
         confidence_color = "#4CAF50" if confidence >= 0.8 else "#FFC107" if confidence >= 0.6 else "#FF5722"
 
         st.markdown(f"""
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    padding: 1rem; border-radius: 10px; margin: 0.5rem 0; color: white;">
+        <div style="background: #3074FF;
+                    padding: 1rem; border-radius: 10px; margin: 0.5rem 0; color: white; box-shadow: 0 5px 10px rgba(48,116,255,0.3);">
             <p style="margin: 0; font-size: 0.85rem; opacity: 0.9;">AI 추천</p>
             <p style="margin: 0.3rem 0; font-size: 1.2rem; font-weight: bold;">
                 {ai_rec.get('purpose_name', 'N/A')}
@@ -570,27 +985,46 @@ except Exception as e:
     st.error(f"❌ Generator 초기화 실패: {str(e)}")
     generator = None
 
-# 메인 영역 - 2열 레이아웃
-col1, col2 = st.columns([1, 1])
+# 메인 영역 - 새로운 2열 레이아웃 (왼쪽: 고객정보+상품, 오른쪽: 메시지)
+main_col1, main_col2 = st.columns([1, 1])
 
-with col1:
+with main_col1:
+    # 고객 정보 섹션
     st.markdown("""
-    <div class="info-card">
-        <h3 style="margin:0;">👤 선택된 페르소나</h3>
+    <div class="section-header">
+        <h3>👤 선택된 고객</h3>
     </div>
     """, unsafe_allow_html=True)
+
+    # ML 페르소나 예측 결과
+    ml_pred = st.session_state.ml_persona_prediction
+    persona_line = ""
+    if ml_pred:
+        ml_confidence = ml_pred.get('confidence', 0)
+        ml_persona = ml_pred.get('persona', 'N/A')
+        if ml_confidence >= 0.7:
+            conf_color = "#4CAF50"
+        elif ml_confidence >= 0.5:
+            conf_color = "#FFC107"
+        else:
+            conf_color = "#FF5722"
+        conf_bg = conf_color + "22"
+        conf_pct = int(ml_confidence * 100)
+        persona_line = f'<p style="margin: 0.4rem 0;"><strong style="color: #3074FF;">페르소나:</strong> <span style="background: {conf_bg}; color: {conf_color}; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: bold;">{ml_persona}</span> <span style="color: #888; font-size: 0.85rem; margin-left: 0.5rem;">신뢰도 {conf_pct}%</span></p>'
 
     # 기본 정보
-    st.markdown(f"""
-    <div style="padding: 0.5rem 1rem; background: white; border-radius: 8px;">
-        <p><strong>📝 이름:</strong> {selected_persona['display_name']}</p>
-        <p><strong>🧴 피부타입:</strong> {selected_persona['skin_type']}</p>
-        <p><strong>💭 피부고민:</strong> {', '.join(selected_persona['concerns'])}</p>
-        <p><strong>🛍️ 쇼핑패턴:</strong> {selected_persona['shopping_pattern']}</p>
-        <p><strong>💄 관심제품:</strong> {', '.join(selected_persona['interests'])}</p>
-        <p><strong>✨ 라이프스타일:</strong> {selected_persona['lifestyle']}</p>
+    basic_info_html = f"""
+    <div style="padding: 1rem 1.2rem; background: white; border-radius: 10px; box-shadow: 0 5px 10px rgba(0,0,0,0.15); margin-bottom: 1rem;">
+        <p style="margin: 0.4rem 0;"><strong style="color: #3074FF;">이름:</strong> {selected_persona['display_name']}</p>
+        <p style="margin: 0.4rem 0;"><strong style="color: #3074FF;">피부타입:</strong> {selected_persona['skin_type']}</p>
+        <p style="margin: 0.4rem 0;"><strong style="color: #3074FF;">피부고민:</strong> {', '.join(selected_persona['concerns'])}</p>
+        <p style="margin: 0.4rem 0;"><strong style="color: #3074FF;">쇼핑패턴:</strong> {selected_persona['shopping_pattern']}</p>
+        <p style="margin: 0.4rem 0;"><strong style="color: #3074FF;">관심제품:</strong> {', '.join(selected_persona['interests'])}</p>
+        <p style="margin: 0.4rem 0;"><strong style="color: #3074FF;">라이프스타일:</strong> {selected_persona['lifestyle']}</p>
+        {persona_line}
     </div>
-    """, unsafe_allow_html=True)
+    """
+    st.markdown(basic_info_html, unsafe_allow_html=True)
 
     # 행동 데이터 표시 (있는 경우)
     if 'activity' in selected_persona or 'purchase' in selected_persona or 'risk' in selected_persona:
@@ -776,282 +1210,303 @@ with col1:
             </div>
             """, unsafe_allow_html=True)
 
-with col2:
+    # 브랜드 톤앤매너 (왼쪽 컬럼에 포함)
     st.markdown("""
-    <div class="brand-card">
-        <h3 style="margin:0;">🎨 브랜드 톤앤매너</h3>
+    <div class="section-header">
+        <h3>🎨 브랜드 톤앤매너</h3>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown(f"""
-    <div style="padding: 0.5rem 1rem; background: white; border-radius: 8px;">
-        <p><strong>🏷️ 브랜드:</strong> {brand}</p>
-        <p><strong>🎵 톤:</strong> {brand_tones[brand]['tone']}</p>
-        <p><strong>💬 스타일:</strong> {brand_tones[brand]['style']}</p>
-        <p><strong>📌 발신 목적:</strong> {purpose}</p>
+    <div style="padding: 1rem 1.2rem; background: white; border-radius: 10px; box-shadow: 0 5px 10px rgba(0,0,0,0.15); margin-bottom: 1rem;">
+        <p style="margin: 0.4rem 0;"><strong style="color: #3074FF;">브랜드:</strong> {brand}</p>
+        <p style="margin: 0.4rem 0;"><strong style="color: #3074FF;">톤:</strong> {brand_tones[brand]['tone']}</p>
+        <p style="margin: 0.4rem 0;"><strong style="color: #3074FF;">스타일:</strong> {brand_tones[brand]['style']}</p>
+        <p style="margin: 0.4rem 0;"><strong style="color: #3074FF;">발신 목적:</strong> {purpose}</p>
     </div>
     """, unsafe_allow_html=True)
 
-# 메시지 생성 로직
-if generate_btn:
-    if 'rag' not in st.session_state:
-        st.error("❌ 시스템이 초기화되지 않았습니다.")
-        st.stop()
+# 오른쪽 컬럼 - 생성된 메시지 표시 영역
+with main_col2:
+    st.markdown("""
+    <div class="section-header">
+        <h3>📨 생성된 메시지</h3>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # 부적절 조합 강력 차단
-    def check_and_block_mismatch(persona, brand_name):
-        """부적절한 페르소나-브랜드 조합 차단"""
-        shopping = persona.get('shopping_pattern', '')
-        age = persona.get('age', 30)
-
-        # 가성비/저렴한 가격 선호 + 프리미엄 브랜드 = 차단
-        display_name = persona.get('display_name', persona.get('name', '고객'))
-        if '가성비' in shopping or '저렴' in shopping:
-            if brand_name == "설화수":
-                return ("❌ 부적절한 조합!",
-                        f"{display_name}님은 가성비를 중시하는 고객입니다.\n"
-                        f"설화수(10~20만원대)는 프리미엄 브랜드로 적합하지 않습니다.",
-                        "💡 추천: **라네즈** 또는 **이니스프리**")
-
-        # 프리미엄 선호 + 저가 브랜드 = 경고
-        if '프리미엄' in shopping:
-            if brand_name == "이니스프리":
-                return ("⚠️ 주의: 최적이 아닌 조합",
-                        f"{display_name}님은 프리미엄을 선호하는 고객입니다.\n"
-                        f"이니스프리(1~3만원대)보다 설화수가 더 적합합니다.",
-                        "💡 추천: **설화수**")
-
-        # 10대 + 안티에이징 브랜드 = 경고
-        if age < 25 and brand_name == "설화수":
-            return ("⚠️ 주의: 연령 미스매치",
-                    f"{display_name}님은 {age}세로 안티에이징 제품이 필요하지 않을 수 있습니다.",
-                    "💡 추천: **이니스프리** (청소년/대학생용)")
-
-        return None
-
-    mismatch_result = check_and_block_mismatch(selected_persona, brand)
-    if mismatch_result:
-        icon, message, suggestion = mismatch_result
-        if icon.startswith("❌"):
-            # 강력 차단
-            st.error(f"{icon}\n\n{message}")
-            st.info(suggestion)
+    # 메시지 생성 로직 (오른쪽 컬럼 내부에서 실행)
+    if generate_btn:
+        if 'rag' not in st.session_state:
+            st.error("❌ 시스템이 초기화되지 않았습니다.")
             st.stop()
-        else:
-            # 경고만 (계속 진행 가능)
-            st.warning(f"{icon}\n\n{message}")
-            st.info(suggestion)
 
-    with st.spinner("🔍 상품 검색 중..."):
-        try:
-            retrieved_products = st.session_state.rag.retrieve_products(
-                selected_persona,
-                brand,
-                purpose=selected_purpose_id,  # 영문 ID 전달 (new_product, promotion 등)
-                k=num_products
-            )
+        # 부적절 조합 강력 차단
+        def check_and_block_mismatch(persona, brand_name):
+            """부적절한 페르소나-브랜드 조합 차단"""
+            shopping = persona.get('shopping_pattern', '')
+            age = persona.get('age', 30)
 
-            if not retrieved_products:
-                st.warning("⚠️ 추천할 상품을 찾지 못했습니다.")
+            # 가성비/저렴한 가격 선호 + 프리미엄 브랜드 = 차단
+            display_name = persona.get('display_name', persona.get('name', '고객'))
+            if '가성비' in shopping or '저렴' in shopping:
+                if brand_name == "설화수":
+                    return ("❌ 부적절한 조합!",
+                            f"{display_name}님은 가성비를 중시하는 고객입니다.\n"
+                            f"설화수(10~20만원대)는 프리미엄 브랜드로 적합하지 않습니다.",
+                            "💡 추천: **라네즈** 또는 **이니스프리**")
+
+            # 프리미엄 선호 + 저가 브랜드 = 경고
+            if '프리미엄' in shopping:
+                if brand_name == "이니스프리":
+                    return ("⚠️ 주의: 최적이 아닌 조합",
+                            f"{display_name}님은 프리미엄을 선호하는 고객입니다.\n"
+                            f"이니스프리(1~3만원대)보다 설화수가 더 적합합니다.",
+                            "💡 추천: **설화수**")
+
+            # 10대 + 안티에이징 브랜드 = 경고
+            if age < 25 and brand_name == "설화수":
+                return ("⚠️ 주의: 연령 미스매치",
+                        f"{display_name}님은 {age}세로 안티에이징 제품이 필요하지 않을 수 있습니다.",
+                        "💡 추천: **이니스프리** (청소년/대학생용)")
+
+            return None
+
+        mismatch_result = check_and_block_mismatch(selected_persona, brand)
+        if mismatch_result:
+            icon, message, suggestion = mismatch_result
+            if icon.startswith("❌"):
+                # 강력 차단
+                st.error(f"{icon}\n\n{message}")
+                st.info(suggestion)
                 st.stop()
-        except Exception as e:
-            st.error(f"❌ 상품 검색 실패: {str(e)}")
-            st.stop()
-
-    model_display = MODEL_OPTIONS[st.session_state.selected_model].split('(')[0].strip()
-    with st.spinner(f"✨ {model_display} 모델로 메시지 작성 중..."):
-        try:
-            message = generator.generate(
-                selected_persona,
-                brand,
-                selected_purpose_id,  # 영문 ID 전달
-                retrieved_products
-            )
-        except Exception as e:
-            st.error(f"❌ 메시지 생성 실패: {str(e)}")
-            st.stop()
-
-    # 결과를 세션에 저장 (재생성용)
-    st.session_state.last_result = {
-        'title': message.get('title', ''),
-        'body': message.get('body', ''),
-        'products': retrieved_products,
-        'persona': selected_persona,
-        'brand': brand,
-        'purpose': selected_purpose_id,  # 영문 ID 저장
-        'purpose_name': purpose,  # 한글 이름도 저장
-        'debug_info': message.get('debug_info')  # 디버그 정보 저장
-    }
-
-    # 히스토리에 저장 (새 생성 시에만)
-    st.session_state.message_history.append({
-        'persona': selected_persona['display_name'],
-        'brand': brand,
-        'purpose': purpose,
-        'title': message.get('title', ''),
-        'body': message.get('body', '')
-    })
-
-# 결과 표시 (세션에 저장된 결과가 있으면)
-if 'last_result' in st.session_state and st.session_state.last_result:
-    result = st.session_state.last_result
-    title = result['title']
-    body = result['body']
-    retrieved_products = result['products']
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # 글자수 표시 (경고 포함)
-    title_len = len(title)
-    body_len = len(body)
-
-    # 제목 상태 (40자 제한)
-    if title_len > 40:
-        title_status = f"⚠️ {title_len}자 (40자 초과)"
-    elif title_len < 20:
-        title_status = f"ℹ️ {title_len}자 (너무 짧음)"
-    else:
-        title_status = f"✅ {title_len}자"
-
-    # 본문 상태 (300-350자 권장)
-    if body_len > 350:
-        body_status = f"⚠️ {body_len}자 (350자 초과)"
-    elif body_len < 300:
-        body_status = f"ℹ️ {body_len}자 (300자 미만)"
-    else:
-        body_status = f"✅ {body_len}자"
-
-    # 실행 정보 표시 (비용 포함)
-    debug_info = result.get('debug_info')
-    if debug_info:
-        if debug_info.get('fallback'):
-            st.warning(f"⚠️ LLM 실패 → 템플릿 모드")
-        else:
-            timestamp = debug_info.get('timestamp', '')
-            model_name = debug_info.get('model', '').split('/')[-1]  # 모델명만 추출
-
-            # 비용 정보
-            is_free = debug_info.get('is_free', True)
-            cost_krw = debug_info.get('cost_krw', 0)
-            input_tokens = debug_info.get('input_tokens', 0)
-            output_tokens = debug_info.get('output_tokens', 0)
-            total_tokens = debug_info.get('total_tokens', 0)
-
-            if is_free:
-                cost_str = "무료"
-                cost_color = "#4CAF50"
-            elif cost_krw < 1:
-                cost_str = f"₩{cost_krw:.2f}"
-                cost_color = "#4CAF50"
             else:
-                cost_str = f"₩{cost_krw:.1f}"
-                cost_color = "#FFC107" if cost_krw < 3 else "#FF5722"
+                # 경고만 (계속 진행 가능)
+                st.warning(f"{icon}\n\n{message}")
+                st.info(suggestion)
 
-            st.markdown(f"""
-            <div style="display: flex; justify-content: space-between; align-items: center;
-                        background: #f8f9fa; padding: 0.5rem 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                <span style="color: #666; font-size: 0.9rem;">
-                    🕐 {timestamp} | 🤖 {model_name}
-                </span>
-                <span style="font-size: 0.9rem;">
-                    📊 토큰: {total_tokens:,} ({input_tokens:,} + {output_tokens:,}) |
-                    <span style="color: {cost_color}; font-weight: bold;">💰 {cost_str}</span>
-                </span>
-            </div>
-            """, unsafe_allow_html=True)
+        with st.spinner("🔍 상품 검색 중..."):
+            try:
+                retrieved_products = st.session_state.rag.retrieve_products(
+                    selected_persona,
+                    brand,
+                    purpose=selected_purpose_id,  # 영문 ID 전달 (new_product, promotion 등)
+                    k=num_products
+                )
 
-    # 제목 박스
-    st.markdown(f"""
-    <div class="message-result">
-        <h3 style="text-align: center; margin-bottom: 1.5rem;">📨 생성된 메시지</h3>
-        <div class="message-title-box">
-            <p style="margin: 0; opacity: 0.8; font-size: 0.9rem;">📌 제목</p>
-            <h3 style="margin: 0.5rem 0 0 0;">{title}</h3>
-            <p style="margin: 0.5rem 0 0 0; opacity: 0.7; font-size: 0.85rem;">
-                {title_status}
-            </p>
-        </div>
-        <div class="message-body-box">
-            <p style="margin: 0 0 0.5rem 0; opacity: 0.8; font-size: 0.9rem;">📝 본문</p>
-            <div style="line-height: 1.8; font-size: 1.05rem;">
-                {body}
-            </div>
-            <p style="margin: 1rem 0 0 0; opacity: 0.7; font-size: 0.85rem;">
-                {body_status}
-            </p>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+                if not retrieved_products:
+                    st.warning("⚠️ 추천할 상품을 찾지 못했습니다.")
+                    st.stop()
+            except Exception as e:
+                st.error(f"❌ 상품 검색 실패: {str(e)}")
+                st.stop()
 
-    # 상품 카드
-    st.markdown("<br><h3>🛍️ 추천 상품</h3>", unsafe_allow_html=True)
+        model_display = MODEL_OPTIONS[st.session_state.selected_model].split('(')[0].strip()
+        with st.spinner(f"✨ {model_display} 모델로 메시지 작성 중..."):
+            try:
+                message = generator.generate(
+                    selected_persona,
+                    brand,
+                    selected_purpose_id,  # 영문 ID 전달
+                    retrieved_products
+                )
+            except Exception as e:
+                st.error(f"❌ 메시지 생성 실패: {str(e)}")
+                st.stop()
 
-    # 발신목적에 따른 경고 표시
-    current_purpose = result.get('purpose', '')
-    has_new_product = any(p.get('is_new') for p in retrieved_products)
-    has_discount = any(p.get('discount_rate', 0) > 0 for p in retrieved_products)
+        # 결과를 세션에 저장 (재생성용)
+        st.session_state.last_result = {
+            'title': message.get('title', ''),
+            'body': message.get('body', ''),
+            'products': retrieved_products,
+            'persona': selected_persona,
+            'brand': brand,
+            'purpose': selected_purpose_id,  # 영문 ID 저장
+            'purpose_name': purpose,  # 한글 이름도 저장
+            'debug_info': message.get('debug_info')  # 디버그 정보 저장
+        }
 
-    if current_purpose == 'new_product' and not has_new_product:
-        st.warning(f"⚠️ {brand}에 신제품이 없어 프리미엄 상품을 추천합니다.")
-    elif current_purpose == 'promotion' and not has_discount:
-        st.info(f"ℹ️ {brand}에 할인 상품이 없어 인기 상품을 추천합니다.")
+        # 히스토리에 저장 (새 생성 시에만)
+        st.session_state.message_history.append({
+            'persona': selected_persona['display_name'],
+            'brand': brand,
+            'purpose': purpose,
+            'title': message.get('title', ''),
+            'body': message.get('body', '')
+        })
 
-    for i, product in enumerate(retrieved_products, 1):
-        # 가격 정보 구성
-        current_price = product.get('price', 0)
-        discount_rate = product.get('discount_rate', 0)
-        promotions = product.get('promotions', [])
-        is_new = product.get('is_new', False)
+# 결과 표시 (세션에 저장된 결과가 있으면) - 오른쪽 컬럼에 표시
+if 'last_result' in st.session_state and st.session_state.last_result:
+    with main_col2:
+        result = st.session_state.last_result
+        title = result['title']
+        body = result['body']
+        retrieved_products = result['products']
 
-        # 원가 계산 (할인율이 있으면 역산)
-        if discount_rate > 0:
-            original_price = int(current_price / (1 - discount_rate / 100))
-            price_html = f'<p style="margin: 0; font-size: 0.95rem; color: #999; text-decoration: line-through;">{original_price:,}원</p><p style="margin: 0.2rem 0; font-size: 1.4rem; font-weight: bold; color: #f5576c;">{current_price:,}원</p><p style="margin: 0; font-size: 1rem; color: #ff4757; font-weight: bold;">🔥 {discount_rate}% 할인</p>'
+        # 글자수 표시 (경고 포함)
+        title_len = len(title)
+        body_len = len(body)
+
+        # 제목 상태 (40자 제한)
+        if title_len > 40:
+            title_status = f"⚠️ {title_len}자 (40자 초과)"
+        elif title_len < 20:
+            title_status = f"ℹ️ {title_len}자 (너무 짧음)"
         else:
-            price_html = f'<p style="margin: 0; font-size: 1.4rem; font-weight: bold; color: #f5576c;">{current_price:,}원</p>'
+            title_status = f"✅ {title_len}자"
 
-        # 뱃지 (발신목적별 강조 + 신제품 + 프로모션)
-        badges_html = ""
-        badge_list = []
-
-        # 발신목적별 강조 뱃지
-        if current_purpose == 'new_product' and is_new:
-            badge_list.append('<span style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem; margin-right: 0.3rem; font-weight: bold;">🆕 신제품</span>')
-        elif current_purpose == 'promotion' and discount_rate > 0:
-            badge_list.append(f'<span style="background: linear-gradient(135deg, #f5576c, #f093fb); color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem; margin-right: 0.3rem; font-weight: bold;">💥 {discount_rate}%↓</span>')
-        elif current_purpose == 'seasonal_gift' and ('세트' in product.get('name', '') or '기프트' in product.get('name', '')):
-            badge_list.append('<span style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem; margin-right: 0.3rem; font-weight: bold;">🎁 선물추천</span>')
-        elif is_new:
-            # 기본 NEW 뱃지 (발신목적이 신제품이 아닐 때)
-            badge_list.append('<span style="background: #4CAF50; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.3rem;">✨ NEW</span>')
-
-        if promotions:
-            badge_list.extend([f'<span style="background: #ff6b6b; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.3rem;">🎁 {p}</span>' for p in promotions])
-        if badge_list:
-            badges_html = f'<div style="margin-top: 0.5rem;">{"".join(badge_list)}</div>'
-
-        features_str = ', '.join(product['features'])
-        st.markdown(f'<div class="product-card"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div style="flex: 1;"><h4 style="margin: 0; color: #333;">{i}. {product["name"]}</h4><p style="margin: 0.5rem 0; color: #666;">{product["description"]}</p><p style="margin: 0; color: #999; font-size: 0.9rem;">🏷️ {features_str}</p>{badges_html}</div><div style="text-align: right; min-width: 120px;">{price_html}</div></div></div>', unsafe_allow_html=True)
-
-    # 다운로드 & 복사 & 재생성 버튼
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # 상품 정보 포맷팅 (할인 정보 포함)
-    def format_product_for_text(idx, p):
-        price = p.get('price', 0)
-        discount = p.get('discount_rate', 0)
-        promos = p.get('promotions', [])
-
-        if discount > 0:
-            original = int(price / (1 - discount / 100))
-            price_str = f"{original:,}원 → {price:,}원 ({discount}% 할인)"
+        # 본문 상태 (300-350자 권장)
+        if body_len > 350:
+            body_status = f"⚠️ {body_len}자 (350자 초과)"
+        elif body_len < 300:
+            body_status = f"ℹ️ {body_len}자 (300자 미만)"
         else:
-            price_str = f"{price:,}원"
+            body_status = f"✅ {body_len}자"
 
-        promo_str = f" [{', '.join(promos)}]" if promos else ""
-        return f"{idx}. {p['name']} - {price_str}{promo_str}"
+        # 실행 정보 표시 (비용 포함)
+        debug_info = result.get('debug_info')
+        if debug_info:
+            if debug_info.get('fallback'):
+                st.warning(f"⚠️ LLM 실패 → 템플릿 모드")
+            else:
+                timestamp = debug_info.get('timestamp', '')
+                model_name = debug_info.get('model', '').split('/')[-1]  # 모델명만 추출
 
-    message_text = f"""[아모레몰 CRM 메시지]
+                # 비용 정보
+                is_free = debug_info.get('is_free', True)
+                cost_krw = debug_info.get('cost_krw', 0)
+                input_tokens = debug_info.get('input_tokens', 0)
+                output_tokens = debug_info.get('output_tokens', 0)
+                total_tokens = debug_info.get('total_tokens', 0)
+
+                if is_free:
+                    cost_str = "무료"
+                    cost_color = "#4CAF50"
+                elif cost_krw < 1:
+                    cost_str = f"₩{cost_krw:.2f}"
+                    cost_color = "#4CAF50"
+                else:
+                    cost_str = f"₩{cost_krw:.1f}"
+                    cost_color = "#FFC107" if cost_krw < 3 else "#FF5722"
+
+                st.markdown(f"""
+                <div style="display: flex; justify-content: space-between; align-items: center;
+                            background: white; padding: 0.5rem 1rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 5px 10px rgba(0,0,0,0.15);">
+                    <span style="color: #666; font-size: 0.85rem;">
+                        🕐 {timestamp} | 🤖 {model_name}
+                    </span>
+                    <span style="font-size: 0.85rem;">
+                        📊 {total_tokens:,}토큰 |
+                        <span style="color: {cost_color}; font-weight: bold;">💰 {cost_str}</span>
+                    </span>
+                </div>
+                """, unsafe_allow_html=True)
+
+        # 메시지 박스
+        st.markdown(f"""
+        <div class="message-result">
+            <div class="message-title-box">
+                <p style="margin: 0; color: #3074FF; font-size: 0.9rem; font-weight: 600;">📌 제목</p>
+                <h3 style="margin: 0.5rem 0 0 0; color: #333;">{title}</h3>
+                <p style="margin: 0.5rem 0 0 0; color: #AAAAAA; font-size: 0.85rem;">
+                    {title_status}
+                </p>
+            </div>
+            <div class="message-body-box">
+                <p style="margin: 0 0 0.5rem 0; color: #3074FF; font-size: 0.9rem; font-weight: 600;">📝 본문</p>
+                <div style="line-height: 1.8; font-size: 1rem; color: #333;">
+                    {body}
+                </div>
+                <p style="margin: 1rem 0 0 0; color: #AAAAAA; font-size: 0.85rem;">
+                    {body_status}
+                </p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+# 상품 카드는 왼쪽 컬럼에 표시
+if 'last_result' in st.session_state and st.session_state.last_result:
+    with main_col1:
+        result = st.session_state.last_result
+        retrieved_products = result['products']
+
+        st.markdown("""
+        <div class="section-header">
+            <h3>🛍️ 추천 상품</h3>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # 발신목적에 따른 경고 표시
+        current_purpose = result.get('purpose', '')
+        has_new_product = any(p.get('is_new') for p in retrieved_products)
+        has_discount = any(p.get('discount_rate', 0) > 0 for p in retrieved_products)
+
+        if current_purpose == 'new_product' and not has_new_product:
+            st.warning(f"⚠️ {brand}에 신제품이 없어 프리미엄 상품을 추천합니다.")
+        elif current_purpose == 'promotion' and not has_discount:
+            st.info(f"ℹ️ {brand}에 할인 상품이 없어 인기 상품을 추천합니다.")
+
+        for i, product in enumerate(retrieved_products, 1):
+            # 가격 정보 구성
+            current_price = product.get('price', 0)
+            discount_rate = product.get('discount_rate', 0)
+            promotions = product.get('promotions', [])
+            is_new = product.get('is_new', False)
+
+            # 원가 계산 (할인율이 있으면 역산)
+            if discount_rate > 0:
+                original_price = int(current_price / (1 - discount_rate / 100))
+                price_html = f'<p style="margin: 0; font-size: 0.9rem; color: #999; text-decoration: line-through;">{original_price:,}원</p><p style="margin: 0.2rem 0; font-size: 1.2rem; font-weight: bold; color: #3074FF;">{current_price:,}원</p><p style="margin: 0; font-size: 0.9rem; color: #FF4757; font-weight: bold;">🔥 {discount_rate}%</p>'
+            else:
+                price_html = f'<p style="margin: 0; font-size: 1.2rem; font-weight: bold; color: #3074FF;">{current_price:,}원</p>'
+
+            # 뱃지 (발신목적별 강조 + 신제품 + 프로모션)
+            badges_html = ""
+            badge_list = []
+
+            # 발신목적별 강조 뱃지
+            if current_purpose == 'new_product' and is_new:
+                badge_list.append('<span style="background: #3074FF; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.3rem; font-weight: bold;">🆕 신제품</span>')
+            elif current_purpose == 'promotion' and discount_rate > 0:
+                badge_list.append(f'<span style="background: #FF4757; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.3rem; font-weight: bold;">💥 {discount_rate}%↓</span>')
+            elif current_purpose == 'seasonal_gift' and ('세트' in product.get('name', '') or '기프트' in product.get('name', '')):
+                badge_list.append('<span style="background: #3074FF; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.3rem; font-weight: bold;">🎁 선물추천</span>')
+            elif is_new:
+                badge_list.append('<span style="background: #4CAF50; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.3rem;">✨ NEW</span>')
+
+            if promotions:
+                badge_list.extend([f'<span style="background: #FF6B6B; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-right: 0.3rem;">🎁 {p}</span>' for p in promotions])
+            if badge_list:
+                badges_html = f'<div style="margin-top: 0.5rem;">{"".join(badge_list)}</div>'
+
+            features_str = ', '.join(product['features'])
+            st.markdown(f'<div class="product-card"><div style="display: flex; justify-content: space-between; align-items: flex-start;"><div style="flex: 1;"><h4 style="margin: 0; color: #333; font-size: 1rem;">{i}. {product["name"]}</h4><p style="margin: 0.4rem 0; color: #666; font-size: 0.9rem;">{product["description"]}</p><p style="margin: 0; color: #AAAAAA; font-size: 0.85rem;">🏷️ {features_str}</p>{badges_html}</div><div style="text-align: right; min-width: 100px;">{price_html}</div></div></div>', unsafe_allow_html=True)
+
+# 다운로드 & 복사 & 재생성 버튼 (오른쪽 컬럼 하단)
+if 'last_result' in st.session_state and st.session_state.last_result:
+    with main_col2:
+        result = st.session_state.last_result
+        title = result['title']
+        body = result['body']
+        retrieved_products = result['products']
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # 상품 정보 포맷팅 (할인 정보 포함)
+        def format_product_for_text(idx, p):
+            price = p.get('price', 0)
+            discount = p.get('discount_rate', 0)
+            promos = p.get('promotions', [])
+
+            if discount > 0:
+                original = int(price / (1 - discount / 100))
+                price_str = f"{original:,}원 → {price:,}원 ({discount}% 할인)"
+            else:
+                price_str = f"{price:,}원"
+
+            promo_str = f" [{', '.join(promos)}]" if promos else ""
+            return f"{idx}. {p['name']} - {price_str}{promo_str}"
+
+        message_text = f"""[AMORE CRM 메시지]
 
 페르소나: {result['persona']['display_name']}
 브랜드: {result['brand']}
@@ -1067,52 +1522,53 @@ if 'last_result' in st.session_state and st.session_state.last_result:
 {chr(10).join([format_product_for_text(i+1, p) for i, p in enumerate(retrieved_products)])}
 """
 
-    col_btn1, col_btn2, col_btn3 = st.columns(3)
+        col_btn1, col_btn2, col_btn3 = st.columns(3)
 
-    with col_btn1:
-        persona_name = result['persona'].get('display_name', result['persona'].get('name', 'customer'))
-        st.download_button(
-            label="💾 다운로드",
-            data=message_text,
-            file_name=f"crm_message_{persona_name}_{result['brand']}.txt",
-            mime="text/plain",
-            use_container_width=True
-        )
+        with col_btn1:
+            persona_name = result['persona'].get('display_name', result['persona'].get('name', 'customer'))
+            st.download_button(
+                label="💾 다운로드",
+                data=message_text,
+                file_name=f"crm_message_{persona_name}_{result['brand']}.txt",
+                mime="text/plain",
+                use_container_width=True
+            )
 
-    with col_btn2:
-        # 클립보드 복사 (JavaScript)
-        copy_text = f"{title}\n\n{body}"
-        st.markdown(f"""
-        <button onclick="navigator.clipboard.writeText(`{copy_text.replace('`', '')}`); alert('복사되었습니다!');"
-                style="width: 100%; padding: 0.6rem; background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
-                       color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-            📋 복사하기
-        </button>
-        """, unsafe_allow_html=True)
+        with col_btn2:
+            # 클립보드 복사 (JavaScript)
+            copy_text = f"{title}\n\n{body}"
+            st.markdown(f"""
+            <button onclick="navigator.clipboard.writeText(`{copy_text.replace('`', '')}`); alert('복사되었습니다!');"
+                    style="width: 100%; padding: 0.6rem; background: #3074FF;
+                           color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
+                           box-shadow: 0 5px 10px rgba(48,116,255,0.3);">
+                📋 복사하기
+            </button>
+            """, unsafe_allow_html=True)
 
-    with col_btn3:
-        # 재생성 버튼
-        if st.button("🔄 재생성", use_container_width=True, key="regenerate"):
-            regen_model = MODEL_OPTIONS[st.session_state.selected_model].split('(')[0].strip()
-            with st.spinner(f"✨ {regen_model} 모델로 재생성 중..."):
-                try:
-                    new_message = generator.generate(
-                        result['persona'],
-                        result['brand'],
-                        result['purpose'],
-                        result['products']
-                    )
-                    st.session_state.last_result = {
-                        'title': new_message.get('title', ''),
-                        'body': new_message.get('body', ''),
-                        'products': result['products'],
-                        'persona': result['persona'],
-                        'brand': result['brand'],
-                        'purpose': result['purpose']
-                    }
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"❌ 재생성 실패: {str(e)}")
+        with col_btn3:
+            # 재생성 버튼
+            if st.button("🔄 재생성", use_container_width=True, key="regenerate"):
+                regen_model = MODEL_OPTIONS[st.session_state.selected_model].split('(')[0].strip()
+                with st.spinner(f"✨ {regen_model} 모델로 재생성 중..."):
+                    try:
+                        new_message = generator.generate(
+                            result['persona'],
+                            result['brand'],
+                            result['purpose'],
+                            result['products']
+                        )
+                        st.session_state.last_result = {
+                            'title': new_message.get('title', ''),
+                            'body': new_message.get('body', ''),
+                            'products': result['products'],
+                            'persona': result['persona'],
+                            'brand': result['brand'],
+                            'purpose': result['purpose']
+                        }
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ 재생성 실패: {str(e)}")
 
 # 히스토리 표시 (최근 3개)
 if st.session_state.message_history:
@@ -1138,14 +1594,14 @@ if 'rag' in st.session_state:
 
 st.markdown(f"""
 <div class="footer">
-    <p style="margin: 0;">
-        🤖 Powered by Hybrid RAG (Vector + BM25) + LLM ({current_model_name.split('(')[0].strip()})
+    <p style="margin: 0; color: #333;">
+        🤖 Powered by Hybrid RAG + LLM ({current_model_name.split('(')[0].strip()})
     </p>
-    <p style="margin: 0.3rem 0 0 0; font-size: 0.85rem; color: #888;">
+    <p style="margin: 0.3rem 0 0 0; font-size: 0.85rem; color: #AAAAAA;">
         📊 한국어 임베딩 (ko-sroberta) | 하이브리드 검색 (벡터 60% + BM25 40%)
     </p>
-    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">
-        Made with ❤️ for K-Beauty Marketing
+    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #3074FF;">
+        아모레몰 CRM Agent
     </p>
 </div>
 """, unsafe_allow_html=True)
