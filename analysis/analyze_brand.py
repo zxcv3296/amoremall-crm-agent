@@ -13,8 +13,9 @@ from anthropic import Anthropic
 # API 키 설정
 client = Anthropic()
 
-REVIEW_FILE = os.path.join(os.path.dirname(__file__), "crawled_reviews.json")
-OUTPUT_FILE = os.path.join(os.path.dirname(__file__), "brand_analysis.json")
+DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+REVIEW_FILE = os.path.join(DATA_DIR, "crawled_reviews.json")
+OUTPUT_FILE = os.path.join(DATA_DIR, "brand_analysis.json")
 
 ANALYSIS_PROMPT = """당신은 화장품 브랜드 분석 전문가입니다.
 아래 브랜드의 리뷰들을 분석하여 브랜드 특성을 3개 축으로 평가해주세요.

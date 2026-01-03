@@ -16,380 +16,130 @@
     }
   },
   "clusters": {
-    "0": {
-      "name": "대중 감성",
-      "center": {
-        "mass_premium": -47.8,
-        "necessity_luxury": -24.4,
-        "tech_emotion": 34.1
+    "프리미엄 기능": {
+      "name": "프리미엄 기능",
+      "description": "첨단 뷰티 테크놀로지와 고성능 원료를 결합하여 즉각적인 피부 개선 효과를 제공하는 하이엔드 라인",
+      "persona": "테크니컬 홈케어족",
+      "criteria": {
+        "mp_min": 0,
+        "te_max": -10
       }
     },
-    "1": {
-      "name": "중가 밸런스",
-      "center": {
-        "mass_premium": 12.3,
-        "necessity_luxury": -12.1,
-        "tech_emotion": 21.0
+    "프리미엄 밸런스": {
+      "name": "프리미엄 밸런스",
+      "description": "독보적인 브랜드 헤리티지와 심미적 가치, 최상의 고객 경험을 제공하는 럭셔리 토탈 케어 라인",
+      "persona": "하이엔드 품격가",
+      "criteria": {
+        "mp_min": 15,
+        "te_min": 10
       }
     },
-    "2": {
-      "name": "대중 밸런스",
-      "center": {
-        "mass_premium": -28.0,
-        "necessity_luxury": -36.7,
-        "tech_emotion": 12.4
-      }
-    },
-    "3": {
+    "중가 라이프스타일": {
       "name": "중가 라이프스타일",
-      "center": {
-        "mass_premium": 8.3,
-        "necessity_luxury": 47.8,
-        "tech_emotion": 85.9
+      "description": "단순한 화장품을 넘어 향기, 휴식, 취향 등 일상 전반의 감성적 만족과 웰니스를 지향하는 라인",
+      "persona": "웰니스 힐링 탐험가",
+      "criteria": {
+        "nl_min": 20,
+        "te_min": 70
       }
     },
-    "4": {
-      "name": "대중 필수케어",
-      "center": {
-        "mass_premium": -40.9,
-        "necessity_luxury": -60.0,
-        "tech_emotion": 9.1
+    "중가 필수케어": {
+      "name": "중가 필수케어",
+      "description": "피부 전문가의 처방이나 연구소 데이터 기반의 더마 솔루션을 통해 피부 근본 문제를 해결하는 기능성 라인",
+      "persona": "연구소 기반 해결사",
+      "criteria": {
+        "mp_min": -35,
+        "mp_max": 0,
+        "nl_max": -20,
+        "te_max": 15
       }
     },
-    "5": {
+    "대중 감성": {
       "name": "대중 감성",
-      "center": {
-        "mass_premium": -18.6,
-        "necessity_luxury": -17.8,
-        "tech_emotion": 50.6
+      "description": "최신 트렌드를 반영한 감각적인 디자인과 색조 중심의 제품군으로 자기표현과 즐거움을 제공하는 라인",
+      "persona": "트렌디 Z세대",
+      "criteria": {
+        "mp_max": -15,
+        "te_min": 20
       }
     },
-    "6": {
-      "name": "대중 기능",
-      "center": {
-        "mass_premium": -14.6,
-        "necessity_luxury": -35.7,
-        "tech_emotion": -27.5
+    "대중 밸런스": {
+      "name": "대중 밸런스",
+      "description": "검증된 품질과 합리적인 가격대를 유지하며 일상적인 뷰티 루틴을 책임지는 대중적 프리미엄 라인",
+      "persona": "합리적 큐레이터",
+      "criteria": {
+        "mp_min": -30,
+        "mp_max": 5,
+        "nl_min": -45,
+        "nl_max": 0
+      }
+    },
+    "대중 필수케어": {
+      "name": "대중 필수케어",
+      "description": "온 가족이 안심하고 사용할 수 있는 가성비 중심의 생활 밀착형 대용량 및 저자극 케어 라인",
+      "persona": "실속형 가계 수호자",
+      "criteria": {
+        "mp_max": -35,
+        "nl_max": -45
       }
     }
   },
   "cluster_summary": {
-    "대중 감성": [
-      "이니스프리",
-      "아모레성수",
-      "라 리베라",
-      "해피바스",
-      "에스쁘아",
-      "에뛰드",
-      "앞바다즈"
-    ],
-    "대중 필수케어": [
-      "라보에이치",
-      "일리윤",
-      "아모레베이직",
-      "아모스 프로페셔널",
-      "메디안"
-    ],
-    "대중 밸런스": [
-      "정글몬스터",
-      "비레디",
-      "프리메라",
-      "한율",
-      "마몽드",
-      "라네즈"
-    ],
-    "대중 기능": [
-      "메이크온",
-      "에스트라",
-      "아이오페"
-    ],
     "중가 라이프스타일": [
       "퍼즐우드",
       "롱테이크",
       "오설록"
     ],
-    "중가 밸런스": [
+    "프리미엄 기능": [
+      "바이탈뷰티",
+      "아이오페",
+      "메이크온"
+    ],
+    "대중 밸런스": [
+      "오딧세이",
+      "이니스프리",
       "아모레퍼시픽",
+      "아모레성수",
+      "홀리추얼"
+    ],
+    "대중 감성": [
+      "에뛰드",
+      "앞바다즈",
+      "에스쁘아",
+      "해피바스",
+      "라네즈"
+    ],
+    "대중 필수케어": [
+      "메디안",
+      "일리윤",
+      "아모레베이직",
+      "라보에이치"
+    ],
+    "중가 필수케어": [
+      "프리메라",
+      "한율",
+      "려",
+      "에스트라",
+      "비레디",
+      "미쟝센",
+      "마몽드"
+    ],
+    "프리미엄 밸런스": [
       "헤라",
       "에이피뷰티",
-      "홀리추얼",
       "설화수"
     ]
   },
   "brands": {
-    "이니스프리": {
-      "mass_premium": -42.2,
-      "necessity_luxury": -26.0,
-      "tech_emotion": 21.5,
-      "avg_price": 18208,
-      "review_count": 222,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -43.1,
-          "keyword": -48.8,
-          "subjective": -30
-        },
-        "necessity_luxury": {
-          "keyword": -32.0,
-          "subjective": -20
-        },
-        "tech_emotion": {
-          "keyword": 15.8,
-          "subjective": 30
-        }
-      },
-      "cluster_id": 0,
-      "cluster_name": "대중 감성"
-    },
-    "라보에이치": {
-      "mass_premium": -41.8,
-      "necessity_luxury": -57.6,
-      "tech_emotion": -3.8,
-      "avg_price": 21425,
-      "review_count": 233,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -35.8,
-          "keyword": -66.2,
-          "subjective": -20
-        },
-        "necessity_luxury": {
-          "keyword": -65.3,
-          "subjective": -50
-        },
-        "tech_emotion": {
-          "keyword": 13.6,
-          "subjective": -30
-        }
-      },
-      "cluster_id": 4,
-      "cluster_name": "대중 필수케어"
-    },
-    "정글몬스터": {
-      "mass_premium": -23.6,
-      "necessity_luxury": -46.2,
-      "tech_emotion": 19.4,
-      "avg_price": 21853,
-      "review_count": 125,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -25.1,
-          "keyword": -36.8,
-          "subjective": 0
-        },
-        "necessity_luxury": {
-          "keyword": -62.5,
-          "subjective": -30
-        },
-        "tech_emotion": {
-          "keyword": 25.6,
-          "subjective": 10
-        }
-      },
-      "cluster_id": 2,
-      "cluster_name": "대중 밸런스"
-    },
-    "메이크온": {
-      "mass_premium": -8.7,
-      "necessity_luxury": -17.2,
-      "tech_emotion": -29.2,
-      "avg_price": 417922,
-      "review_count": 96,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -21.5,
-          "keyword": -33.3,
-          "subjective": 60
-        },
-        "necessity_luxury": {
-          "keyword": -74.5,
-          "subjective": 40
-        },
-        "tech_emotion": {
-          "keyword": -35.3,
-          "subjective": -20
-        }
-      },
-      "cluster_id": 6,
-      "cluster_name": "대중 기능"
-    },
-    "비레디": {
-      "mass_premium": -34.4,
-      "necessity_luxury": -44.0,
-      "tech_emotion": 6.8,
-      "avg_price": 25158,
-      "review_count": 219,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -33.9,
-          "keyword": -44.8,
-          "subjective": -20
-        },
-        "necessity_luxury": {
-          "keyword": -68.0,
-          "subjective": -20
-        },
-        "tech_emotion": {
-          "keyword": 4.7,
-          "subjective": 10
-        }
-      },
-      "cluster_id": 2,
-      "cluster_name": "대중 밸런스"
-    },
-    "아모레성수": {
-      "mass_premium": -18.4,
-      "necessity_luxury": -35.0,
-      "tech_emotion": 49.7,
-      "avg_price": 16562,
-      "review_count": 157,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -32.9,
-          "keyword": -33.3,
-          "subjective": 40
-        },
-        "necessity_luxury": {
-          "keyword": -100.0,
-          "subjective": 30
-        },
-        "tech_emotion": {
-          "keyword": 42.9,
-          "subjective": 60
-        }
-      },
-      "cluster_id": 5,
-      "cluster_name": "대중 감성"
-    },
-    "에스트라": {
-      "mass_premium": -27.4,
-      "necessity_luxury": -50.8,
-      "tech_emotion": -26.1,
-      "avg_price": 41946,
-      "review_count": 241,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -36.7,
-          "keyword": -36.8,
-          "subjective": 10
-        },
-        "necessity_luxury": {
-          "keyword": -61.6,
-          "subjective": -40
-        },
-        "tech_emotion": {
-          "keyword": -10.2,
-          "subjective": -50
-        }
-      },
-      "cluster_id": 6,
-      "cluster_name": "대중 기능"
-    },
-    "라 리베라": {
-      "mass_premium": -5.2,
-      "necessity_luxury": -28.0,
-      "tech_emotion": 32.7,
-      "avg_price": 41270,
-      "review_count": 269,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -9.2,
-          "keyword": -2.1,
-          "subjective": 0
-        },
-        "necessity_luxury": {
-          "keyword": -46.0,
-          "subjective": -10
-        },
-        "tech_emotion": {
-          "keyword": 27.8,
-          "subjective": 40
-        }
-      },
-      "cluster_id": 5,
-      "cluster_name": "대중 감성"
-    },
-    "프리메라": {
-      "mass_premium": -21.4,
-      "necessity_luxury": -29.5,
-      "tech_emotion": 3.9,
-      "avg_price": 36160,
-      "review_count": 258,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -34.4,
-          "keyword": -34.0,
-          "subjective": 30
-        },
-        "necessity_luxury": {
-          "keyword": -59.0,
-          "subjective": 0
-        },
-        "tech_emotion": {
-          "keyword": -6.9,
-          "subjective": 20
-        }
-      },
-      "cluster_id": 2,
-      "cluster_name": "대중 밸런스"
-    },
-    "해피바스": {
-      "mass_premium": -51.3,
-      "necessity_luxury": -20.5,
-      "tech_emotion": 51.0,
-      "avg_price": 8887,
-      "review_count": 224,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -45.8,
-          "keyword": -61.4,
-          "subjective": -50
-        },
-        "necessity_luxury": {
-          "keyword": -1.0,
-          "subjective": -40
-        },
-        "tech_emotion": {
-          "keyword": 65.0,
-          "subjective": 30
-        }
-      },
-      "cluster_id": 0,
-      "cluster_name": "대중 감성"
-    },
-    "일리윤": {
-      "mass_premium": -46.5,
-      "necessity_luxury": -47.6,
-      "tech_emotion": 11.7,
-      "avg_price": 19225,
-      "review_count": 221,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -38.9,
-          "keyword": -70.0,
-          "subjective": -30
-        },
-        "necessity_luxury": {
-          "keyword": -45.3,
-          "subjective": -50
-        },
-        "tech_emotion": {
-          "keyword": 32.8,
-          "subjective": -20
-        }
-      },
-      "cluster_id": 4,
-      "cluster_name": "대중 필수케어"
-    },
     "퍼즐우드": {
-      "mass_premium": 12.5,
+      "mass_premium": 12.4,
       "necessity_luxury": 68.9,
       "tech_emotion": 88.8,
       "avg_price": 25000,
       "review_count": 46,
       "scores_breakdown": {
         "mass_premium": {
-          "price": -36.6,
+          "price": -36.8,
           "keyword": 69.2,
           "subjective": 50
         },
@@ -402,176 +152,53 @@
           "subjective": 80
         }
       },
-      "cluster_id": 3,
       "cluster_name": "중가 라이프스타일"
     },
-    "아모레베이직": {
-      "mass_premium": -47.0,
-      "necessity_luxury": -60.4,
-      "tech_emotion": 30.6,
-      "avg_price": 14559,
-      "review_count": 175,
+    "바이탈뷰티": {
+      "mass_premium": 18.2,
+      "necessity_luxury": -11.2,
+      "tech_emotion": -15.6,
+      "avg_price": 187064,
+      "review_count": 226,
       "scores_breakdown": {
         "mass_premium": {
-          "price": -35.8,
-          "keyword": -63.8,
-          "subjective": -50
-        },
-        "necessity_luxury": {
-          "keyword": -60.7,
-          "subjective": -60
-        },
-        "tech_emotion": {
-          "keyword": 57.7,
-          "subjective": -10
-        }
-      },
-      "cluster_id": 4,
-      "cluster_name": "대중 필수케어"
-    },
-    "롱테이크": {
-      "mass_premium": 5.7,
-      "necessity_luxury": 33.5,
-      "tech_emotion": 84.6,
-      "avg_price": 28833,
-      "review_count": 206,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -29.4,
-          "keyword": 34.5,
-          "subjective": 50
-        },
-        "necessity_luxury": {
-          "keyword": 7.1,
-          "subjective": 60
-        },
-        "tech_emotion": {
-          "keyword": 87.7,
-          "subjective": 80
-        }
-      },
-      "cluster_id": 3,
-      "cluster_name": "중가 라이프스타일"
-    },
-    "아모레퍼시픽": {
-      "mass_premium": 1.6,
-      "necessity_luxury": -27.5,
-      "tech_emotion": 32.9,
-      "avg_price": 113760,
-      "review_count": 60,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -24.9,
-          "keyword": 0.0,
-          "subjective": 70
-        },
-        "necessity_luxury": {
-          "keyword": -75.0,
-          "subjective": 20
-        },
-        "tech_emotion": {
-          "keyword": 34.8,
-          "subjective": 30
-        }
-      },
-      "cluster_id": 1,
-      "cluster_name": "중가 밸런스"
-    },
-    "아모스 프로페셔널": {
-      "mass_premium": -26.1,
-      "necessity_luxury": -67.8,
-      "tech_emotion": 15.1,
-      "avg_price": 27194,
-      "review_count": 214,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -30.7,
-          "keyword": -49.3,
-          "subjective": 20
-        },
-        "necessity_luxury": {
-          "keyword": -95.5,
-          "subjective": -40
-        },
-        "tech_emotion": {
-          "keyword": 51.9,
-          "subjective": -40
-        }
-      },
-      "cluster_id": 4,
-      "cluster_name": "대중 필수케어"
-    },
-    "에스쁘아": {
-      "mass_premium": -24.4,
-      "necessity_luxury": -8.4,
-      "tech_emotion": 41.3,
-      "avg_price": 21586,
-      "review_count": 229,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -27.1,
-          "keyword": -56.0,
-          "subjective": 30
-        },
-        "necessity_luxury": {
-          "keyword": -36.8,
-          "subjective": 20
-        },
-        "tech_emotion": {
-          "keyword": 35.5,
-          "subjective": 50
-        }
-      },
-      "cluster_id": 5,
-      "cluster_name": "대중 감성"
-    },
-    "헤라": {
-      "mass_premium": 13.8,
-      "necessity_luxury": -1.2,
-      "tech_emotion": 34.4,
-      "avg_price": 64594,
-      "review_count": 246,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -5.6,
-          "keyword": 8.8,
-          "subjective": 70
-        },
-        "necessity_luxury": {
-          "keyword": -32.5,
-          "subjective": 30
-        },
-        "tech_emotion": {
-          "keyword": 30.7,
+          "price": 0.1,
+          "keyword": 33.8,
           "subjective": 40
-        }
-      },
-      "cluster_id": 1,
-      "cluster_name": "중가 밸런스"
-    },
-    "오설록": {
-      "mass_premium": 6.8,
-      "necessity_luxury": 41.1,
-      "tech_emotion": 84.2,
-      "avg_price": 19102,
-      "review_count": 223,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -40.0,
-          "keyword": 69.4,
-          "subjective": 30
         },
         "necessity_luxury": {
-          "keyword": 32.3,
-          "subjective": 50
+          "keyword": -42.4,
+          "subjective": 20
         },
         "tech_emotion": {
-          "keyword": 93.6,
-          "subjective": 70
+          "keyword": 0.7,
+          "subjective": -40
         }
       },
-      "cluster_id": 3,
-      "cluster_name": "중가 라이프스타일"
+      "cluster_name": "프리미엄 기능"
+    },
+    "오딧세이": {
+      "mass_premium": 0.2,
+      "necessity_luxury": -26.6,
+      "tech_emotion": 28.3,
+      "avg_price": 49339,
+      "review_count": 269,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -5.7,
+          "keyword": -3.2,
+          "subjective": 20
+        },
+        "necessity_luxury": {
+          "keyword": -43.1,
+          "subjective": -10
+        },
+        "tech_emotion": {
+          "keyword": 27.2,
+          "subjective": 30
+        }
+      },
+      "cluster_name": "대중 밸런스"
     },
     "에뛰드": {
       "mass_premium": -49.9,
@@ -594,7 +221,6 @@
           "subjective": 40
         }
       },
-      "cluster_id": 0,
       "cluster_name": "대중 감성"
     },
     "아이오페": {
@@ -618,80 +244,7 @@
           "subjective": -30
         }
       },
-      "cluster_id": 6,
-      "cluster_name": "대중 기능"
-    },
-    "앞바다즈": {
-      "mass_premium": -26.2,
-      "necessity_luxury": 0.0,
-      "tech_emotion": 78.5,
-      "avg_price": 19070,
-      "review_count": 179,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -34.8,
-          "keyword": -9.3,
-          "subjective": -30
-        },
-        "necessity_luxury": {
-          "keyword": -50.0,
-          "subjective": 50
-        },
-        "tech_emotion": {
-          "keyword": 77.5,
-          "subjective": 80
-        }
-      },
-      "cluster_id": 5,
-      "cluster_name": "대중 감성"
-    },
-    "에이피뷰티": {
-      "mass_premium": 16.5,
-      "necessity_luxury": -16.6,
-      "tech_emotion": 8.1,
-      "avg_price": 187064,
-      "review_count": 226,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": 0.4,
-          "keyword": 34.3,
-          "subjective": 30
-        },
-        "necessity_luxury": {
-          "keyword": -43.3,
-          "subjective": 10
-        },
-        "tech_emotion": {
-          "keyword": 0.2,
-          "subjective": 20
-        }
-      },
-      "cluster_id": 1,
-      "cluster_name": "중가 밸런스"
-    },
-    "홀리추얼": {
-      "mass_premium": 7.4,
-      "necessity_luxury": -9.6,
-      "tech_emotion": 2.2,
-      "avg_price": 99222,
-      "review_count": 237,
-      "scores_breakdown": {
-        "mass_premium": {
-          "price": -21.2,
-          "keyword": 26.7,
-          "subjective": 50
-        },
-        "necessity_luxury": {
-          "keyword": -49.2,
-          "subjective": 30
-        },
-        "tech_emotion": {
-          "keyword": 10.3,
-          "subjective": -10
-        }
-      },
-      "cluster_id": 1,
-      "cluster_name": "중가 밸런스"
+      "cluster_name": "프리미엄 기능"
     },
     "메디안": {
       "mass_premium": -43.2,
@@ -714,7 +267,305 @@
           "subjective": -40
         }
       },
-      "cluster_id": 4,
+      "cluster_name": "대중 필수케어"
+    },
+    "롱테이크": {
+      "mass_premium": 5.5,
+      "necessity_luxury": 33.5,
+      "tech_emotion": 84.6,
+      "avg_price": 28833,
+      "review_count": 206,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -29.6,
+          "keyword": 34.5,
+          "subjective": 50
+        },
+        "necessity_luxury": {
+          "keyword": 7.1,
+          "subjective": 60
+        },
+        "tech_emotion": {
+          "keyword": 87.7,
+          "subjective": 80
+        }
+      },
+      "cluster_name": "중가 라이프스타일"
+    },
+    "프리메라": {
+      "mass_premium": -21.4,
+      "necessity_luxury": -29.5,
+      "tech_emotion": 3.9,
+      "avg_price": 36160,
+      "review_count": 258,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -34.5,
+          "keyword": -34.0,
+          "subjective": 30
+        },
+        "necessity_luxury": {
+          "keyword": -59.0,
+          "subjective": 0
+        },
+        "tech_emotion": {
+          "keyword": -6.9,
+          "subjective": 20
+        }
+      },
+      "cluster_name": "중가 필수케어"
+    },
+    "일리윤": {
+      "mass_premium": -46.5,
+      "necessity_luxury": -47.6,
+      "tech_emotion": 11.7,
+      "avg_price": 19225,
+      "review_count": 221,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -39.1,
+          "keyword": -70.0,
+          "subjective": -30
+        },
+        "necessity_luxury": {
+          "keyword": -45.3,
+          "subjective": -50
+        },
+        "tech_emotion": {
+          "keyword": 32.8,
+          "subjective": -20
+        }
+      },
+      "cluster_name": "대중 필수케어"
+    },
+    "한율": {
+      "mass_premium": -24.9,
+      "necessity_luxury": -36.2,
+      "tech_emotion": 10.9,
+      "avg_price": 45412,
+      "review_count": 235,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -34.2,
+          "keyword": -39.4,
+          "subjective": 20
+        },
+        "necessity_luxury": {
+          "keyword": -42.4,
+          "subjective": -30
+        },
+        "tech_emotion": {
+          "keyword": 11.5,
+          "subjective": 10
+        }
+      },
+      "cluster_name": "중가 필수케어"
+    },
+    "이니스프리": {
+      "mass_premium": -42.2,
+      "necessity_luxury": -26.0,
+      "tech_emotion": 21.5,
+      "avg_price": 18208,
+      "review_count": 222,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -43.1,
+          "keyword": -48.8,
+          "subjective": -30
+        },
+        "necessity_luxury": {
+          "keyword": -32.0,
+          "subjective": -20
+        },
+        "tech_emotion": {
+          "keyword": 15.8,
+          "subjective": 30
+        }
+      },
+      "cluster_name": "대중 밸런스"
+    },
+    "헤라": {
+      "mass_premium": 13.8,
+      "necessity_luxury": -1.2,
+      "tech_emotion": 34.4,
+      "avg_price": 64594,
+      "review_count": 246,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -5.7,
+          "keyword": 8.8,
+          "subjective": 70
+        },
+        "necessity_luxury": {
+          "keyword": -32.5,
+          "subjective": 30
+        },
+        "tech_emotion": {
+          "keyword": 30.7,
+          "subjective": 40
+        }
+      },
+      "cluster_name": "프리미엄 밸런스"
+    },
+    "메이크온": {
+      "mass_premium": -8.7,
+      "necessity_luxury": -17.2,
+      "tech_emotion": -29.2,
+      "avg_price": 417922,
+      "review_count": 96,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -21.5,
+          "keyword": -33.3,
+          "subjective": 60
+        },
+        "necessity_luxury": {
+          "keyword": -74.5,
+          "subjective": 40
+        },
+        "tech_emotion": {
+          "keyword": -35.3,
+          "subjective": -20
+        }
+      },
+      "cluster_name": "프리미엄 기능"
+    },
+    "아모레퍼시픽": {
+      "mass_premium": 1.6,
+      "necessity_luxury": -27.5,
+      "tech_emotion": 32.9,
+      "avg_price": 113760,
+      "review_count": 60,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -24.9,
+          "keyword": 0.0,
+          "subjective": 70
+        },
+        "necessity_luxury": {
+          "keyword": -75.0,
+          "subjective": 20
+        },
+        "tech_emotion": {
+          "keyword": 34.8,
+          "subjective": 30
+        }
+      },
+      "cluster_name": "대중 밸런스"
+    },
+    "려": {
+      "mass_premium": -29.8,
+      "necessity_luxury": -45.8,
+      "tech_emotion": 12.6,
+      "avg_price": 21120,
+      "review_count": 237,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -36.0,
+          "keyword": -32.6,
+          "subjective": -10
+        },
+        "necessity_luxury": {
+          "keyword": -51.5,
+          "subjective": -40
+        },
+        "tech_emotion": {
+          "keyword": 34.4,
+          "subjective": -20
+        }
+      },
+      "cluster_name": "중가 필수케어"
+    },
+    "에이피뷰티": {
+      "mass_premium": 16.3,
+      "necessity_luxury": -16.6,
+      "tech_emotion": 8.1,
+      "avg_price": 187064,
+      "review_count": 226,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": 0.1,
+          "keyword": 34.3,
+          "subjective": 30
+        },
+        "necessity_luxury": {
+          "keyword": -43.3,
+          "subjective": 10
+        },
+        "tech_emotion": {
+          "keyword": 0.2,
+          "subjective": 20
+        }
+      },
+      "cluster_name": "프리미엄 밸런스"
+    },
+    "앞바다즈": {
+      "mass_premium": -26.5,
+      "necessity_luxury": 0.0,
+      "tech_emotion": 78.5,
+      "avg_price": 19070,
+      "review_count": 179,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -35.5,
+          "keyword": -9.3,
+          "subjective": -30
+        },
+        "necessity_luxury": {
+          "keyword": -50.0,
+          "subjective": 50
+        },
+        "tech_emotion": {
+          "keyword": 77.5,
+          "subjective": 80
+        }
+      },
+      "cluster_name": "대중 감성"
+    },
+    "에스쁘아": {
+      "mass_premium": -24.5,
+      "necessity_luxury": -8.4,
+      "tech_emotion": 41.3,
+      "avg_price": 21586,
+      "review_count": 229,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -27.3,
+          "keyword": -56.0,
+          "subjective": 30
+        },
+        "necessity_luxury": {
+          "keyword": -36.8,
+          "subjective": 20
+        },
+        "tech_emotion": {
+          "keyword": 35.5,
+          "subjective": 50
+        }
+      },
+      "cluster_name": "대중 감성"
+    },
+    "아모레베이직": {
+      "mass_premium": -47.2,
+      "necessity_luxury": -60.4,
+      "tech_emotion": 30.6,
+      "avg_price": 14559,
+      "review_count": 175,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -36.1,
+          "keyword": -63.8,
+          "subjective": -50
+        },
+        "necessity_luxury": {
+          "keyword": -60.7,
+          "subjective": -60
+        },
+        "tech_emotion": {
+          "keyword": 57.7,
+          "subjective": -10
+        }
+      },
       "cluster_name": "대중 필수케어"
     },
     "설화수": {
@@ -738,32 +589,191 @@
           "subjective": 50
         }
       },
-      "cluster_id": 1,
-      "cluster_name": "중가 밸런스"
+      "cluster_name": "프리미엄 밸런스"
     },
-    "한율": {
-      "mass_premium": -24.9,
-      "necessity_luxury": -36.2,
-      "tech_emotion": 10.9,
-      "avg_price": 45412,
-      "review_count": 235,
+    "에스트라": {
+      "mass_premium": -27.4,
+      "necessity_luxury": -50.8,
+      "tech_emotion": -26.1,
+      "avg_price": 41946,
+      "review_count": 241,
       "scores_breakdown": {
         "mass_premium": {
-          "price": -34.2,
-          "keyword": -39.4,
-          "subjective": 20
+          "price": -36.7,
+          "keyword": -36.8,
+          "subjective": 10
         },
         "necessity_luxury": {
-          "keyword": -42.4,
-          "subjective": -30
+          "keyword": -61.6,
+          "subjective": -40
         },
         "tech_emotion": {
-          "keyword": 11.5,
+          "keyword": -10.2,
+          "subjective": -50
+        }
+      },
+      "cluster_name": "중가 필수케어"
+    },
+    "라보에이치": {
+      "mass_premium": -41.8,
+      "necessity_luxury": -57.6,
+      "tech_emotion": -3.8,
+      "avg_price": 21425,
+      "review_count": 233,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -35.8,
+          "keyword": -66.2,
+          "subjective": -20
+        },
+        "necessity_luxury": {
+          "keyword": -65.3,
+          "subjective": -50
+        },
+        "tech_emotion": {
+          "keyword": 13.6,
+          "subjective": -30
+        }
+      },
+      "cluster_name": "대중 필수케어"
+    },
+    "아모레성수": {
+      "mass_premium": -18.4,
+      "necessity_luxury": -35.0,
+      "tech_emotion": 49.7,
+      "avg_price": 16562,
+      "review_count": 157,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -32.9,
+          "keyword": -33.3,
+          "subjective": 40
+        },
+        "necessity_luxury": {
+          "keyword": -100.0,
+          "subjective": 30
+        },
+        "tech_emotion": {
+          "keyword": 42.9,
+          "subjective": 60
+        }
+      },
+      "cluster_name": "대중 밸런스"
+    },
+    "홀리추얼": {
+      "mass_premium": 7.4,
+      "necessity_luxury": -9.6,
+      "tech_emotion": 2.2,
+      "avg_price": 99222,
+      "review_count": 237,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -21.3,
+          "keyword": 26.7,
+          "subjective": 50
+        },
+        "necessity_luxury": {
+          "keyword": -49.2,
+          "subjective": 30
+        },
+        "tech_emotion": {
+          "keyword": 10.3,
+          "subjective": -10
+        }
+      },
+      "cluster_name": "대중 밸런스"
+    },
+    "비레디": {
+      "mass_premium": -34.4,
+      "necessity_luxury": -44.0,
+      "tech_emotion": 6.8,
+      "avg_price": 25158,
+      "review_count": 219,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -33.9,
+          "keyword": -44.8,
+          "subjective": -20
+        },
+        "necessity_luxury": {
+          "keyword": -68.0,
+          "subjective": -20
+        },
+        "tech_emotion": {
+          "keyword": 4.7,
           "subjective": 10
         }
       },
-      "cluster_id": 2,
-      "cluster_name": "대중 밸런스"
+      "cluster_name": "중가 필수케어"
+    },
+    "오설록": {
+      "mass_premium": 6.8,
+      "necessity_luxury": 41.1,
+      "tech_emotion": 84.2,
+      "avg_price": 19102,
+      "review_count": 223,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -40.0,
+          "keyword": 69.4,
+          "subjective": 30
+        },
+        "necessity_luxury": {
+          "keyword": 32.3,
+          "subjective": 50
+        },
+        "tech_emotion": {
+          "keyword": 93.6,
+          "subjective": 70
+        }
+      },
+      "cluster_name": "중가 라이프스타일"
+    },
+    "해피바스": {
+      "mass_premium": -51.4,
+      "necessity_luxury": -20.5,
+      "tech_emotion": 51.0,
+      "avg_price": 8887,
+      "review_count": 224,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -46.0,
+          "keyword": -61.4,
+          "subjective": -50
+        },
+        "necessity_luxury": {
+          "keyword": -1.0,
+          "subjective": -40
+        },
+        "tech_emotion": {
+          "keyword": 65.0,
+          "subjective": 30
+        }
+      },
+      "cluster_name": "대중 감성"
+    },
+    "미쟝센": {
+      "mass_premium": -26.7,
+      "necessity_luxury": -62.2,
+      "tech_emotion": -17.2,
+      "avg_price": 417922,
+      "review_count": 96,
+      "scores_breakdown": {
+        "mass_premium": {
+          "price": -21.5,
+          "keyword": -33.3,
+          "subjective": -30
+        },
+        "necessity_luxury": {
+          "keyword": -74.5,
+          "subjective": -50
+        },
+        "tech_emotion": {
+          "keyword": -35.3,
+          "subjective": 10
+        }
+      },
+      "cluster_name": "중가 필수케어"
     },
     "마몽드": {
       "mass_premium": -38.1,
@@ -786,8 +796,7 @@
           "subjective": 20
         }
       },
-      "cluster_id": 2,
-      "cluster_name": "대중 밸런스"
+      "cluster_name": "중가 필수케어"
     },
     "라네즈": {
       "mass_premium": -25.9,
@@ -810,8 +819,7 @@
           "subjective": 30
         }
       },
-      "cluster_id": 2,
-      "cluster_name": "대중 밸런스"
+      "cluster_name": "대중 감성"
     }
   }
 }

@@ -1,5 +1,5 @@
 {
-  "analyzed_at": "2026-01-01T04:30:00",
+  "analyzed_at": "2026-01-03T20:30:00",
   "analysis_method": "리뷰 키워드 및 맥락 분석 기반",
   "axes_description": {
     "mass_premium": "Mass(-100) ~ Premium(+100): 대중적/가성비 vs 고급/프리미엄",
@@ -22,6 +22,14 @@
       "tech_emotion": -30,
       "reasoning": "두피케어 전문 브랜드. 기능성/효능 중심 리뷰. 탈모방지, 두피건강 등 필수적 케어 니즈.",
       "keywords": ["두피", "탈모방지", "시원한", "샴푸", "기능성", "두피케어"]
+    },
+    "려": {
+      "review_count": 237,
+      "mass_premium": -10,
+      "necessity_luxury": -40,
+      "tech_emotion": -20,
+      "reasoning": "한방 헤어케어 브랜드. 탈모방지, 두피케어 등 기능성 강조. 자양윤모 등 한방 성분. 중저가 대중적 포지셔닝.",
+      "keywords": ["탈모방지", "자양윤모", "두피", "샴푸", "한방", "청아"]
     },
     "롱테이크": {
       "review_count": 206,
@@ -47,14 +55,6 @@
       "reasoning": "치약/칫솔 생활필수품. 저렴한 가격대, 기능성(잇몸건강, 구취제거) 중심.",
       "keywords": ["치약", "칫솔", "잇몸", "구취", "소금", "미세모"]
     },
-    "정글몬스터": {
-      "review_count": 125,
-      "mass_premium": 0,
-      "necessity_luxury": -30,
-      "tech_emotion": 10,
-      "reasoning": "반려동물 케어 브랜드. 강아지 칫솔/클리퍼 등 필수용품. 실용성 강조.",
-      "keywords": ["강아지", "칫솔", "클리퍼", "반려동물", "부드러운", "위생"]
-    },
     "메이크온": {
       "review_count": 96,
       "mass_premium": 60,
@@ -63,13 +63,21 @@
       "reasoning": "뷰티디바이스 브랜드. 고가 제품, 피부관리기기. 기술/효능 중심.",
       "keywords": ["피부관리기기", "수분케어", "모공", "LED", "스킨케어", "홈케어"]
     },
-    "에이피뷰티": {
+    "미쟝센": {
+      "review_count": 96,
+      "mass_premium": -30,
+      "necessity_luxury": -50,
+      "tech_emotion": 10,
+      "reasoning": "대중적 헤어케어 브랜드. 저렴한 가격, 드럭스토어 접근성. 스킨 그래뉴얼 등 기능성 + 향기 강조.",
+      "keywords": ["샴푸", "헤어", "향기", "데일리", "가성비", "매끈"]
+    },
+    "바이탈뷰티": {
       "review_count": 226,
-      "mass_premium": 30,
-      "necessity_luxury": 10,
-      "tech_emotion": 20,
-      "reasoning": "아모레퍼시픽 쿠션 브랜드. 메이크업 제품, 케이스 디자인 언급. 중간 가격대.",
-      "keywords": ["쿠션", "파운데이션", "커버력", "케이스", "발림성", "메이크업"]
+      "mass_premium": 40,
+      "necessity_luxury": 20,
+      "tech_emotion": -40,
+      "reasoning": "이너뷰티/건강기능식품 브랜드. 메타그린, 콜라겐 등 기능성 성분 강조. 효능/효과 중심 리뷰.",
+      "keywords": ["메타그린", "다이어트", "콜라겐", "이너뷰티", "건강", "효과"]
     },
     "비레디": {
       "review_count": 219,
@@ -151,21 +159,21 @@
       "reasoning": "더마 스킨케어 브랜드. 아토베리어 라인, 민감피부용. 피부과 추천.",
       "keywords": ["아토베리어", "민감성", "피부과", "장벽", "진정", "더마"]
     },
-    "아모스 프로페셔널": {
-      "review_count": 214,
-      "mass_premium": 20,
-      "necessity_luxury": -40,
-      "tech_emotion": -40,
-      "reasoning": "두피케어 전문. 샴푸, 두피팩 등 기능성 제품. 두피건선 등 문제해결 중심.",
-      "keywords": ["두피", "샴푸", "각질", "두피케어", "민감성", "전문가"]
+    "에이피뷰티": {
+      "review_count": 226,
+      "mass_premium": 30,
+      "necessity_luxury": 10,
+      "tech_emotion": 20,
+      "reasoning": "아모레퍼시픽 쿠션 브랜드. 메이크업 제품, 케이스 디자인 언급. 중간 가격대.",
+      "keywords": ["쿠션", "파운데이션", "커버력", "케이스", "발림성", "메이크업"]
     },
-    "라 리베라": {
+    "오딧세이": {
       "review_count": 269,
-      "mass_premium": 0,
+      "mass_premium": 20,
       "necessity_luxury": -10,
-      "tech_emotion": 40,
-      "reasoning": "바디케어 브랜드. 선밀크, 여성청결제 등. 순한 성분과 향기 강조.",
-      "keywords": ["선밀크", "바디로션", "여성청결제", "순한", "향기", "민감피부"]
+      "tech_emotion": 30,
+      "reasoning": "남성 스킨케어/그루밍 브랜드. 면도, 스킨케어 등 기본케어. 세련된 패키지와 향.",
+      "keywords": ["남성", "면도", "스킨", "그루밍", "세련된", "향"]
     },
     "오설록": {
       "review_count": 223,

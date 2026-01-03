@@ -1,5 +1,5 @@
 {
-  "analyzed_at": "2026-01-01T02:33:27.330151",
+  "analyzed_at": "2026-01-03T20:03:11.147492",
   "method": "hybrid_category_price_analysis_v3",
   "config": {
     "min_subcategory_count": 10,
@@ -9,23 +9,23 @@
     "스킨케어": {
       "min": 1280,
       "max": 603000,
-      "mean": 56426,
-      "median": 30100,
-      "count": 643
+      "mean": 62854,
+      "median": 32150,
+      "count": 672
     },
     "소품 & 도구": {
       "min": 1500,
       "max": 180000,
-      "mean": 17910,
-      "median": 14950,
-      "count": 96
+      "mean": 20122,
+      "median": 15000,
+      "count": 99
     },
     "메이크업": {
       "min": 3400,
       "max": 105300,
-      "mean": 23763,
+      "mean": 24578,
       "median": 17600,
-      "count": 278
+      "count": 282
     },
     "남성": {
       "min": 9000,
@@ -36,10 +36,10 @@
     },
     "생활용품": {
       "min": 1000,
-      "max": 174000,
-      "mean": 23766,
-      "median": 18100,
-      "count": 308
+      "max": 180000,
+      "mean": 24849,
+      "median": 17900,
+      "count": 277
     },
     "향수": {
       "min": 18000,
@@ -48,26 +48,19 @@
       "median": 42000,
       "count": 7
     },
-    "반려동물용품": {
-      "min": 5900,
-      "max": 69900,
-      "mean": 21853,
-      "median": 17900,
-      "count": 51
-    },
     "뷰티 디바이스": {
       "min": 315000,
       "max": 1899000,
       "mean": 692800,
       "median": 450000,
-      "count": 5
+      "count": 10
     },
     "뷰티푸드": {
       "min": 6000,
       "max": 135000,
-      "mean": 19645,
+      "mean": 19691,
       "median": 14850,
-      "count": 104
+      "count": 105
     },
     "선물추천": {
       "min": 31500,
@@ -78,9 +71,9 @@
     },
     "베이비": {
       "min": 14500,
-      "max": 44900,
-      "mean": 29300,
-      "median": 24900,
+      "max": 80000,
+      "mean": 40654,
+      "median": 40000,
       "count": 13
     }
   },
@@ -88,23 +81,23 @@
     "스킨케어|모이스처라이징": {
       "min": 2250,
       "max": 603000,
-      "mean": 77018,
-      "median": 41975,
-      "count": 332
+      "mean": 86606,
+      "median": 46400,
+      "count": 353
     },
     "소품 & 도구|미용 소도구": {
       "min": 2000,
-      "max": 39900,
-      "mean": 14579,
+      "max": 44000,
+      "mean": 16057,
       "median": 12600,
-      "count": 41
+      "count": 43
     },
     "스킨케어|클렌징": {
       "min": 4900,
       "max": 90000,
-      "mean": 22834,
-      "median": 19550,
-      "count": 111
+      "mean": 24233,
+      "median": 19800,
+      "count": 114
     },
     "메이크업|립": {
       "min": 6600,
@@ -116,23 +109,23 @@
     "스킨케어|스페셜 케어": {
       "min": 1280,
       "max": 400500,
-      "mean": 40897,
-      "median": 25550,
-      "count": 106
+      "mean": 45285,
+      "median": 26175,
+      "count": 110
     },
     "메이크업|페이스": {
       "min": 6300,
       "max": 105300,
-      "mean": 34115,
-      "median": 26400,
-      "count": 116
+      "mean": 35685,
+      "median": 28025,
+      "count": 120
     },
     "스킨케어|선케어": {
       "min": 9900,
       "max": 81000,
-      "mean": 28342,
+      "mean": 29177,
       "median": 25000,
-      "count": 61
+      "count": 62
     },
     "스킨케어|세트": {
       "min": 15000,
@@ -151,15 +144,15 @@
     "생활용품|헤어": {
       "min": 5000,
       "max": 119900,
-      "mean": 29877,
-      "median": 24900,
-      "count": 124
+      "mean": 30881,
+      "median": 21600,
+      "count": 93
     },
     "생활용품|바디": {
       "min": 1000,
-      "max": 174000,
-      "mean": 21770,
-      "median": 16900,
+      "max": 180000,
+      "mean": 24375,
+      "median": 16950,
       "count": 152
     },
     "생활용품|구강": {
@@ -168,6 +161,13 @@
       "mean": 8532,
       "median": 6950,
       "count": 30
+    },
+    "뷰티 디바이스|페이셜 케어 기기": {
+      "min": 315000,
+      "max": 1899000,
+      "mean": 692800,
+      "median": 450000,
+      "count": 10
     },
     "남성|에센스 & 크림": {
       "min": 23200,
@@ -197,25 +197,25 @@
       "median": 14250,
       "count": 20
     },
-    "베이비|스킨/바디케어": {
-      "min": 14500,
-      "max": 44900,
-      "mean": 28282,
-      "median": 24900,
-      "count": 11
-    },
     "뷰티푸드|차(TEA) / 간식": {
       "min": 6000,
       "max": 135000,
       "mean": 18947,
       "median": 14425,
       "count": 102
+    },
+    "베이비|스킨/바디케어": {
+      "min": 14500,
+      "max": 65000,
+      "mean": 37136,
+      "median": 35000,
+      "count": 11
     }
   },
   "overall_stats": {
-    "score_min": -45.8,
-    "score_max": 0.4,
-    "score_mean": -30.2,
+    "score_min": -46.0,
+    "score_max": 0.1,
+    "score_mean": -29.0,
     "score_median": -34.1
   },
   "brands": {
@@ -257,19 +257,6 @@
         "생활용품 > 리필": 1
       }
     },
-    "려": {
-      "product_count": 35,
-      "avg_price": 21120,
-      "median_price": 17900,
-      "min_price": 5950,
-      "max_price": 56400,
-      "avg_discount_rate": 25.9,
-      "price_score": -36.0,
-      "sub_normalization_ratio": 100.0,
-      "category_distribution": {
-        "생활용품 > 헤어": 35
-      }
-    },
     "롱테이크": {
       "product_count": 18,
       "avg_price": 28833,
@@ -277,7 +264,7 @@
       "min_price": 5000,
       "max_price": 42000,
       "avg_discount_rate": 17.0,
-      "price_score": -29.4,
+      "price_score": -29.6,
       "sub_normalization_ratio": 83.3,
       "category_distribution": {
         "생활용품 > 헤어": 9,
@@ -317,20 +304,6 @@
         "생활용품 > 구강": 30
       }
     },
-    "정글몬스터": {
-      "product_count": 51,
-      "avg_price": 21853,
-      "median_price": 17900,
-      "min_price": 5900,
-      "max_price": 69900,
-      "avg_discount_rate": 0,
-      "price_score": -25.1,
-      "sub_normalization_ratio": 0.0,
-      "category_distribution": {
-        "반려동물용품": 49,
-        "반려동물용품 > 고양이": 2
-      }
-    },
     "메이크온": {
       "product_count": 9,
       "avg_price": 417922,
@@ -339,7 +312,7 @@
       "max_price": 1899000,
       "avg_discount_rate": 23.3,
       "price_score": -21.5,
-      "sub_normalization_ratio": 22.2,
+      "sub_normalization_ratio": 77.8,
       "category_distribution": {
         "스킨케어 > 스페셜 케어": 2,
         "뷰티 디바이스 > 페이셜 케어 기기": 5,
@@ -354,7 +327,7 @@
       "min_price": 12600,
       "max_price": 603000,
       "avg_discount_rate": 10.0,
-      "price_score": 0.4,
+      "price_score": 0.1,
       "sub_normalization_ratio": 100.0,
       "category_distribution": {
         "메이크업 > 페이스": 4,
@@ -413,7 +386,7 @@
       "min_price": 2570,
       "max_price": 72000,
       "avg_discount_rate": 10.5,
-      "price_score": -35.8,
+      "price_score": -36.1,
       "sub_normalization_ratio": 70.6,
       "category_distribution": {
         "소품 & 도구": 2,
@@ -484,7 +457,7 @@
       "min_price": 2500,
       "max_price": 49000,
       "avg_discount_rate": 25.0,
-      "price_score": -34.8,
+      "price_score": -35.5,
       "sub_normalization_ratio": 15.0,
       "category_distribution": {
         "소품 & 도구": 17,
@@ -525,7 +498,7 @@
       "min_price": 2000,
       "max_price": 47200,
       "avg_discount_rate": 22.0,
-      "price_score": -27.1,
+      "price_score": -27.3,
       "sub_normalization_ratio": 89.2,
       "category_distribution": {
         "메이크업 > 페이스": 24,
@@ -558,38 +531,6 @@
         "스킨케어 > 선케어": 6,
         "스킨케어": 1,
         "스킨케어 > 세트": 1
-      }
-    },
-    "아모스 프로페셔널": {
-      "product_count": 31,
-      "avg_price": 27194,
-      "median_price": 28000,
-      "min_price": 17000,
-      "max_price": 36000,
-      "avg_discount_rate": 0,
-      "price_score": -30.7,
-      "sub_normalization_ratio": 100.0,
-      "category_distribution": {
-        "생활용품 > 헤어": 31
-      }
-    },
-    "라 리베라": {
-      "product_count": 82,
-      "avg_price": 41270,
-      "median_price": 29900,
-      "min_price": 1000,
-      "max_price": 174000,
-      "avg_discount_rate": 32.2,
-      "price_score": -9.2,
-      "sub_normalization_ratio": 97.6,
-      "category_distribution": {
-        "베이비 > 스킨/바디케어": 11,
-        "생활용품 > 헤어": 23,
-        "생활용품 > 바디": 26,
-        "스킨케어 > 모이스처라이징": 2,
-        "소품 & 도구 > 미용 소도구": 14,
-        "스킨케어 > 클렌징": 4,
-        "베이비 > 선케어": 2
       }
     },
     "오설록": {
@@ -645,7 +586,7 @@
       "min_price": 5800,
       "max_price": 41800,
       "avg_discount_rate": 28.6,
-      "price_score": -38.9,
+      "price_score": -39.1,
       "sub_normalization_ratio": 100.0,
       "category_distribution": {
         "생활용품 > 바디": 44,
@@ -663,7 +604,7 @@
       "min_price": 21000,
       "max_price": 33000,
       "avg_discount_rate": 0,
-      "price_score": -36.6,
+      "price_score": -36.8,
       "sub_normalization_ratio": 33.3,
       "category_distribution": {
         "소품 & 도구 > 캔들 & 디퓨저": 2,
@@ -677,7 +618,7 @@
       "min_price": 5950,
       "max_price": 109200,
       "avg_discount_rate": 18.0,
-      "price_score": -34.4,
+      "price_score": -34.5,
       "sub_normalization_ratio": 100.0,
       "category_distribution": {
         "스킨케어 > 클렌징": 14,
@@ -718,7 +659,7 @@
       "min_price": 4900,
       "max_price": 19900,
       "avg_discount_rate": 27.2,
-      "price_score": -45.8,
+      "price_score": -46.0,
       "sub_normalization_ratio": 100.0,
       "category_distribution": {
         "생활용품 > 바디": 40,
@@ -733,7 +674,7 @@
       "min_price": 7200,
       "max_price": 288000,
       "avg_discount_rate": 13.4,
-      "price_score": -5.6,
+      "price_score": -5.7,
       "sub_normalization_ratio": 96.8,
       "category_distribution": {
         "스킨케어 > 선케어": 5,
@@ -760,7 +701,7 @@
       "min_price": 35000,
       "max_price": 280000,
       "avg_discount_rate": 0,
-      "price_score": -21.2,
+      "price_score": -21.3,
       "sub_normalization_ratio": 94.4,
       "category_distribution": {
         "생활용품 > 바디": 2,
@@ -768,6 +709,72 @@
         "스킨케어 > 모이스처라이징": 9,
         "스킨케어 > 스페셜 케어": 4,
         "뷰티푸드 > 건강식품": 1
+      }
+    },
+    "려": {
+      "product_count": 35,
+      "avg_price": 21120,
+      "median_price": 17900,
+      "min_price": 5950,
+      "max_price": 56400,
+      "avg_discount_rate": 25.9,
+      "price_score": -36.0,
+      "sub_normalization_ratio": 100.0,
+      "category_distribution": {
+        "생활용품 > 헤어": 35
+      }
+    },
+    "미쟝센": {
+      "product_count": 9,
+      "avg_price": 417922,
+      "median_price": 315000,
+      "min_price": 2800,
+      "max_price": 1899000,
+      "avg_discount_rate": 23.3,
+      "price_score": -21.5,
+      "sub_normalization_ratio": 77.8,
+      "category_distribution": {
+        "스킨케어 > 스페셜 케어": 2,
+        "뷰티 디바이스 > 페이셜 케어 기기": 5,
+        "뷰티푸드 > 건강식품": 1,
+        "소품 & 도구 > 바디 & 헤어 소품": 1
+      }
+    },
+    "바이탈뷰티": {
+      "product_count": 33,
+      "avg_price": 187064,
+      "median_price": 153000,
+      "min_price": 12600,
+      "max_price": 603000,
+      "avg_discount_rate": 10.0,
+      "price_score": 0.1,
+      "sub_normalization_ratio": 100.0,
+      "category_distribution": {
+        "메이크업 > 페이스": 4,
+        "스킨케어 > 클렌징": 3,
+        "스킨케어 > 선케어": 1,
+        "스킨케어 > 모이스처라이징": 21,
+        "소품 & 도구 > 미용 소도구": 2,
+        "스킨케어 > 스페셜 케어": 2
+      }
+    },
+    "오딧세이": {
+      "product_count": 82,
+      "avg_price": 49339,
+      "median_price": 35000,
+      "min_price": 1000,
+      "max_price": 180000,
+      "avg_discount_rate": 36.3,
+      "price_score": -5.7,
+      "sub_normalization_ratio": 97.6,
+      "category_distribution": {
+        "생활용품 > 헤어": 23,
+        "생활용품 > 바디": 26,
+        "베이비 > 스킨/바디케어": 11,
+        "스킨케어 > 모이스처라이징": 2,
+        "소품 & 도구 > 미용 소도구": 14,
+        "스킨케어 > 클렌징": 4,
+        "베이비 > 선케어": 2
       }
     }
   }

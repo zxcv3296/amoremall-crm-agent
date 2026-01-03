@@ -83,75 +83,88 @@ def combine_scores():
     return combined
 
 def cluster_brands(combined_data, n_clusters=7):
-    """K-means 클러스터링"""
-    brands = list(combined_data.keys())
-    features = []
+    """K-means 클러스터링 - 7개 고정 클러스터"""
 
-    for brand in brands:
-        data = combined_data[brand]
-        features.append([
-            data['mass_premium'],
-            data['necessity_luxury'],
-            data['tech_emotion']
-        ])
-
-    # 정규화
-    scaler = StandardScaler()
-    features_scaled = scaler.fit_transform(features)
-
-    # K-means
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
-    clusters = kmeans.fit_predict(features_scaled)
-
-    # 클러스터 중심점 역변환
-    centers = scaler.inverse_transform(kmeans.cluster_centers_)
-
-    # 클러스터 이름 자동 생성
-    cluster_names = {}
-    for i, center in enumerate(centers):
-        mp, nl, te = center
-
-        # 이름 결정 로직
-        if mp > 30:
-            price_tier = "프리미엄"
-        elif mp > 0:
-            price_tier = "중가"
-        else:
-            price_tier = "대중"
-
-        if te > 30:
-            style = "감성"
-        elif te < -20:
-            style = "기능"
-        else:
-            style = "밸런스"
-
-        if nl > 20:
-            need = "라이프스타일"
-        elif nl < -40:
-            need = "필수케어"
-        else:
-            need = ""
-
-        name = f"{price_tier} {style}"
-        if need:
-            name = f"{price_tier} {need}"
-
-        cluster_names[i] = {
-            "name": name,
-            "center": {
-                "mass_premium": round(mp, 1),
-                "necessity_luxury": round(nl, 1),
-                "tech_emotion": round(te, 1)
-            }
+    # 7개 클러스터 정의
+    CLUSTER_DEFINITIONS = {
+        "프리미엄 기능": {
+            "description": "첨단 뷰티 테크놀로지와 고성능 원료를 결합하여 즉각적인 피부 개선 효과를 제공하는 하이엔드 라인",
+            "persona": "테크니컬 홈케어족",
+            "criteria": {"mp_min": 0, "te_max": -10}  # 중가 이상 + 기술 중심
+        },
+        "프리미엄 밸런스": {
+            "description": "독보적인 브랜드 헤리티지와 심미적 가치, 최상의 고객 경험을 제공하는 럭셔리 토탈 케어 라인",
+            "persona": "하이엔드 품격가",
+            "criteria": {"mp_min": 15, "te_min": 10}  # 프리미엄 + 감성적
+        },
+        "중가 라이프스타일": {
+            "description": "단순한 화장품을 넘어 향기, 휴식, 취향 등 일상 전반의 감성적 만족과 웰니스를 지향하는 라인",
+            "persona": "웰니스 힐링 탐험가",
+            "criteria": {"nl_min": 20, "te_min": 70}  # 라이프스타일 + 고감성
+        },
+        "중가 필수케어": {
+            "description": "피부 전문가의 처방이나 연구소 데이터 기반의 더마 솔루션을 통해 피부 근본 문제를 해결하는 기능성 라인",
+            "persona": "연구소 기반 해결사",
+            "criteria": {"mp_min": -35, "mp_max": 0, "nl_max": -20, "te_max": 15}  # 중가 + 필수재 + 기능
+        },
+        "대중 감성": {
+            "description": "최신 트렌드를 반영한 감각적인 디자인과 색조 중심의 제품군으로 자기표현과 즐거움을 제공하는 라인",
+            "persona": "트렌디 Z세대",
+            "criteria": {"mp_max": -15, "te_min": 20}  # 대중적 + 감성
+        },
+        "대중 밸런스": {
+            "description": "검증된 품질과 합리적인 가격대를 유지하며 일상적인 뷰티 루틴을 책임지는 대중적 프리미엄 라인",
+            "persona": "합리적 큐레이터",
+            "criteria": {"mp_min": -30, "mp_max": 5, "nl_min": -45, "nl_max": 0}  # 중간 + 밸런스
+        },
+        "대중 필수케어": {
+            "description": "온 가족이 안심하고 사용할 수 있는 가성비 중심의 생활 밀착형 대용량 및 저자극 케어 라인",
+            "persona": "실속형 가계 수호자",
+            "criteria": {"mp_max": -35, "nl_max": -45}  # 대중 + 필수재
         }
+    }
 
-    # 결과 매핑
-    result = {}
-    for idx, brand in enumerate(brands):
-        cluster_id = int(clusters[idx])
-        combined_data[brand]['cluster_id'] = cluster_id
-        combined_data[brand]['cluster_name'] = cluster_names[cluster_id]['name']
+    def assign_cluster(mp, nl, te):
+        """점수 기반 클러스터 할당"""
+        # 우선순위에 따른 클러스터 할당
+
+        # 1. 중가 라이프스타일 (향기/감성 특화)
+        if nl > 20 and te > 60:
+            return "중가 라이프스타일"
+
+        # 2. 프리미엄 기능 (고가 + 기술)
+        if mp > -10 and te < -15:
+            return "프리미엄 기능"
+
+        # 3. 프리미엄 밸런스 (프리미엄 + 밸런스/감성)
+        if mp > 10 and te > 0:
+            return "프리미엄 밸런스"
+
+        # 4. 대중 감성 (대중적 + 감성)
+        if mp < -15 and te > 25 and nl > -35:
+            return "대중 감성"
+
+        # 5. 대중 필수케어 (저가 + 필수재)
+        if mp < -35 and nl < -40:
+            return "대중 필수케어"
+
+        # 6. 중가 필수케어 (중간 가격 + 필수재/기능)
+        if mp > -40 and mp < 5 and nl < -25 and te < 20:
+            return "중가 필수케어"
+
+        # 7. 대중 밸런스 (나머지)
+        return "대중 밸런스"
+
+    # 각 브랜드에 클러스터 할당
+    cluster_names = {name: {"name": name, **info} for name, info in CLUSTER_DEFINITIONS.items()}
+
+    for brand, data in combined_data.items():
+        mp = data['mass_premium']
+        nl = data['necessity_luxury']
+        te = data['tech_emotion']
+
+        cluster_name = assign_cluster(mp, nl, te)
+        combined_data[brand]['cluster_name'] = cluster_name
 
     return combined_data, cluster_names
 
