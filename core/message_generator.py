@@ -14,7 +14,7 @@ import requests
 # 상위 디렉토리를 path에 추가
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from data.personas import brand_tones
+# brand_tones는 더 이상 사용하지 않음 (페르소나별 톤으로 대체)
 from core.context_builder import MessageContextBuilder
 from config import PURPOSE_NAMES, MODEL_OPTIONS, get_purpose_name, get_ollama_url
 
@@ -61,6 +61,46 @@ def josa(word, josa_type):
         return ''
 
 
+def remove_surname(name):
+    """
+    한국 이름에서 성을 제외하고 이름만 반환
+
+    Args:
+        name: 전체 이름 (예: "서수진", "김민지")
+
+    Returns:
+        이름만 (예: "수진", "민지")
+    """
+    if not name or len(name) < 2:
+        return name
+
+    # 나이 제거: "서수진(33세)" -> "서수진"
+    if '(' in name:
+        name = name.split('(')[0].strip()
+
+    # 한글 이름인지 확인
+    if not all('가' <= c <= '힣' for c in name):
+        return name
+
+    # 일반적인 한국 이름 패턴
+    # 2글자 이름: 성(1) + 이름(1) -> 이름(1) 반환
+    # 3글자 이름: 성(1) + 이름(2) -> 이름(2) 반환
+    # 4글자 이름: 성(2) + 이름(2) 또는 성(1) + 이름(3) -> 이름(2~3) 반환
+
+    # 흔한 복성 리스트
+    double_surnames = ['남궁', '황보', '제갈', '사공', '선우', '독고', '동방', '서문']
+
+    # 복성 체크
+    if len(name) >= 3 and name[:2] in double_surnames:
+        return name[2:]  # 복성 이후 반환
+
+    # 일반 이름 (성 1글자)
+    if len(name) >= 2:
+        return name[1:]  # 첫 글자(성) 제외
+
+    return name
+
+
 class MessageGenerator:
     """
     개인화된 마케팅 메시지 생성기
@@ -100,6 +140,52 @@ class MessageGenerator:
             "api_url": "https://api.openai.com/v1/chat/completions",
             "display_name": "GPT-4o (₩5.5/회)",
             "cost": "~₩5.5/회"
+        }
+    }
+
+    # 페르소나별 톤앤매너 (브랜드 톤 대신 사용)
+    PERSONA_TONES = {
+        "테크니컬 홈케어족": {
+            "tone": "전문적이고 기능 중심",
+            "style": "효능과 기술력 강조, 스마트한 뷰티 솔루션",
+            "keywords": ["고기능성", "기술력", "효과", "전문 케어", "디바이스"],
+            "greeting_style": "효율적인 홈케어를 추구하는"
+        },
+        "하이엔드 품격가": {
+            "tone": "고급스럽고 품격있는",
+            "style": "프리미엄 럭셔리 강조, 우아하고 세련된 표현",
+            "keywords": ["프리미엄", "럭셔리", "품격", "VIP", "시그니처"],
+            "greeting_style": "품격있는 뷰티를 즐기시는"
+        },
+        "웰니스 힐링 탐험가": {
+            "tone": "편안하고 힐링되는",
+            "style": "웰니스, 힐링 감성, 자연스러운 라이프스타일",
+            "keywords": ["힐링", "웰니스", "자연", "건강한", "휴식"],
+            "greeting_style": "건강한 아름다움을 추구하는"
+        },
+        "연구소 기반 해결사": {
+            "tone": "과학적이고 솔루션 중심",
+            "style": "성분과 효능 강조, 문제 해결형 접근",
+            "keywords": ["성분", "효능", "솔루션", "연구", "더마"],
+            "greeting_style": "피부 고민 해결을 위해 연구하시는"
+        },
+        "트렌디 Z세대": {
+            "tone": "발랄하고 트렌디한",
+            "style": "MZ 감성, 트렌드 중심, 인스타/유튜브 친화적",
+            "keywords": ["트렌드", "핫템", "인스타", "바이럴", "감성"],
+            "greeting_style": "트렌드를 리드하시는"
+        },
+        "합리적 큐레이터": {
+            "tone": "실용적이고 합리적인",
+            "style": "가성비와 리뷰 강조, 검증된 제품 추천",
+            "keywords": ["베스트", "리뷰", "가성비", "인기", "추천"],
+            "greeting_style": "현명한 소비를 즐기시는"
+        },
+        "실속형 가계 수호자": {
+            "tone": "따뜻하고 가정적인",
+            "style": "실용성과 가족 중심, 믿을 수 있는 선택",
+            "keywords": ["가족", "실속", "믿음", "안심", "온가족"],
+            "greeting_style": "가족을 위해 꼼꼼히 챙기시는"
         }
     }
 
@@ -317,12 +403,9 @@ class MessageGenerator:
         if persona:
             lifestyle_raw = persona.get('lifestyle', '')
             shopping_raw = persona.get('shopping_pattern', '')
-            # 이름에서 나이 제거: "장수빈(25세)" → "장수빈"
+            # 이름에서 나이 제거 + 성 제외: "장수빈(25세)" → "수빈"
             raw_name = persona.get('name', '')
-            if '(' in raw_name:
-                name = raw_name.split('(')[0].strip()
-            else:
-                name = raw_name
+            name = remove_surname(raw_name)  # 성 제외하여 LLM 프롬프트와 동일하게
 
             # 라이프스타일 데이터를 자연스러운 표현으로 변환
             lifestyle_replacements = {
@@ -477,11 +560,17 @@ class MessageGenerator:
             def replace_wrong_name(text):
                 """잘못된 이름을 올바른 이름으로 교체"""
                 import re
+                # 예외 패턴: 교체하지 않을 일반 호칭들
+                exception_patterns = ["고객님", "여러분님", "회원님"]
+
                 # 모든 "XX님" 패턴을 찾음
                 matches = re.findall(korean_name_pattern, text)
                 for match in matches:
-                    # 올바른 이름이 아니면 교체
-                    if match != correct_name_pattern and match != "고객님":
+                    # 올바른 이름이 아니고, 예외 패턴도 아닌 경우만 교체
+                    if match != correct_name_pattern and match not in exception_patterns:
+                        # "많은 OO님들이" 같은 복수 표현은 교체하지 않음
+                        if f"많은 {match}" in text or f"{match}들" in text:
+                            continue
                         text = text.replace(match, correct_name_pattern)
                 return text
 
@@ -494,9 +583,11 @@ class MessageGenerator:
             title = re.sub(r'^님께', f'{name}님께', title)
             title = re.sub(r'^님!', f'{name}님!', title)
 
-        # 연속 공백 정리
-        body = re.sub(r'\s+', ' ', body).strip()
-        title = re.sub(r'\s+', ' ', title).strip()
+        # 연속 공백 정리 (줄바꿈 유지, 빈 줄 제거!)
+        body = re.sub(r'[^\S\n]+', ' ', body)  # 줄바꿈 제외한 공백만 정리
+        body = re.sub(r'\n{2,}', '\n', body)  # 2개 이상 줄바꿈은 1개로 (빈 줄 제거)
+        body = body.strip()
+        title = re.sub(r'\s+', ' ', title).strip()  # 타이틀은 한 줄
 
         # 브랜드별 금지 표현 (톤 미스매치)
         forbidden_expressions = {
@@ -544,10 +635,14 @@ class MessageGenerator:
             if word in body:
                 body = body.replace(word, "")
 
-        # 연속 공백 정리
+        # 연속 공백 정리 (줄바꿈 유지, 빈 줄 제거!)
         import re
+        # 타이틀은 한 줄이므로 모든 공백을 정리
         title = re.sub(r'\s+', ' ', title).strip()
-        body = re.sub(r'\s+', ' ', body).strip()
+        # 본문은 줄바꿈(\n)을 유지하면서 연속 공백만 정리
+        body = re.sub(r'[^\S\n]+', ' ', body)  # 줄바꿈 제외한 공백만 정리
+        body = re.sub(r'\n{2,}', '\n', body)  # 2개 이상 줄바꿈은 1개로 (빈 줄 제거)
+        body = body.strip()
 
         return {
             "title": title,
@@ -570,13 +665,10 @@ class MessageGenerator:
             str: 보강된 본문 (300~350자)
         """
         TARGET_LEN = 320  # 목표 글자수
-        # name은 이름만 추출 (나이 제외)
+        # name은 이름만 추출 (나이 제외 + 성 제외)
         display_name = persona.get('display_name') or persona.get('name', '고객')
-        # "김서연(42세)" -> "김서연" 추출
-        if '(' in display_name:
-            name = display_name.split('(')[0]
-        else:
-            name = display_name
+        # "김서연(42세)" -> "서연" 추출 (성 제외)
+        name = remove_surname(display_name)
         skin_type = persona.get('skin_type', '피부')
         concerns = persona.get('concerns') or ['피부고민']
         concern = concerns[0] if concerns else '피부고민'
@@ -699,6 +791,42 @@ class MessageGenerator:
         # 기본값
         return instructions.get("맞춤 제품 추천", "")
 
+    def _add_line_breaks(self, body: str) -> str:
+        """
+        본문에 줄바꿈이 없으면 강제로 추가 (가독성 향상)
+
+        줄바꿈이 전혀 없을 때만 3~4문장씩 묶어서 2~3개 문단으로 분리
+        """
+        # 이미 줄바꿈이 있으면 그대로 반환 (LLM이 이미 처리함)
+        if '\n' in body:
+            return body
+
+        # 문장 분리 (. ! ? 기준)
+        import re
+        sentences = re.split(r'(?<=[.!?])\s+', body)
+
+        # 문장이 6개 미만이면 그대로 반환
+        if len(sentences) < 6:
+            return body
+
+        # 3~4문장씩 묶어서 2~3개 문단 생성
+        paragraphs = []
+        current_para = []
+
+        for i, sentence in enumerate(sentences):
+            current_para.append(sentence)
+            # 3~4문장마다 문단 나누기 (마지막 문단은 남은 것 모두)
+            if len(current_para) >= 3 and i < len(sentences) - 2:
+                paragraphs.append(' '.join(current_para))
+                current_para = []
+
+        # 남은 문장 처리
+        if current_para:
+            paragraphs.append(' '.join(current_para))
+
+        # 문단 사이에 줄바꿈 추가 (빈 줄 없이)
+        return '\n'.join(paragraphs)
+
     def _validate_message(self, title: str, body: str, customer_name: str) -> dict:
         """
         메시지 품질 검증
@@ -794,8 +922,9 @@ class MessageGenerator:
         Returns:
             dict: {"title": "제목", "body": "본문"}
         """
-        # 브랜드 톤앤매너 가져오기
-        tone_info = brand_tones.get(brand, brand_tones["라네즈"])
+        # 페르소나 톤앤매너 가져오기 (브랜드 톤 대신)
+        persona_cluster = persona.get('persona_cluster', '합리적 큐레이터')
+        persona_tone = self.PERSONA_TONES.get(persona_cluster, self.PERSONA_TONES["합리적 큐레이터"])
 
         # LLM이 없으면 바로 템플릿 사용
         if not self.llm:
@@ -821,13 +950,21 @@ class MessageGenerator:
             # context_builder로 최적화된 컨텍스트 생성
             optimized_context = self.context_builder.build(persona, purpose, brand, products)
 
-            # 고객 이름 추출 (persona에서) - 나이 제거
+            # 고객 이름 추출 (persona에서) - 나이 제거 + 성 제외
             raw_name = persona.get("name", "고객")
-            # "서수진(33세)" -> "서수진" 추출
-            if '(' in raw_name:
-                customer_name = raw_name.split('(')[0].strip()
-            else:
-                customer_name = raw_name
+            # "서수진(33세)" -> "수진" 추출 (성 제외)
+            customer_name = remove_surname(raw_name)
+
+            # 고객 concerns, skin_type 추출 (타이틀 템플릿용)
+            concerns_list = persona.get('concerns', ['피부고민'])
+            first_concern = concerns_list[0] if concerns_list else '피부고민'
+            skin_type = persona.get('skin_type', '복합성')
+            # skin_type 약어 매핑 (수분부족지성 -> 수부지)
+            skin_type_abbr_map = {
+                '수분부족지성': '수부지', '지성': '지성피부', '건성': '건성피부',
+                '복합성': '복합성피부', '민감성': '민감피부', '중성': '중성피부'
+            }
+            skin_type_abbr = skin_type_abbr_map.get(skin_type, skin_type)
 
             # 프롬프트 생성 (v12 - 간결하고 명확한 지시)
             formatted_prompt = f"""브랜드: {brand}
@@ -844,28 +981,72 @@ JSON으로 출력: {{"title":"...", "body":"..."}}"""""
                 "Content-Type": "application/json"
             }
 
-            # 발신목적별 시스템 메시지 템플릿
+            # 발신목적별 시스템 메시지 템플릿 (페르소나 톤 적용)
+            persona_keywords = ', '.join(persona_tone.get('keywords', [])[:3])
+
+            # 페르소나별 말투 스타일 결정
+            # 친근한 페르소나: 트렌디 Z세대, 실속형 가계 수호자, 합리적 큐레이터
+            # 전문적인 페르소나: 테크니컬 홈케어족, 하이엔드 품격가, 연구소 기반 해결사, 웰니스 힐링 탐험가
+            friendly_personas = ['트렌디 Z세대', '실속형 가계 수호자', '합리적 큐레이터']
+            is_friendly_persona = persona_cluster in friendly_personas
+
+            if is_friendly_persona:
+                tone_style = """- 말투: 친근하고 가벼운 톤 (~해요, ~예요, ~죠?, ㅎㅎ 가능)
+- 이모지: 적극 사용! 🎉💕✨🌟💖😊 등 밝고 친근한 이모지
+- 표현 예시: "완전 대박이에요!", "이건 진짜 안 사면 손해예요!", "놓치면 후회할걸요? 😢" """
+            else:
+                tone_style = """- 말투: 전문적이고 신뢰감 있는 톤 (~해요 유지하되 차분하게)
+- 이모지: 절제해서 사용 (✨🌿💎 정도만, 과하지 않게)
+- 표현 예시: "피부 과학 연구진이 개발한", "프리미엄 성분을 담았어요", "전문가가 추천하는" """
+
+            # 다중 상품 브랜드 혼동 방지 규칙
+            product_brands = set()
+            if products:
+                for p in products:
+                    if isinstance(p, dict):
+                        product_brands.add(p.get('brand', ''))
+            multi_brand = len(product_brands) > 1
+
+            brand_rule = ""
+            if multi_brand:
+                brand_rule = f"""
+[다중 브랜드 상품 규칙 - 매우 중요!]
+- 추천 상품이 여러 브랜드에서 나왔어요: {', '.join(product_brands)}
+- 제목에 특정 브랜드명 사용 금지! (예: "라네즈 추천" ❌)
+- 제목 예시: "{customer_name}님을 위한 특별 추천 🎁", "이번 주 핫템 모음 ✨"
+- 본문에서 각 상품 언급 시 반드시 브랜드명 함께 언급
+  예시: "라네즈 네오쿠션은 커버력이 좋고, 오설록 티세럼은 진정 효과가 있어요"
+- 절대 상품과 브랜드를 섞어서 쓰지 마세요!"""
+
             common_rules = f"""당신은 아모레퍼시픽 CRM 마케팅 메시지 작성 전문가입니다.
+
+[고객 페르소나: {persona_cluster}]
+{tone_style}
+- 키워드 참고: {persona_keywords}
+{brand_rule}
 
 [필수 규칙]
 1. 본문 300~350자 (7~9문장)
-2. "{customer_name}님" 2~3번만 사용 (첫문장 + 중간 or 마지막)
-3. 친근한 말투: ~해요, ~예요, ~세요 (합니다/입니다 금지)
-4. 고객 프로필(피부타입, 관심사, 라이프스타일)을 자연스럽게 반영
-5. 추천 상품의 특징과 혜택을 구체적으로 언급
+2. "{customer_name}님" 2~3번만 사용 (첫문장 + 마지막)
+3. 줄바꿈 적극 활용! 2~3문장마다 빈 줄 넣기 (가독성 향상)
+4. 추천 상품의 특징과 혜택을 구체적으로 언급
+
+[줄바꿈 예시]
+{customer_name}님, 안녕하세요! 🌸
+
+요즘 피부 건조함 때문에 고민이시죠?
+딱 맞는 제품을 찾았어요!
+
+라네즈 워터뱅크는 수분 충전에 탁월해요.
+촉촉함이 하루 종일 유지돼요. ✨
+
+지금 30% 할인 중이니 놓치지 마세요!
 
 [금지 사항]
 - 이름에 나이 붙이기: (33세), (25세) 등
 - 괄호 안 데이터: (280,000원), (+10% 할인) 등
 - 상투적 마무리: "오늘도 당신의 아름다움을 응원합니다"
-- 이모지: 📈, 📊, ✨ 등
-- 플레이스홀더: (제품명), (피부타입)
-
-[마무리 예시]
-- "지금 바로 이 기회를 놓치지 마세요!"
-- "오늘이 마지막일 수 있어요."
-- "장바구니에 담아보세요!"
-- "이번 기회 놓치면 아쉬울 거예요."""
+- 플레이스홀더: (제품명), (피부타입)"""
 
             priority_prompts = {
                 "onboarding": f"""{common_rules}
@@ -874,8 +1055,14 @@ JSON으로 출력: {{"title":"...", "body":"..."}}"""""
 - 환영하는 톤, 구매 압박 없이 브랜드 소개
 - 첫 방문 혜택, 베스트셀러 가볍게 언급
 
-[좋은 예시]
-{customer_name}님, {brand}에 처음 오신 것을 환영해요! 저희는 피부 본연의 아름다움을 지켜드리는 브랜드예요. 복합성 피부도 편안하게 사용할 수 있는 순한 제품들을 준비했어요. 베스트셀러 윤조에센스는 많은 분들이 첫 제품으로 선택하고 계세요. 피부 깊숙이 수분을 전달하고 촉촉함이 오래 지속되는 게 특징이에요. 신규 회원 혜택으로 특별 쿠폰도 받으실 수 있어요. 천천히 둘러보시면서 피부에 맞는 제품을 찾아보세요. {customer_name}님의 뷰티 여정을 함께할 수 있어서 기뻐요!""",
+[좋은 예시 - 줄바꿈과 이모지 참고 (빈 줄 없이)]
+{customer_name}님, {brand}에 오신 걸 환영해요! 🎉
+피부 본연의 아름다움을 지켜드리는 브랜드예요.
+복합성 피부도 편안하게 사용할 수 있는 순한 제품들을 준비했어요.
+베스트셀러 윤조에센스는 많은 분들이 첫 제품으로 선택해요. ✨
+피부 깊숙이 수분을 전달하고 촉촉함이 오래 지속돼요.
+신규 회원 혜택으로 특별 쿠폰도 받으실 수 있어요!
+천천히 둘러보시면서 피부에 맞는 제품 찾아보세요. 💕""",
 
                 "engagement": f"""{common_rules}
 
@@ -883,8 +1070,14 @@ JSON으로 출력: {{"title":"...", "body":"..."}}"""""
 - 가벼운 권유, 구매보다 탐색/찜 유도
 - 인기 상품, 리뷰 언급으로 관심 유도
 
-[좋은 예시]
-바쁜 일상 속에도 피부 건강을 잊지 않는 {customer_name}님! {brand}에서 요즘 가장 인기 있는 아이템들을 모아봤어요. 건조한 계절에 딱 맞는 고보습 라인이 많은 사랑을 받고 있어요. 가볍게 발리면서도 촉촉함이 하루 종일 유지되는 게 장점이에요. 마음에 드시는 제품이 있다면 찜 버튼으로 담아두셔도 좋아요. 실제 사용자들의 생생한 리뷰도 한번 살펴보세요. 지금 보시는 제품들은 할인 중이라 더 좋은 기회예요. {customer_name}님, 부담 없이 편하게 둘러보시다 가세요!""",
+[좋은 예시 - 줄바꿈과 이모지 참고 (빈 줄 없이)]
+{customer_name}님, 요즘 어떤 제품 찾고 계세요? 🤔
+{brand}에서 지금 가장 인기 있는 아이템들 모아봤어요!
+건조한 계절에 딱 맞는 고보습 라인이 많은 사랑을 받고 있어요. 💧
+가볍게 발리면서도 촉촉함이 하루 종일 유지되는 게 장점이에요.
+마음에 드시는 제품 있으면 찜 버튼으로 담아두셔도 좋아요!
+실제 사용자들의 생생한 리뷰도 한번 살펴보세요. ⭐
+{customer_name}님, 부담 없이 편하게 구경하다 가세요~""",
 
                 "conversion": f"""{common_rules}
 
@@ -892,8 +1085,15 @@ JSON으로 출력: {{"title":"...", "body":"..."}}"""""
 - 혜택과 신뢰 강조, 마지막 한 푸시
 - 할인율, 사은품, 무료배송 등 구체적 혜택 언급
 
-[좋은 예시]
-{customer_name}님, 관심 가지셨던 {brand} 제품 소식이에요! 지금이 정말 좋은 타이밍이에요. 특별 할인 중이라 평소보다 훨씬 합리적인 가격에 만나볼 수 있어요. 피부에 깊은 영양을 전달하고 탄력을 케어해 줘요. 실제 사용자들의 리뷰도 정말 좋아서 재구매율이 높은 제품이에요. 지금 구매하시면 미니어처 사은품도 함께 받으실 수 있어요. 무료 배송은 물론 교환과 반품도 부담 없이 가능해요. {customer_name}님, 망설이셨던 그 제품 지금 장바구니에 담아보세요!""",
+[좋은 예시 - 줄바꿈과 이모지 참고 (빈 줄 없이)]
+{customer_name}님, 찜해두신 제품 소식이에요! 💌
+지금이 정말 좋은 타이밍이에요.
+특별 할인 중이라 평소보다 훨씬 합리적인 가격에 만나볼 수 있어요! 🎁
+피부에 깊은 영양을 전달하고 탄력을 케어해줘요.
+실제 사용자들 리뷰도 정말 좋아서 재구매율이 높은 제품이에요. ⭐
+지금 구매하시면 미니어처 사은품도 함께!
+무료 배송에 교환/반품도 부담 없어요.
+{customer_name}님, 지금 장바구니에 담아보세요! 🛒""",
 
                 "reactivation": f"""{common_rules}
 
@@ -901,8 +1101,15 @@ JSON으로 출력: {{"title":"...", "body":"..."}}"""""
 - 부드러운 재회, 구매 압박 없이
 - 신제품/리뉴얼 소식, 돌아온 고객 혜택 언급
 
-[좋은 예시]
-{customer_name}님, 정말 오랜만이에요! 그동안 잘 지내셨나요? {brand}에 그사이 새롭고 좋은 소식들이 많이 생겼어요. 인기 라인이 리뉴얼되어서 더욱 좋아졌어요. 예전에 좋아하셨던 보습 라인도 성분이 업그레이드됐어요. 오랜만에 찾아주시는 분께 드리는 특별 혜택도 준비되어 있어요. 부담 없이 가볍게 구경만 하셔도 괜찮아요. 시간 되실 때 편하게 한번 들러보시는 건 어떠세요? {customer_name}님을 다시 만나면 정말 반가울 것 같아요!""",
+[좋은 예시 - 줄바꿈과 이모지 참고 (빈 줄 없이)]
+{customer_name}님, 정말 오랜만이에요! 👋
+그동안 잘 지내셨나요?
+{brand}에 그사이 새롭고 좋은 소식들이 많이 생겼어요. ✨
+인기 라인이 리뉴얼되어서 더욱 좋아졌어요!
+예전에 좋아하셨던 보습 라인도 성분이 업그레이드됐어요.
+오랜만에 찾아주시는 분께 드리는 특별 혜택도 준비했어요. 🎁
+부담 없이 가볍게 구경만 하셔도 괜찮아요.
+{customer_name}님을 다시 만나면 정말 반가울 것 같아요! 💕""",
 
                 "default": f"""{common_rules}
 
@@ -910,8 +1117,15 @@ JSON으로 출력: {{"title":"...", "body":"..."}}"""""
 - 친근하게 프로모션 안내
 - 구체적 할인율, 상품 특징, 긴급성 강조
 
-[좋은 예시]
-바쁜 일상 속에도 피부 건강을 잊지 않는 {customer_name}님! {brand}가 특별한 프로모션을 준비했어요. 복합성 피부의 모공과 피지 고민을 효과적으로 해결할 제품을 만나보세요. 피부 속부터 수분을 채워주고 깊은 보습감을 전달해요. 꾸준히 사용하면 피부결이 부드러워지고 탄력도 느낄 수 있어요. 지금 구매하시면 40% 할인 혜택까지 받을 수 있어요. 무료 배송에 사은품까지 드려요. {customer_name}님, 지금 바로 이 기회를 놓치지 마세요! 오늘이 마지막일 수 있어요."""
+[좋은 예시 - 줄바꿈과 이모지 참고 (빈 줄 없이)]
+{customer_name}님, 특별한 소식 들고 왔어요! 🎉
+{brand}에서 지금 파격 프로모션 중이에요.
+복합성 피부 고민을 효과적으로 해결할 제품을 만나보세요! ✨
+피부 속부터 수분을 채워주고 깊은 보습감을 전달해요.
+꾸준히 사용하면 피부결이 달라지는 걸 느낄 수 있어요.
+지금 구매하시면 40% 할인 + 무료 배송 + 사은품까지! 🎁
+이번 기회 놓치면 아쉬울 거예요.
+{customer_name}님, 지금 바로 확인해보세요! 💕"""
             }
 
             # 고객의 발신목적 코드 가져오기
@@ -933,58 +1147,98 @@ JSON으로 출력: {{"title":"...", "body":"..."}}"""""
 
                 # 발신목적별 톤 지시
                 purpose_tone_guide = {
-                    "onboarding": f"""[온보딩 메시지 - 신규 고객 환영]
+                    "onboarding": """[온보딩 메시지 - 신규 고객 환영]
 - 환영하고 안내하는 톤, 구매 압박 금지
-- "처음 오신 것을 환영해요", "천천히 둘러보세요" 느낌
+- "처음 오신 것을 환영해요 🎉", "천천히 둘러보세요" 느낌
 - 브랜드 소개 + 베스트셀러 가볍게 언급""",
 
-                    "engagement": f"""[참여유도 메시지 - 탐색 고객]
+                    "engagement": """[참여유도 메시지 - 탐색 고객]
 - 가벼운 권유, 구매보다 탐색/찜 유도
-- "한번 구경해보세요", "마음에 드시면 담아두세요" 느낌
+- "한번 구경해보세요 👀", "마음에 드시면 담아두세요" 느낌
 - 인기 제품 소개 + 리뷰 언급""",
 
-                    "conversion": f"""[전환유도 메시지 - 구매 전환]
+                    "conversion": """[전환유도 메시지 - 구매 전환]
 - 관심 존중 + 혜택/신뢰 강조
-- "관심 가지셨던", "지금이 좋은 기회예요" 느낌
+- "관심 가지셨던 제품이에요 💌", "지금이 좋은 기회예요!" 느낌
 - 할인/사은품 혜택 강조 + 후기 언급""",
 
-                    "reactivation": f"""[재활성화 메시지 - 휴면 고객]
+                    "reactivation": """[재활성화 메시지 - 휴면 고객]
 - 부드러운 재회, 구매 압박 금지
-- "오랜만이에요", "그동안 새로운 것들이 생겼어요" 느낌
+- "오랜만이에요 👋", "그동안 새로운 것들이 생겼어요" 느낌
 - 신제품/리뉴얼 소식 + 특별 혜택 언급""",
 
-                    "default": f"""[프로모션 메시지]
+                    "default": """[프로모션 메시지]
 - 친근하게 혜택 안내
-- "특별한 기회예요", "놓치면 아쉬워요" 느낌
+- "특별한 기회예요 🎁", "놓치면 아쉬워요" 느낌
 - 할인율/사은품 구체적으로 언급"""
                 }
 
                 tone_guide = purpose_tone_guide.get(priority_code, purpose_tone_guide["default"])
 
+                # 페르소나별 말투 스타일 (Qwen용)
+                if is_friendly_persona:
+                    qwen_tone = """[말투 - 친근한 페르소나]
+- ~해요, ~예요, ~죠? 사용
+- 이모지 적극 사용! 🎉💕✨🌟😊
+- "완전 대박!", "진짜 안 사면 손해예요!" 같은 표현 OK"""
+                else:
+                    qwen_tone = """[말투 - 전문적 페르소나]
+- ~해요 유지하되 차분하게
+- 이모지 절제 (✨🌿💎 정도만)
+- "피부 과학 연구진이 개발한", "프리미엄 성분" 같은 표현"""
+
+                # 다중 브랜드 규칙 (Qwen용)
+                qwen_brand_rule = ""
+                if multi_brand:
+                    qwen_brand_rule = f"""
+[다중 브랜드 규칙 - 중요!]
+- 여러 브랜드 상품: {', '.join(product_brands)}
+- 제목에 특정 브랜드명 금지!
+- 본문에서 각 상품 언급 시 브랜드명 함께 쓰기"""
+
                 qwen_system = f"""한국 화장품 CRM 메시지 작성 전문가.
 
-[글자수 규칙 - 가장 중요!]
-- 본문: 반드시 320~350자 작성 (현재 200자 수준으로 너무 짧음!)
-- 9~10문장 필수 (각 문장 35~40자)
-- 200자대는 실패! 최소 320자 이상!
+[글자수 규칙]
+- 본문: 320~350자 (9~10문장)
+- 200자대는 너무 짧음!
 
 [이름 규칙]
 - "{customer_name}님"만 사용
-- 절대 금지: 나이, 괄호, (33세), (20세) 등
+- 절대 금지: 나이, (33세), (20세)
 
-[말투 규칙]
-- ~해요/~예요만 사용
-- 금지: ~합니다, ~입니다, 경험하실 수 있습니다
+{qwen_tone}
+
+[줄바꿈 규칙 - 절대 지켜야 함!!!]
+- 2~3문장마다 줄바꿈(엔터 1번) 넣기
+- 본문을 4~5개 문단으로 나누기
+- 한 문단 = 2~3문장
+- 빈 줄(엔터 2번)은 사용하지 않음!
+- 줄바꿈 없이 쭉 이어쓰면 안 됨!
 
 [금지 사항]
-- (280,000원), (+10% 할인), (+6일) 등 괄호 데이터
-- "오늘도 당신의 아름다움을 응원합니다" 같은 상투적 마무리
-- "감사해요" 마무리
+- (280,000원), (+10% 할인) 등 괄호 데이터
+- "오늘도 당신의 아름다움을 응원합니다" 상투적 마무리
+{qwen_brand_rule}
 
 {tone_guide}
 
-[320자 예시 - 이 길이를 참고!]
-{customer_name}님, 바쁜 일상 속에도 피부 건강을 잊지 않으셨군요! {brand}가 특별한 프로모션을 준비했어요. 복합성 피부의 고민을 효과적으로 해결할 제품들을 만나보세요. 피부 속부터 수분을 채워주는 보습 라인이에요. 꾸준히 쓰시는 분들 사이에서 피부결이 달라졌다는 후기가 정말 많아요. 지금 구매하시면 특별 할인에 미니어처 세트까지 드려요. 무료 배송은 물론 교환과 반품도 부담 없이 가능해요. 이번 기회를 놓치면 정말 아쉬울 거예요. {customer_name}님, 지금 바로 장바구니에 담아보세요!
+[타이틀 템플릿 - 고객 맞춤형으로 선택!]
+- "{customer_name}님, {first_concern} 고민 많으시죠?"
+- "{customer_name}님, 환절기 피부 괜찮으세요?"
+- "{skin_type_abbr}들이 사랑하는 {brand}에서 신제품이 나왔어요!"
+- "{customer_name}님만을 위한 신제품 출시 소식 💌"
+- "쉿! 아모레몰에서만 구매 가능한 한정 제품 알려드려요 🤫"
+- "{customer_name}님, 오랜만에 인사드려요! ✨"
+- "{customer_name}님께 딱 맞는 {brand} 추천 🎁"
+
+[예시 - 줄바꿈과 이모지 참고! (빈 줄 없이)]
+{customer_name}님, 특별한 소식 들고 왔어요! 🎉
+{brand}에서 지금 파격 프로모션 중이에요.
+복합성 피부 고민을 해결할 제품을 만나보세요! ✨
+피부 속부터 수분을 채워주고 깊은 보습감을 전달해요.
+꾸준히 사용하면 피부결이 달라지는 걸 느낄 수 있어요.
+지금 구매하시면 40% 할인 + 무료 배송 + 사은품까지! 🎁
+{customer_name}님, 지금 바로 확인해보세요! 💕
 
 출력: JSON만 {{"title":"...","body":"..."}}"""
 
@@ -1090,8 +1344,13 @@ JSON으로 출력: {{"title":"...", "body":"..."}}"""""
                 (r'\s+의\s+(?:선택|피부|알뜰)', f' {customer_name}님의 '),  # " 의 선택" → "OO님의 선택"
                 (r'\s+께,', f' {customer_name}님,'),  # " 께," → "OO님,"
                 (r'\s+께\s+', f' {customer_name}님께 '),  # " 께 " → "OO님께 "
+                (r'\s+께서\s+', f' {customer_name}님께서 '),  # " 께서 " → "OO님께서 "
+                (r'님!\s+께서\s+', '님께서 '),  # "님! 께서 " → "님께서 " (중복 제거)
                 (r'(?<![가-힣])님께\s+딱', f'{customer_name}님께 딱'),  # "님께 딱" → "OO님께 딱"
                 (r',\s+이번', f'. {customer_name}님, 이번'),  # ", 이번" → ". OO님, 이번"
+                (r'찾는\s+특별한', f'찾는 {customer_name}님께 특별한'),  # "찾는 특별한" → "찾는 OO님께 특별한"
+                (r'에서는\s+을\s+위해', f'에서는 {customer_name}님을 위해'),  # "에서는 을 위해" → "에서는 OO님을 위해"
+                (r'\s{2,}', ' '),  # 연속 공백 제거
             ]
             for pattern, replacement in name_missing_patterns:
                 body = re.sub(pattern, replacement, body)
@@ -1118,6 +1377,9 @@ JSON으로 출력: {{"title":"...", "body":"..."}}"""""
                 (r'거든요', '거예요'),
                 (r'있답니다', '있어요'),
                 (r'해준답니다', '해줘요'),
+                # 조사 오류 수정
+                (r'이사배으로', '이사배이'),  # "이사배으로 추천" → "이사배이 추천"
+                (r'(\w+)으로 추천하는', r'\1이 추천하는'),  # "OO으로 추천하는" → "OO이 추천하는"
                 # 반복/불필요한 표현
                 (r'지금\s*바로\s*장바구니에\s*담아보세요!\s*망설이는\s*순간이\s*기회를\s*잃는\s*순간이\s*될\s*수\s*있어요\.', '지금 바로 장바구니에 담아보세요!'),
             ]
@@ -1125,10 +1387,32 @@ JSON으로 출력: {{"title":"...", "body":"..."}}"""""
                 body = re.sub(pattern, replacement, body)
                 title = re.sub(pattern, replacement, title)
 
+            # 글자수가 너무 길 때만 _extend_body 보강 문구 제거 (350자 초과 시)
+            if len(body) > 350:
+                # 350자 이내에서 자연스럽게 끊기
+                body = re.sub(r'\.\s*딱 맞는 제품이에요!.*$', '.', body)
+                body = re.sub(r'!\s*딱 맞는 제품이에요!.*$', '!', body)
+                # 그래도 길면 350자 이내 마지막 문장부호에서 자르기
+                if len(body) > 350:
+                    for i in range(349, 299, -1):
+                        if i < len(body) and body[i] in '.!?':
+                            body = body[:i+1]
+                            break
+
             # ========== 이름 연속 반복 제거 ==========
             # "서수진님. 서수진님," → "서수진님,"
             name_pattern = f'{customer_name}님'
             body = re.sub(rf'{re.escape(name_pattern)}[.\s]+{re.escape(name_pattern)}', name_pattern, body)
+
+            # 제목에서 이름이 2번 이상이면 첫 번째만 유지
+            title_name_count = title.count(name_pattern)
+            if title_name_count > 1:
+                # "OO님, 다시 찾는 OO님께" 같은 패턴 → "OO님, 다시 찾으시는 분께"로 수정
+                title = re.sub(rf'다시 찾는 {re.escape(name_pattern)}께', '다시 찾으시는 분께', title)
+                # 그래도 이름이 2번 이상이면 첫 번째만 유지
+                if title.count(name_pattern) > 1:
+                    first_idx = title.find(name_pattern)
+                    title = title[:first_idx + len(name_pattern)] + title[first_idx + len(name_pattern):].replace(name_pattern, '')
 
             # 이름이 5번 이상이면 중간 것들 제거 (첫 2번 + 마지막 1번만 유지)
             name_count = body.count(name_pattern)
@@ -1140,6 +1424,9 @@ JSON으로 출력: {{"title":"...", "body":"..."}}"""""
                     new_body += ''.join(parts[2:-1])
                     new_body += name_pattern + parts[-1]
                     body = new_body
+
+            # 줄바꿈 강제 추가 (가독성 향상)
+            body = self._add_line_breaks(body)
 
             # 최종 검증
             validation = self._validate_message(title, body, customer_name)
@@ -1207,7 +1494,9 @@ JSON으로 출력: {{"title":"...", "body":"..."}}"""""
         """
         LLM 실패 시 템플릿 기반 메시지 생성 (개선된 버전 - 조사 자동화, 250-350자 본문)
         """
-        tone_info = brand_tones.get(brand, brand_tones["라네즈"])
+        # 페르소나 톤앤매너 사용 (브랜드 톤 대신)
+        persona_cluster = persona.get('persona_cluster', '합리적 큐레이터')
+        persona_tone = self.PERSONA_TONES.get(persona_cluster, self.PERSONA_TONES["합리적 큐레이터"])
 
         # Edge case: 빈 상품 리스트 처리
         if not products or len(products) == 0:
@@ -1221,32 +1510,57 @@ JSON으로 출력: {{"title":"...", "body":"..."}}"""""
                 'promotions': []
             }]
 
-        # 안전한 페르소나 이름 접근
-        persona_name = persona.get('display_name') or persona.get('name', '고객')
+        # 안전한 페르소나 이름 접근 (성 제외)
+        raw_persona_name = persona.get('display_name') or persona.get('name', '고객')
+        persona_name = remove_surname(raw_persona_name)
 
-        # 브랜드별 감성 표현
-        brand_expressions = {
-            "설화수": {
+        # 페르소나별 감성 표현 (브랜드 대신 페르소나 기반)
+        persona_expressions = {
+            "테크니컬 홈케어족": {
+                "greeting": "님",
+                "intro": "효율적인 홈케어를 추구하시는",
+                "value": "고기능성 기술력이 담긴",
+                "ending": "스마트한 뷰티 루틴을 완성해보세요"
+            },
+            "하이엔드 품격가": {
                 "greeting": "님께",
-                "intro": "소중한 시간을 내어",
-                "value": "한방의 지혜가 담긴",
+                "intro": "품격있는 뷰티를 즐기시는",
+                "value": "프리미엄 럭셔리가 담긴",
                 "ending": "피부 본연의 아름다움을 되찾으시길 바랍니다"
             },
-            "라네즈": {
+            "웰니스 힐링 탐험가": {
                 "greeting": "님",
-                "intro": "바쁜 일상 속에서도",
-                "value": "매일을 빛나게 하는",
-                "ending": "오늘도 당신의 아름다움을 응원합니다"
+                "intro": "건강한 아름다움을 추구하시는",
+                "value": "자연의 힐링이 담긴",
+                "ending": "편안한 뷰티 여정을 함께해요"
             },
-            "이니스프리": {
-                "greeting": "님께",
-                "intro": "자연과 함께하는",
-                "value": "제주의 청정 자연이 담긴",
-                "ending": "건강한 아름다움을 선물합니다"
+            "연구소 기반 해결사": {
+                "greeting": "님",
+                "intro": "피부 고민을 꼼꼼히 연구하시는",
+                "value": "과학적 솔루션이 담긴",
+                "ending": "효과적인 피부 케어를 경험해보세요"
+            },
+            "트렌디 Z세대": {
+                "greeting": "님",
+                "intro": "트렌드를 리드하시는",
+                "value": "요즘 핫한",
+                "ending": "지금 바로 체험해보세요"
+            },
+            "합리적 큐레이터": {
+                "greeting": "님",
+                "intro": "현명한 소비를 즐기시는",
+                "value": "검증된 베스트템인",
+                "ending": "합리적인 선택이 될 거예요"
+            },
+            "실속형 가계 수호자": {
+                "greeting": "님",
+                "intro": "가족을 위해 꼼꼼히 챙기시는",
+                "value": "온 가족이 믿고 쓸 수 있는",
+                "ending": "실속있는 뷰티를 선물합니다"
             }
         }
 
-        expr = brand_expressions.get(brand, brand_expressions["라네즈"])
+        expr = persona_expressions.get(persona_cluster, persona_expressions["합리적 큐레이터"])
 
         # 상품별 자연스러운 설명 재해석
         def interpret_product(product, brand):

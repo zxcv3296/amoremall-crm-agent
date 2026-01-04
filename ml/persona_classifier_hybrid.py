@@ -26,17 +26,17 @@ BRAND_CLUSTERS = {
 }
 
 # 카테고리 클러스터 정의
+# 연구소 기반 해결사: 범용 카테고리(클렌징, 스킨케어) 제외 - 특화 카테고리만
 CATEGORY_CLUSTERS = {
     "테크니컬 홈케어족": [
         "뷰티디바이스", "페이셜케어 기기", "구강케어 기기", "헤어케어 기기",
-        "헬스케어 기기", "기타 디바이스", "스킨케어", "클렌징", "모이스처라이징",
-        "스페셜 케어", "선케어", "세트", "리필"
+        "헬스케어 기기", "기타 디바이스"
     ],
     "웰니스 힐링 탐험가": [
         "뷰티푸드", "건강식품", "차(TEA)", "간식", "향수", "캔들", "디퓨저", "소품&도구"
     ],
     "연구소 기반 해결사": [
-        "스킨케어", "클렌징", "모이스처라이징", "스페셜 케어", "선케어", "세트", "리필"
+        "스페셜 케어", "트러블 케어", "안티에이징", "미백", "주름개선"
     ]
 }
 
@@ -149,7 +149,8 @@ def get_dominant_persona_by_brand(brands):
 
 def rule_based_classify(row, avg_amount_top10_threshold=None, total_amount_q1=None, avg_session_q3=None):
     """
-    규칙 기반 페르소나 분류
+    규칙 기반 페르소나 분류 - 점수 기반 방식
+    각 페르소나별로 조건 매칭 점수를 계산하여 가장 높은 점수의 페르소나로 분류
 
     Args:
         row: 고객 데이터 행
@@ -159,9 +160,9 @@ def rule_based_classify(row, avg_amount_top10_threshold=None, total_amount_q1=No
 
     Returns:
         dict: {
-            'persona': 분류된 페르소나 (None if no rule matched),
-            'rule': 적용된 규칙,
-            'confidence': 신뢰도
+            'persona': 분류된 페르소나,
+            'rule': 매칭된 조건들,
+            'confidence': 신뢰도 (매칭 비율 기반)
         }
     """
     # 데이터 추출
@@ -201,203 +202,194 @@ def rule_based_classify(row, avg_amount_top10_threshold=None, total_amount_q1=No
 
     # 기본 임계값 설정 (외부에서 전달되지 않은 경우)
     if avg_amount_top10_threshold is None:
-        avg_amount_top10_threshold = 100000  # 기본값
+        avg_amount_top10_threshold = 100000
     if total_amount_q1 is None:
-        total_amount_q1 = 50000  # 기본값
+        total_amount_q1 = 50000
     if avg_session_q3 is None:
-        avg_session_q3 = 10  # 기본값
+        avg_session_q3 = 10
 
     # 각 페르소나별 브랜드/카테고리 매칭 수 계산
-    tech_brands = BRAND_CLUSTERS["테크니컬 홈케어족"]
-    tech_match = count_brand_matches(primary_brands, tech_brands)
+    tech_match = count_brand_matches(primary_brands, BRAND_CLUSTERS["테크니컬 홈케어족"])
     tech_cat_match = count_category_matches(primary_categories, CATEGORY_CLUSTERS.get("테크니컬 홈케어족", []))
 
-    highend_brands = BRAND_CLUSTERS["하이엔드 품격가"]
-    highend_match = count_brand_matches(primary_brands, highend_brands)
+    highend_match = count_brand_matches(primary_brands, BRAND_CLUSTERS["하이엔드 품격가"])
 
-    wellness_brands = BRAND_CLUSTERS["웰니스 힐링 탐험가"]
-    wellness_match = count_brand_matches(primary_brands, wellness_brands)
+    wellness_match = count_brand_matches(primary_brands, BRAND_CLUSTERS["웰니스 힐링 탐험가"])
     wellness_cat_match = count_category_matches(primary_categories, CATEGORY_CLUSTERS.get("웰니스 힐링 탐험가", []))
 
-    research_brands = BRAND_CLUSTERS["연구소 기반 해결사"]
-    research_match = count_brand_matches(primary_brands, research_brands)
+    research_match = count_brand_matches(primary_brands, BRAND_CLUSTERS["연구소 기반 해결사"])
     research_cat_match = count_category_matches(primary_categories, CATEGORY_CLUSTERS.get("연구소 기반 해결사", []))
 
-    trendy_brands = BRAND_CLUSTERS["트렌디 Z세대"]
-    trendy_match = count_brand_matches(primary_brands, trendy_brands)
+    trendy_match = count_brand_matches(primary_brands, BRAND_CLUSTERS["트렌디 Z세대"])
 
-    curator_brands = BRAND_CLUSTERS["합리적 큐레이터"]
-    curator_match = count_brand_matches(primary_brands, curator_brands)
+    curator_match = count_brand_matches(primary_brands, BRAND_CLUSTERS["합리적 큐레이터"])
 
-    practical_brands = BRAND_CLUSTERS["실속형 가계 수호자"]
-    practical_match = count_brand_matches(primary_brands, practical_brands)
+    practical_match = count_brand_matches(primary_brands, BRAND_CLUSTERS["실속형 가계 수호자"])
 
-    # ==========================================
-    # 규칙 기반 분류 (문서 기준)
-    # ==========================================
-
-    # 1. 테크니컬 홈케어족
-    # 조건: 브랜드(메이크온, 바이탈뷰티, 아이오페 중 1개 이상)
-    #       AND 카테고리(뷰티디바이스, 스킨케어 등 1개 이상)
-    #       AND avg_amount 상위 10%
-    if tech_match >= 1 and tech_cat_match >= 1 and avg_amount >= avg_amount_top10_threshold:
-        return {
-            'persona': '테크니컬 홈케어족',
-            'rule': f'브랜드({tech_match}개) AND 카테고리({tech_cat_match}개) AND avg_amount({avg_amount:,.0f}) >= 상위10%({avg_amount_top10_threshold:,.0f})',
-            'confidence': 0.9
-        }
-
-    # 2. 하이엔드 품격가
-    # 조건: 브랜드(설화수, 헤라, 에이피뷰티 중 1개 이상)
-    #       AND preferred_promotion(신상품, 한정판매 중 하나)
-    #       AND average_transaction_value >= 90,000
-    highend_promotion = preferred_promotion in ['신상품', '한정판매']
-    if highend_match >= 1 and highend_promotion and average_transaction_value >= 90000:
-        return {
-            'persona': '하이엔드 품격가',
-            'rule': f'브랜드({highend_match}개) AND 프로모션({preferred_promotion}) AND 객단가({average_transaction_value:,.0f}) >= 90,000',
-            'confidence': 0.9
-        }
-
-    # 3. 웰니스 힐링 탐험가
-    # 조건: 브랜드(롱테이크, 퍼즐우드, 오설록 중 1개 이상)
-    #       AND 카테고리(뷰티푸드, 향수, 캔들 등 1개 이상)
-    #       AND total_amount >= 1분위수
-    if wellness_match >= 1 and wellness_cat_match >= 1 and total_amount >= total_amount_q1:
-        return {
-            'persona': '웰니스 힐링 탐험가',
-            'rule': f'브랜드({wellness_match}개) AND 카테고리({wellness_cat_match}개) AND total_amount({total_amount:,.0f}) >= Q1({total_amount_q1:,.0f})',
-            'confidence': 0.9
-        }
-
-    # 4. 연구소 기반 해결사
-    # 조건: 브랜드(미쟝센, 한율, 에스트라, 프리메라, 비레디, 마몽드, 려 중 1개 이상)
-    #       AND 카테고리(스킨케어 1개 이상)
-    #       AND skin_type/concerns != '없음', '고민없음'
+    # 공통 조건 계산
     has_skin_concern = (
-        skin_type not in ['', '없음', '고민없음', 'nan', 'None'] and
+        skin_type not in ['', '없음', '고민없음', 'nan', 'None'] or
         concerns not in ['', '없음', '고민없음', 'nan', 'None']
     )
-    if research_match >= 1 and research_cat_match >= 1 and has_skin_concern:
-        return {
-            'persona': '연구소 기반 해결사',
-            'rule': f'브랜드({research_match}개) AND 카테고리({research_cat_match}개) AND 피부고민 있음',
-            'confidence': 0.9
-        }
-
-    # 5. 트렌디 Z세대
-    # 조건: 브랜드(라네즈, 에스쁘아, 앞바다즈, 에뛰드, 해피바스 중 1개 이상)
-    #       AND age < 25
-    #       AND preferred_promotion(신상품, 사은품증정 중 하나)
-    trendy_promotion = preferred_promotion in ['신상품', '사은품증정']
-    if trendy_match >= 1 and age < 25 and trendy_promotion:
-        return {
-            'persona': '트렌디 Z세대',
-            'rule': f'브랜드({trendy_match}개) AND age({age}) < 25 AND 프로모션({preferred_promotion})',
-            'confidence': 0.9
-        }
-
-    # 6. 합리적 큐레이터
-    # 조건: visit_frequency(높음 또는 중)
-    #       AND 브랜드(아모레퍼시픽, 홀리추얼, 오딧세이, 이니스프리, 아모레성수 중 1개 이상)
-    #       AND diversity >= 0.5
-    #       AND avg_session_minutes >= 3분위수
-    valid_visit_freq = visit_frequency in ['높음', '중', '중간']
-    if valid_visit_freq and curator_match >= 1 and diversity >= 0.5 and avg_session_minutes >= avg_session_q3:
-        return {
-            'persona': '합리적 큐레이터',
-            'rule': f'방문빈도({visit_frequency}) AND 브랜드({curator_match}개) AND diversity({diversity:.2f}) >= 0.5 AND 체류시간({avg_session_minutes:.1f}분) >= Q3({avg_session_q3:.1f})',
-            'confidence': 0.9
-        }
-
-    # 7. 실속형 가계 수호자
-    # 조건: average_transaction_value <= 50,000
-    #       AND preferred_promotion = 할인판매
-    #       AND 브랜드(라보에이치, 일리윤, 아모레베이직, 메디안 중 1개 이상)
-    discount_promotion = preferred_promotion == '할인판매'
-    if average_transaction_value <= 50000 and discount_promotion and practical_match >= 1:
-        return {
-            'persona': '실속형 가계 수호자',
-            'rule': f'객단가({average_transaction_value:,.0f}) <= 50,000 AND 프로모션({preferred_promotion}) AND 브랜드({practical_match}개)',
-            'confidence': 0.9
-        }
 
     # ==========================================
-    # Fallback: 조건을 완화하여 분류 시도
+    # 각 페르소나별 점수 계산 (조건당 1점, 브랜드 매칭은 가중치 2)
     # ==========================================
+    scores = {}
+    matched_rules = {}
 
-    # Fallback 1: 테크니컬 홈케어족 - 브랜드 + 카테고리만
-    if tech_match >= 1 and tech_cat_match >= 1:
-        return {
-            'persona': '테크니컬 홈케어족',
-            'rule': f'[완화] 브랜드({tech_match}개) AND 카테고리({tech_cat_match}개)',
-            'confidence': 0.7
-        }
+    # 1. 테크니컬 홈케어족 (3개 조건: 브랜드, 카테고리, avg_amount)
+    tech_score = 0
+    tech_rules = []
+    if tech_match >= 1:
+        tech_score += 2 * tech_match  # 브랜드 가중치
+        tech_rules.append(f"브랜드({tech_match}개)")
+    if tech_cat_match >= 1:
+        tech_score += 1
+        tech_rules.append(f"카테고리({tech_cat_match}개)")
+    if avg_amount >= avg_amount_top10_threshold:
+        tech_score += 1
+        tech_rules.append(f"avg_amount 상위10%")
+    scores["테크니컬 홈케어족"] = tech_score
+    matched_rules["테크니컬 홈케어족"] = tech_rules
 
-    # Fallback 2: 하이엔드 품격가 - 브랜드 + 객단가만
-    if highend_match >= 1 and average_transaction_value >= 90000:
-        return {
-            'persona': '하이엔드 품격가',
-            'rule': f'[완화] 브랜드({highend_match}개) AND 객단가({average_transaction_value:,.0f}) >= 90,000',
-            'confidence': 0.7
-        }
+    # 2. 하이엔드 품격가 (3개 조건: 브랜드, 프로모션, 객단가)
+    highend_score = 0
+    highend_rules = []
+    if highend_match >= 1:
+        highend_score += 2 * highend_match
+        highend_rules.append(f"브랜드({highend_match}개)")
+    if preferred_promotion in ['신상품', '한정판매']:
+        highend_score += 1
+        highend_rules.append(f"프로모션({preferred_promotion})")
+    if average_transaction_value >= 90000:
+        highend_score += 1
+        highend_rules.append(f"객단가({average_transaction_value:,.0f}≥90,000)")
+    scores["하이엔드 품격가"] = highend_score
+    matched_rules["하이엔드 품격가"] = highend_rules
 
-    # Fallback 3: 웰니스 힐링 탐험가 - 브랜드 + 카테고리만
-    if wellness_match >= 1 and wellness_cat_match >= 1:
-        return {
-            'persona': '웰니스 힐링 탐험가',
-            'rule': f'[완화] 브랜드({wellness_match}개) AND 카테고리({wellness_cat_match}개)',
-            'confidence': 0.7
-        }
+    # 3. 웰니스 힐링 탐험가 (3개 조건: 브랜드, 카테고리, total_amount)
+    wellness_score = 0
+    wellness_rules = []
+    if wellness_match >= 1:
+        wellness_score += 2 * wellness_match
+        wellness_rules.append(f"브랜드({wellness_match}개)")
+    if wellness_cat_match >= 1:
+        wellness_score += 1
+        wellness_rules.append(f"카테고리({wellness_cat_match}개)")
+    if total_amount >= total_amount_q1:
+        wellness_score += 1
+        wellness_rules.append(f"total_amount≥Q1")
+    scores["웰니스 힐링 탐험가"] = wellness_score
+    matched_rules["웰니스 힐링 탐험가"] = wellness_rules
 
-    # Fallback 4: 연구소 기반 해결사 - 브랜드 + 피부고민만
-    if research_match >= 1 and has_skin_concern:
-        return {
-            'persona': '연구소 기반 해결사',
-            'rule': f'[완화] 브랜드({research_match}개) AND 피부고민 있음',
-            'confidence': 0.7
-        }
+    # 4. 연구소 기반 해결사 (브랜드 필수 + 피부고민/카테고리 보조)
+    # 브랜드 매칭 없으면 0점 (브랜드가 핵심 조건)
+    research_score = 0
+    research_rules = []
+    if research_match >= 1:
+        research_score += 2 * research_match
+        research_rules.append(f"브랜드({research_match}개)")
+        # 보조 조건: 브랜드 매칭시에만 추가 점수
+        if research_cat_match >= 1:
+            research_score += 0.5  # 카테고리는 보조 (0.5점)
+            research_rules.append(f"카테고리({research_cat_match}개)")
+        if has_skin_concern:
+            research_score += 0.5  # 피부고민도 보조 (0.5점)
+            research_rules.append("피부고민있음")
+    scores["연구소 기반 해결사"] = research_score
+    matched_rules["연구소 기반 해결사"] = research_rules
 
-    # Fallback 5: 트렌디 Z세대 - 브랜드 + 나이만
-    if trendy_match >= 1 and age < 25:
-        return {
-            'persona': '트렌디 Z세대',
-            'rule': f'[완화] 브랜드({trendy_match}개) AND age({age}) < 25',
-            'confidence': 0.7
-        }
+    # 5. 트렌디 Z세대 (3개 조건: 브랜드, 나이, 프로모션)
+    trendy_score = 0
+    trendy_rules = []
+    if trendy_match >= 1:
+        trendy_score += 2 * trendy_match
+        trendy_rules.append(f"브랜드({trendy_match}개)")
+    if age < 25:
+        trendy_score += 1.5  # 나이 조건 가중치 높임
+        trendy_rules.append(f"age({age})<25")
+    if preferred_promotion in ['신상품', '사은품증정']:
+        trendy_score += 1
+        trendy_rules.append(f"프로모션({preferred_promotion})")
+    scores["트렌디 Z세대"] = trendy_score
+    matched_rules["트렌디 Z세대"] = trendy_rules
 
-    # Fallback 6: 합리적 큐레이터 - 브랜드 + diversity만
-    if curator_match >= 1 and diversity >= 0.5:
-        return {
-            'persona': '합리적 큐레이터',
-            'rule': f'[완화] 브랜드({curator_match}개) AND diversity({diversity:.2f}) >= 0.5',
-            'confidence': 0.7
-        }
+    # 6. 합리적 큐레이터 (4개 조건: 방문빈도, 브랜드, diversity, 체류시간)
+    curator_score = 0
+    curator_rules = []
+    if visit_frequency in ['높음', '중', '중간']:
+        curator_score += 1
+        curator_rules.append(f"방문빈도({visit_frequency})")
+    if curator_match >= 1:
+        curator_score += 2 * curator_match
+        curator_rules.append(f"브랜드({curator_match}개)")
+    if diversity >= 0.5:
+        curator_score += 1
+        curator_rules.append(f"diversity({diversity:.2f})")
+    if avg_session_minutes >= avg_session_q3:
+        curator_score += 1
+        curator_rules.append(f"체류시간({avg_session_minutes:.0f}분)")
+    scores["합리적 큐레이터"] = curator_score
+    matched_rules["합리적 큐레이터"] = curator_rules
 
-    # Fallback 7: 실속형 가계 수호자 - 브랜드 + 객단가만
-    if practical_match >= 1 and average_transaction_value <= 50000:
-        return {
-            'persona': '실속형 가계 수호자',
-            'rule': f'[완화] 브랜드({practical_match}개) AND 객단가({average_transaction_value:,.0f}) <= 50,000',
-            'confidence': 0.7
-        }
+    # 7. 실속형 가계 수호자 (핵심: 할인 프로모션 + 저가 객단가)
+    practical_score = 0
+    practical_rules = []
+    if average_transaction_value <= 50000:
+        practical_score += 1.5  # 저가 객단가 가중치 상향
+        practical_rules.append(f"객단가({average_transaction_value:,.0f}≤50,000)")
+    if preferred_promotion in ['할인판매', '할인']:
+        practical_score += 2  # 할인 프로모션 = 핵심 특성 (2점)
+        practical_rules.append(f"프로모션({preferred_promotion})")
+    if practical_match >= 1:
+        practical_score += 2 * practical_match
+        practical_rules.append(f"브랜드({practical_match}개)")
+    scores["실속형 가계 수호자"] = practical_score
+    matched_rules["실속형 가계 수호자"] = practical_rules
 
     # ==========================================
-    # 브랜드만으로 분류 (최후의 수단)
+    # 최고 점수 페르소나 선택
     # ==========================================
-    brand_persona, brand_match_count, total_brands = get_dominant_persona_by_brand(primary_brands)
-    if brand_persona and brand_match_count >= 1:
+    max_score = max(scores.values())
+
+    if max_score == 0:
+        # 점수가 모두 0인 경우 ML로 fallback
         return {
-            'persona': brand_persona,
-            'rule': f'[브랜드만] {brand_persona} 브랜드 {brand_match_count}개 매칭',
-            'confidence': 0.5
+            'persona': None,
+            'rule': None,
+            'confidence': 0
         }
 
-    # 규칙에 해당하지 않음 → ML로 fallback
+    # 최고 점수 페르소나 선택 (동점시 첫번째)
+    best_persona = max(scores, key=scores.get)
+    best_rules = matched_rules[best_persona]
+
+    # 신뢰도 계산: 최대 가능 점수 대비 실제 점수 비율
+    max_possible = {
+        "테크니컬 홈케어족": 4,    # 브랜드2 + 카테고리1 + avg_amount1
+        "하이엔드 품격가": 4,      # 브랜드2 + 프로모션1 + 객단가1
+        "웰니스 힐링 탐험가": 4,   # 브랜드2 + 카테고리1 + total_amount1
+        "연구소 기반 해결사": 3,   # 브랜드2 + 카테고리0.5 + 피부고민0.5 (브랜드 필수)
+        "트렌디 Z세대": 4.5,       # 브랜드2 + 나이1.5 + 프로모션1
+        "합리적 큐레이터": 5,      # 방문1 + 브랜드2 + div1 + 체류1
+        "실속형 가계 수호자": 5.5  # 객단가1.5 + 프로모션2 + 브랜드2
+    }
+
+    confidence = min(0.95, max(0.5, max_score / max_possible.get(best_persona, 4)))
+
+    # 점수 차이 정보도 포함
+    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    second_best = sorted_scores[1] if len(sorted_scores) > 1 else (None, 0)
+
+    rule_str = " + ".join(best_rules) if best_rules else "조건없음"
+    if second_best[1] > 0:
+        rule_str += f" (2위: {second_best[0]} {second_best[1]:.1f}점)"
+
     return {
-        'persona': None,
-        'rule': None,
-        'confidence': 0
+        'persona': best_persona,
+        'rule': f"[점수:{max_score:.1f}] {rule_str}",
+        'confidence': confidence
     }
 
 
