@@ -49,9 +49,16 @@ class MessageContextBuilder:
         """
         purpose_name = self.PURPOSE_NAMES.get(purpose, purpose)
 
+        # 이름에서 나이 제거: "서수진(33세)" → "서수진"
+        raw_name = persona.get('name', '고객')
+        if '(' in raw_name:
+            customer_name = raw_name.split('(')[0].strip()
+        else:
+            customer_name = raw_name
+
         # 기본 정보 (항상 포함) - 9개 필드
         context = f"""고객 프로필:
-- 이름: {persona.get('name', '고객')}
+- 이름: {customer_name}
 - 나이/직업: {persona.get('age', 30)}세, {persona.get('lifestyle', '직장인')}
 - 피부: {persona.get('skin_type', '복합성')} / {self._format_list(persona.get('concerns', [])[:2])}
 - 관심: {self._format_list(persona.get('interests', [])[:2])}
@@ -231,21 +238,12 @@ class MessageContextBuilder:
             cluster_info = cluster_instructions.get(persona_cluster, {})
             cluster_tone = cluster_info.get('tone', '')
             cluster_focus = cluster_info.get('focus', '')
-            cluster_keywords = ', '.join(cluster_info.get('keywords', [])[:3])
+            # 키워드는 모델이 어색하게 삽입하므로 제거
             cluster_avoid = cluster_info.get('avoid', '')
 
-            context = f"""고객 유형 맞춤 지시:
-- 페르소나: {persona_cluster}
-- 성향: {cust_type['type']} ({cust_type['description'][:20]})
-- 상태: {dormancy['status']} (이탈 {dormancy['churn_probability']:.0%})
-
-💬 톤앤매너 지시:
-- 톤: {cluster_tone}
-- 강조: {cluster_focus}
-- 핵심 키워드: {cluster_keywords}
-- 피해야 할 표현: {cluster_avoid}
-{shop_instruction}
-{dormancy_instruction}"""
+            context = f"""메시지 톤: {cluster_tone}
+강조 포인트: {cluster_focus}
+{shop_instruction}"""
 
             return context
 
@@ -261,12 +259,16 @@ class MessageContextBuilder:
 
     def _format_products(self, products: list) -> str:
         """상품 정보 간결하게"""
+        import re
         if not products:
             return "\n추천 상품: 없음\n"
 
         text = "\n추천 상품:\n"
         for i, p in enumerate(products[:3], 1):
             name = p.get('name', '상품')
+            # 제품명에서 숫자/용량 제거 (예: "진설크림 리치 60ml" -> "진설크림 리치")
+            name = re.sub(r'\s*\d+\s*(ml|ML|g|G|매|개|입|EA)?\s*$', '', name)
+            name = re.sub(r'\s*\d+\s*(ml|ML|g|G)\b', '', name)
             price = p.get('price', 0)
             discount = p.get('discount_rate', 0)
 
@@ -325,12 +327,19 @@ class OptimizedContextBuilder(MessageContextBuilder):
         """
         purpose_name = self.PURPOSE_NAMES.get(purpose, purpose)
 
+        # 이름에서 나이 제거: "서수진(33세)" → "서수진"
+        raw_name = persona.get('name', '고객')
+        if '(' in raw_name:
+            customer_name = raw_name.split('(')[0].strip()
+        else:
+            customer_name = raw_name
+
         # 파생 지표 계산 (Python - 무료)
         cust_type = classify_customer_type(persona)
         shop_persona = get_shopping_persona(persona)
 
         # 기본 정보 (최소)
-        context = f"""고객: {persona.get('name', '고객')}, {persona.get('age', 30)}세
+        context = f"""고객: {customer_name}, {persona.get('age', 30)}세
 피부: {persona.get('skin_type', '복합성')} / {', '.join(persona.get('concerns', [])[:2])}
 유형: {cust_type['icon']} {cust_type['type']} | {shop_persona['icon']} {shop_persona['type']}
 

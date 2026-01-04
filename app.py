@@ -15,8 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from data.personas import personas, brand_tones, PURPOSE_OPTIONS
 from core.rag_engine import ProductRAG
 from core.message_generator import MessageGenerator
-from ml.purpose_recommender import PurposeRecommender
-from ml.persona_classifier import PersonaClassifier
+from ml.persona_classifier_hybrid import HybridPersonaClassifier
 from core.churn_calculator import get_churn_details, get_dormancy_status, check_purpose_eligibility
 from core.customer_analytics import get_full_customer_analysis, get_quick_summary, classify_customer_type, get_shopping_persona, get_message_priority
 
@@ -91,7 +90,7 @@ st.markdown(f"""
     }}
 
     .block-container {{
-        padding-top: 1rem !important;
+        padding-top: 2rem !important;
         padding-bottom: 1rem !important;
         max-width: 100% !important;
     }}
@@ -281,14 +280,14 @@ st.markdown(f"""
         margin-bottom: 0.6rem;
     }}
 
-    /* 고객 정보 카드 - 피그마 회색 배경 + 그림자 */
+    /* 고객 정보 카드 - 피그마 회색 배경 + 그림자 (블러10, 스프레드5, 불투명도15%) */
     .customer-card {{
         background: #F1F1F1;
         border: 1px solid #E5E7EB;
         border-radius: 8px;
         padding: 1rem 1.25rem;
         margin-bottom: 1rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 10px 3px rgba(0,0,0,0.12);
     }}
 
     .customer-name {{
@@ -322,7 +321,7 @@ st.markdown(f"""
         color: #AAAAAA;
     }}
 
-    /* 발신 목적 / 고객 페르소나 카드 - 피그마 + 그림자 */
+    /* 발신 목적 / 고객 페르소나 카드 - 피그마 + 그림자 (블러10, 스프레드5, 불투명도15%) */
     .card-row {{
         display: flex;
         gap: 1rem;
@@ -335,7 +334,7 @@ st.markdown(f"""
         border: 1px solid #E5E7EB;
         border-radius: 8px;
         padding: 0.75rem 1rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 10px 3px rgba(0,0,0,0.12);
     }}
 
     .info-card-header {{
@@ -378,7 +377,7 @@ st.markdown(f"""
         color: #AAAAAA;
     }}
 
-    /* 추천 상품 - 피그마 3열 + 그림자 */
+    /* 추천 상품 - 피그마 3열 + 그림자 (블러10, 스프레드5, 불투명도15%) */
     .products-row {{
         display: flex;
         gap: 1rem;
@@ -391,7 +390,7 @@ st.markdown(f"""
         border: 1px solid #E5E7EB;
         border-radius: 8px;
         padding: 0.75rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 10px 3px rgba(0,0,0,0.12);
     }}
 
     .product-name {{
@@ -421,13 +420,13 @@ st.markdown(f"""
         font-weight: 700;
     }}
 
-    /* 생성된 메시지 - 피그마 + 그림자 */
+    /* 생성된 메시지 - 피그마 + 그림자 (블러10, 스프레드5, 불투명도15%) */
     .message-box {{
         background: #FFFFFF;
         border: 1px solid #E5E7EB;
         border-radius: 8px;
         padding: 1rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 10px 3px rgba(0,0,0,0.12);
     }}
 
     .message-title-row {{
@@ -508,14 +507,13 @@ def get_api_key(key_name="HF_API_KEY"):
     except:
         return None
 
-# 모델 옵션
+# 모델 옵션 (message_generator.py SUPPORTED_MODELS와 일치해야 함)
 MODEL_OPTIONS = {
-    "qwen2.5:7b": "Qwen 2.5 7B (무료)",
-    "Qwen/Qwen2.5-7B-Instruct": "Qwen 2.5 7B HuggingFace (무료)",
-    "gpt-4.1-nano": "GPT-4.1 Nano (₩0.22/건)",
+    "Qwen/Qwen2.5-7B-Instruct": "Qwen 2.5 7B (HuggingFace API, 무료)",
+    "exaone3.5:7.8b": "EXAONE 3.5 7.8B (Ollama, 한국어 특화)",
+    "qwen2.5:7b": "Qwen 2.5 7B (Ollama, 로컬)",
     "gpt-4o-mini": "GPT-4o-mini (₩0.33/건)",
-    "gpt-4.1-mini": "GPT-4.1 Mini (₩0.88/건)",
-    "gpt-4.1": "GPT-4.1 (₩4.4/건)"
+    "gpt-4o": "GPT-4o (₩5.5/건)",
 }
 
 # 세션 상태 초기화
@@ -524,7 +522,7 @@ if 'api_key' not in st.session_state:
 if 'openai_api_key' not in st.session_state:
     st.session_state.openai_api_key = get_api_key("OPENAI_API_KEY") or ""
 if 'selected_model' not in st.session_state:
-    st.session_state.selected_model = "qwen2.5:7b"
+    st.session_state.selected_model = "exaone3.5:7.8b"
 if 'message_history' not in st.session_state:
     st.session_state.message_history = []
 if 'ai_purpose_recommendation' not in st.session_state:
@@ -532,7 +530,7 @@ if 'ai_purpose_recommendation' not in st.session_state:
 if 'last_persona_id' not in st.session_state:
     st.session_state.last_persona_id = None
 if 'persona_classifier' not in st.session_state:
-    st.session_state.persona_classifier = PersonaClassifier()
+    st.session_state.persona_classifier = HybridPersonaClassifier()
 if 'ml_persona_prediction' not in st.session_state:
     st.session_state.ml_persona_prediction = None
 
@@ -542,11 +540,15 @@ with st.sidebar:
 
     # LLM 모델
     st.markdown('<p class="sidebar-label">LLM 모델</p>', unsafe_allow_html=True)
+    # 세션의 모델이 목록에 없으면 첫 번째 모델로 초기화
+    model_keys = list(MODEL_OPTIONS.keys())
+    if st.session_state.selected_model not in model_keys:
+        st.session_state.selected_model = model_keys[0]
     selected_model = st.selectbox(
         "모델",
-        list(MODEL_OPTIONS.keys()),
+        model_keys,
         format_func=lambda x: MODEL_OPTIONS[x],
-        index=list(MODEL_OPTIONS.keys()).index(st.session_state.selected_model),
+        index=model_keys.index(st.session_state.selected_model),
         label_visibility="collapsed"
     )
     st.session_state.selected_model = selected_model
@@ -567,6 +569,34 @@ with st.sidebar:
         **Qwen 2.5 7B** - 무료
         """)
 
+    # GPT 모델 선택 시 API 키 입력란 표시
+    if selected_model.startswith("gpt"):
+        st.markdown('<p class="sidebar-label">OpenAI API Key</p>', unsafe_allow_html=True)
+        openai_key_input = st.text_input(
+            "OpenAI API Key",
+            value=st.session_state.openai_api_key,
+            type="password",
+            label_visibility="collapsed",
+            placeholder="sk-..."
+        )
+        st.session_state.openai_api_key = openai_key_input
+        if not openai_key_input:
+            st.warning("⚠️ GPT 모델 사용을 위해 API 키를 입력하세요")
+
+    # HuggingFace API 모델 선택 시 API 키 입력란 표시
+    if selected_model.startswith("Qwen/"):
+        st.markdown('<p class="sidebar-label">HuggingFace API Key</p>', unsafe_allow_html=True)
+        hf_key_input = st.text_input(
+            "HuggingFace API Key",
+            value=st.session_state.api_key,
+            type="password",
+            label_visibility="collapsed",
+            placeholder="hf_..."
+        )
+        st.session_state.api_key = hf_key_input
+        if not hf_key_input:
+            st.warning("⚠️ HuggingFace 모델 사용을 위해 API 키를 입력하세요")
+
     st.markdown("<br>", unsafe_allow_html=True)
 
     # 메시지 미리보기
@@ -585,25 +615,14 @@ with st.sidebar:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # 브랜드
-    st.markdown('<p class="sidebar-label">브랜드</p>', unsafe_allow_html=True)
-    brand = st.selectbox(
-        "브랜드",
-        list(brand_tones.keys()),
-        label_visibility="collapsed"
-    )
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
     # AI 발신 목적 추천
     st.markdown('<p class="sidebar-label">AI 발신 목적 추천</p>', unsafe_allow_html=True)
 
-    # AI 추천 자동 실행
+    # AI 추천 자동 실행 (customer_analytics 기반)
     if st.session_state.last_persona_id != selected_persona['id']:
         st.session_state.last_persona_id = selected_persona['id']
         try:
-            recommender = PurposeRecommender()
-            st.session_state.ai_purpose_recommendation = recommender.recommend_purpose(selected_persona)
+            st.session_state.ai_purpose_recommendation = get_message_priority(selected_persona)
         except:
             st.session_state.ai_purpose_recommendation = None
 
@@ -629,16 +648,15 @@ with st.sidebar:
 
     if st.session_state.ai_purpose_recommendation is None:
         try:
-            recommender = PurposeRecommender()
-            st.session_state.ai_purpose_recommendation = recommender.recommend_purpose(selected_persona)
+            st.session_state.ai_purpose_recommendation = get_message_priority(selected_persona)
         except:
             pass
 
     # AI 추천 카드 - 피그마 파란 배경
     ai_rec = st.session_state.ai_purpose_recommendation
     if ai_rec:
-        purpose_name = ai_rec.get('purpose_name', '신제품 안내')
-        confidence = ai_rec.get('confidence', 0.89)
+        purpose_name = ai_rec.get('priority_name', '참여유도')
+        confidence = 0.85  # 규칙 기반 고정 신뢰도
         st.markdown(f'''
         <div class="ai-recommend-card">
             <div class="label">AI 추천</div>
@@ -649,7 +667,7 @@ with st.sidebar:
 
         # 추천 이유 버튼
         with st.expander("추천 이유"):
-            st.write(ai_rec.get('reasoning', '고객 행동 데이터 기반 추천'))
+            st.write(ai_rec.get('reason', '고객 행동 데이터 기반 추천'))
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -748,43 +766,25 @@ st.markdown(f'''
 </div>
 ''', unsafe_allow_html=True)
 
-# 발신 목적 (AI 추천) + 고객 페르소나 - 2열
-col1, col2 = st.columns(2)
+# 발신 목적 (AI 추천) + 고객 페르소나 - 2열 (순수 HTML - 한 줄로 작성)
+purpose_name = ai_rec.get('priority_name', '전환 유도') if ai_rec else '전환 유도'
+ml_pred = st.session_state.ml_persona_prediction
+persona_type = ml_pred.get('persona', '합리적 큐레이터') if ml_pred else '합리적 큐레이터'
 
-with col1:
-    purpose_name = ai_rec.get('purpose_name', '전환 유도') if ai_rec else '전환 유도'
-    st.markdown(f'''
-    <div class="info-card">
-        <div class="info-card-header">
-            <span class="info-card-title">발신 목적 (AI 추천)</span>
-            <span class="info-card-link">ⓘ 이 발신목적이 추천된 이유</span>
-        </div>
-        <div class="info-card-subtitle">{purpose_name}</div>
-        <div class="info-card-list">
-            <div class="info-card-list-item">최근 30일 탐색(방문, 조회), 참여(찜, 장바구니) 있음</div>
-            <div class="info-card-list-item">최근 30일 구매 없음</div>
-            <div class="info-card-list-item">구매를 자연스럽게 고려하도록 돕는 전환 유도 메시지 필요</div>
-        </div>
-    </div>
-    ''', unsafe_allow_html=True)
+card_style = "flex: 1; background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 8px; padding: 0.75rem 1rem; box-shadow: 0 2px 10px 3px rgba(0,0,0,0.12);"
+header_style = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;"
+title_style = "font-size: 0.9rem; font-weight: 600; color: #111827;"
+link_style = "font-size: 0.7rem; color: #AAAAAA;"
+subtitle_style = "font-size: 0.85rem; font-weight: 600; color: #111827; margin-bottom: 0.4rem;"
+list_style = "font-size: 0.8rem; color: #AAAAAA; line-height: 1.6;"
+item_style = "margin-bottom: 0.2rem;"
 
-with col2:
-    ml_pred = st.session_state.ml_persona_prediction
-    persona_type = ml_pred.get('persona', '합리적 큐레이터') if ml_pred else '합리적 큐레이터'
-    st.markdown(f'''
-    <div class="info-card">
-        <div class="info-card-header">
-            <span class="info-card-title">고객 페르소나</span>
-            <span class="info-card-link">ⓘ 페르소나 분류 이유</span>
-        </div>
-        <div class="info-card-subtitle">{persona_type}</div>
-        <div class="info-card-list">
-            <div class="info-card-list-item">실패 없는 선택을 위해 랭킹과 리뷰를 신뢰하는 2845 직장인</div>
-            <div class="info-card-list-item">베스트템과 리뷰를 기반으로 검증된 제품만 구매하는 성향</div>
-            <div class="info-card-list-item">할인 이벤트 시 베스트템을 챙겨두는 합리적 쇼핑 패턴</div>
-        </div>
-    </div>
-    ''', unsafe_allow_html=True)
+purpose_card = f'<div style="{card_style}"><div style="{header_style}"><span style="{title_style}">발신 목적 (AI 추천)</span><span style="{link_style}">ⓘ 이 발신목적이 추천된 이유</span></div><div style="{subtitle_style}">{purpose_name}</div><div style="{list_style}"><div style="{item_style}">• 최근 30일 탐색(방문, 조회), 참여(찜, 장바구니) 있음</div><div style="{item_style}">• 최근 30일 구매 없음</div><div>• 구매를 자연스럽게 고려하도록 돕는 전환 유도 메시지 필요</div></div></div>'
+
+persona_card = f'<div style="{card_style}"><div style="{header_style}"><span style="{title_style}">고객 페르소나</span><span style="{link_style}">ⓘ 페르소나 분류 이유</span></div><div style="{subtitle_style}">{persona_type}</div><div style="{list_style}"><div style="{item_style}">• 실패 없는 선택을 위해 랭킹과 리뷰를 신뢰하는 2845 직장인</div><div style="{item_style}">• 베스트템과 리뷰를 기반으로 검증된 제품만 구매하는 성향</div><div>• 할인 이벤트 시 베스트템을 챙겨두는 합리적 쇼핑 패턴</div></div></div>'
+
+cards_html = f'<div style="display: flex; gap: 1rem; margin-bottom: 1rem;">{purpose_card}{persona_card}</div>'
+st.markdown(cards_html, unsafe_allow_html=True)
 
 # 메시지 생성 로직
 selected_purpose_id = ai_rec.get('recommended_purpose', 'promotion') if ai_rec else 'promotion'
@@ -830,47 +830,35 @@ st.markdown('<p class="section-title">추천 상품</p>', unsafe_allow_html=True
 
 if 'last_result' in st.session_state and st.session_state.last_result:
     products = st.session_state.last_result['products']
-    cols = st.columns(3)
 
+    # 상품 카드 개별 생성
+    product_cards = []
     for i, product in enumerate(products[:3]):
-        with cols[i]:
-            name = product.get('name', '상품명')
-            price = product.get('price', 0)
-            discount = product.get('discount_rate', 0)
+        name = product.get('name', '상품명')
+        price = product.get('price', 0)
+        discount = product.get('discount_rate', 0)
 
-            if discount > 0:
-                original = int(price / (1 - discount / 100))
-                price_html = f'''
-                <div>
-                    <span class="product-discount">{discount}%</span>
-                    <span class="product-original">{original:,}원</span>
-                </div>
-                <div class="product-price">{price:,}원</div>
-                '''
-            else:
-                price_html = f'<div class="product-price">{price:,}원</div>'
+        if discount > 0:
+            original = int(price / (1 - discount / 100))
+            price_html = f'<div style="margin-top: 0.5rem;"><span style="color: #EF4444; font-size: 0.85rem; font-weight: 700;">{discount}%</span><span style="color: #AAAAAA; font-size: 0.75rem; text-decoration: line-through; margin-left: 0.3rem;">{original:,}원</span></div><div style="color: #111827; font-size: 0.9rem; font-weight: 700;">{price:,}원</div>'
+        else:
+            price_html = f'<div style="color: #111827; font-size: 0.9rem; font-weight: 700; margin-top: 0.5rem;">{price:,}원</div>'
 
-            st.markdown(f'''
-            <div class="product-card">
-                <div class="product-name">{name}</div>
-                {price_html}
-            </div>
-            ''', unsafe_allow_html=True)
+        card_html = f'<div style="flex: 1; background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 8px; padding: 0.75rem; box-shadow: 0 2px 10px 3px rgba(0,0,0,0.12);"><div style="font-size: 0.8rem; color: #111827; font-weight: 500; line-height: 1.4;">{name}</div>{price_html}</div>'
+        product_cards.append(card_html)
+
+    # 3개 미만이면 빈 카드 추가
+    for _ in range(3 - len(products[:3])):
+        product_cards.append('<div style="flex: 1; background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 8px; padding: 0.75rem; box-shadow: 0 2px 10px 3px rgba(0,0,0,0.12);"><div style="font-size: 0.8rem; color: #AAAAAA;">상품 없음</div></div>')
+
+    product_cards_html = '<div style="display: flex; gap: 1rem; margin-bottom: 1rem;">' + ''.join(product_cards) + '</div>'
+    st.markdown(product_cards_html, unsafe_allow_html=True)
 else:
-    # 기본 상품 (피그마 예시)
-    cols = st.columns(3)
-    for i in range(3):
-        with cols[i]:
-            st.markdown(f'''
-            <div class="product-card">
-                <div class="product-name">[브랜드] 블루 에너지 에센스 인 로션 EX 125ml</div>
-                <div>
-                    <span class="product-discount">10%</span>
-                    <span class="product-original">135,000원</span>
-                </div>
-                <div class="product-price">121,500원</div>
-            </div>
-            ''', unsafe_allow_html=True)
+    # 기본 상품 (피그마 예시) - 한 줄로 작성
+    card_style = "flex: 1; background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 8px; padding: 0.75rem; box-shadow: 0 2px 10px 3px rgba(0,0,0,0.12);"
+    default_card = f'<div style="{card_style}"><div style="font-size: 0.8rem; color: #111827; font-weight: 500; line-height: 1.4;">[브랜드] 블루 에너지 에센스 인 로션 EX 125ml</div><div style="margin-top: 0.5rem;"><span style="color: #EF4444; font-size: 0.85rem; font-weight: 700;">10%</span><span style="color: #AAAAAA; font-size: 0.75rem; text-decoration: line-through; margin-left: 0.3rem;">135,000원</span></div><div style="color: #111827; font-size: 0.9rem; font-weight: 700;">121,500원</div></div>'
+    default_products_html = f'<div style="display: flex; gap: 1rem; margin-bottom: 1rem;">{default_card}{default_card}{default_card}</div>'
+    st.markdown(default_products_html, unsafe_allow_html=True)
 
 # 생성된 메시지 섹션
 st.markdown('<p class="section-title">생성된 메시지</p>', unsafe_allow_html=True)
@@ -882,18 +870,33 @@ if 'last_result' in st.session_state and st.session_state.last_result:
     title_len = len(title)
     body_len = len(body)
 
+    # 검증 결과 확인
+    validation = result.get('validation', {})
+    is_valid = validation.get('valid', True)
+    issues = validation.get('issues', [])
+
+    # 글자수 표시 스타일 (검증 통과 여부에 따라)
+    title_status = "✓" if title_len <= 40 else "✗"
+    body_status = "✓" if 300 <= body_len <= 350 else "⚠"
+    body_color = "#10B981" if 300 <= body_len <= 350 else "#F59E0B"
+
     st.markdown(f'''
     <div class="message-box">
         <div class="message-title-row">
             <span class="message-title-text">{title}</span>
-            <span class="message-char-count">✓ {title_len}/40자</span>
+            <span class="message-char-count">{title_status} {title_len}/40자</span>
         </div>
         <div class="message-body">{body}</div>
         <div class="message-body-footer">
-            <span class="message-char-count">✓ {body_len}/350자</span>
+            <span class="message-char-count" style="color: {body_color}">{body_status} {body_len}/350자</span>
         </div>
     </div>
     ''', unsafe_allow_html=True)
+
+    # 검증 실패 시 경고 표시
+    if not is_valid and issues:
+        issues_text = " | ".join(issues)
+        st.warning(f"⚠️ 품질 검증: {issues_text}")
 else:
     # 기본 메시지 (피그마 예시)
     default_title = "아모레님, 하루의 끝에 힐링을 선물해 줄 [오설록] 제품명 어쩌구를 추천드려요 🍵"

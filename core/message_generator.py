@@ -71,45 +71,39 @@ class MessageGenerator:
 
     # 지원 모델 목록
     SUPPORTED_MODELS = {
-        "qwen2.5:7b": {
-            "provider": "ollama",
-            "api_url": get_ollama_url(),  # config.py에서 동적으로 가져옴
-            "display_name": "Qwen 2.5 7B 로컬 (무료, 빠름) ⭐추천",
-            "cost": "무료"
-        },
         "Qwen/Qwen2.5-7B-Instruct": {
             "provider": "huggingface",
-            "api_url": "https://router.huggingface.co/v1/chat/completions",
-            "display_name": "Qwen 2.5 7B HuggingFace (무료, 느림)",
+            "api_url": "https://router.huggingface.co/novita/v3/openai/chat/completions",
+            "display_name": "Qwen 2.5 7B (HuggingFace API, 무료)",
+            "cost": "무료"
+        },
+        "exaone3.5:7.8b": {
+            "provider": "ollama",
+            "api_url": get_ollama_url(),
+            "display_name": "EXAONE 3.5 7.8B (Ollama, 한국어 특화)",
+            "cost": "무료"
+        },
+        "qwen2.5:7b": {
+            "provider": "ollama",
+            "api_url": get_ollama_url(),
+            "display_name": "Qwen 2.5 7B (Ollama, 로컬)",
             "cost": "무료"
         },
         "gpt-4o-mini": {
             "provider": "openai",
             "api_url": "https://api.openai.com/v1/chat/completions",
-            "display_name": "GPT-4o-mini (추천)",
-            "cost": "~₩0.6/회"
+            "display_name": "GPT-4o-mini (₩0.33/회)",
+            "cost": "~₩0.33/회"
         },
-        "gpt-4.1": {
+        "gpt-4o": {
             "provider": "openai",
             "api_url": "https://api.openai.com/v1/chat/completions",
-            "display_name": "GPT-4.1",
-            "cost": "~₩8/회"
-        },
-        "gpt-4.1-mini": {
-            "provider": "openai",
-            "api_url": "https://api.openai.com/v1/chat/completions",
-            "display_name": "GPT-4.1 Mini",
-            "cost": "~₩1.6/회"
-        },
-        "gpt-4.1-nano": {
-            "provider": "openai",
-            "api_url": "https://api.openai.com/v1/chat/completions",
-            "display_name": "GPT-4.1 Nano",
-            "cost": "~₩0.4/회"
+            "display_name": "GPT-4o (₩5.5/회)",
+            "cost": "~₩5.5/회"
         }
     }
 
-    def __init__(self, api_key=None, openai_api_key=None, model="Qwen/Qwen2.5-7B-Instruct", temperature=0.7):
+    def __init__(self, api_key=None, openai_api_key=None, model="exaone3.5:7.8b", temperature=0.7):
         """
         메시지 생성기 초기화
 
@@ -126,8 +120,8 @@ class MessageGenerator:
         self.llm = None
         self.context_builder = MessageContextBuilder()
 
-        # 모델 설정
-        model_config = self.SUPPORTED_MODELS.get(model, self.SUPPORTED_MODELS["Qwen/Qwen2.5-7B-Instruct"])
+        # 모델 설정 (없으면 기본 EXAONE)
+        model_config = self.SUPPORTED_MODELS.get(model, self.SUPPORTED_MODELS["exaone3.5:7.8b"])
         self.provider = model_config["provider"]
         self.api_url = model_config["api_url"]
 
@@ -323,7 +317,12 @@ class MessageGenerator:
         if persona:
             lifestyle_raw = persona.get('lifestyle', '')
             shopping_raw = persona.get('shopping_pattern', '')
-            name = persona.get('name', '')
+            # 이름에서 나이 제거: "장수빈(25세)" → "장수빈"
+            raw_name = persona.get('name', '')
+            if '(' in raw_name:
+                name = raw_name.split('(')[0].strip()
+            else:
+                name = raw_name
 
             # 라이프스타일 데이터를 자연스러운 표현으로 변환
             lifestyle_replacements = {
@@ -386,47 +385,63 @@ class MessageGenerator:
                 title = re.sub(pattern, replacement, title)
 
         # 0. 딱딱한 표현 → 친근한 표현 변환 (모든 브랜드 공통)
-        friendly_replacements = {
+        # 긴 표현부터 먼저 처리해야 부분 매칭 방지
+        friendly_replacements = [
+            # 긴 표현 먼저 (부분 매칭 방지)
+            ("만나보실 수 있습니다", "만나보세요"),
+            ("경험하실 수 있습니다", "경험해보세요"),
+            ("받으실 수 있습니다", "받으세요"),
+            ("확인하실 수 있습니다", "확인해보세요"),
+            ("피부 본연의 아름다움을 되찾으시길 바랍니다", "피부 본연의 아름다움을 되찾아보세요"),
+            ("되찾으시길 바랍니다", "되찾아보세요"),
+            ("특별한 기회를 마련했습니다", "특별한 기회를 준비했어요"),
+            ("기회를 마련했습니다", "기회를 준비했어요"),
+            ("마련했습니다", "마련했어요"),
+            ("준비되어 있습니다", "준비했어요"),
+            ("준비하였습니다", "준비했어요"),
+            ("마련하였습니다", "마련했어요"),
+            ("소개해 드립니다", "준비했어요"),
+            ("안내해 드립니다", "알려드려요"),
+            ("추천해 드립니다", "추천드려요"),
+            ("경험하시기 바랍니다", "경험해보세요"),
+            ("확인하시기 바랍니다", "확인해보세요"),
+            ("만나보시기 바랍니다", "만나보세요"),
+            ("이용하시기 바랍니다", "이용해보세요"),
+            ("하시기 바랍니다", "해보세요"),
+            ("되시길 바랍니다", "되실 거예요"),
+            ("첫선을 보입니다", "드디어 나왔어요"),
             # 딱딱한 존댓말 → 친근한 존댓말 (ㅂ니다 → 요 체계)
-            "출시했습니다": "출시했어요",
-            "출시되었습니다": "출시됐어요",
-            "제공합니다": "제공해요",
-            "만들어줍니다": "만들어줘요",
-            "도와줍니다": "도와줘요",
-            "전달합니다": "전달해요",
-            "담았습니다": "담았어요",
-            "있습니다": "있어요",
-            "됩니다": "돼요",
-            "합니다": "해요",
-            "입니다": "예요",
-            "습니다": "어요",
-            "소개드립니다": "준비했어요",
-            "소개해 드립니다": "준비했어요",
-            "안내드립니다": "알려드려요",
-            "안내해 드립니다": "알려드려요",
-            "추천드립니다": "추천드려요",
-            "추천해 드립니다": "추천드려요",
-            "첫선을 보입니다": "드디어 나왔어요",
-            "선보입니다": "나왔어요",
-            "준비되어 있습니다": "준비했어요",
-            "준비하였습니다": "준비했어요",
-            "마련하였습니다": "마련했어요",
-            "하시기 바랍니다": "해보세요",
-            "되시길 바랍니다": "되실 거예요",
-            "경험하시기 바랍니다": "경험해보세요",
-            "확인하시기 바랍니다": "확인해보세요",
-            "만나보시기 바랍니다": "만나보세요",
-            "이용하시기 바랍니다": "이용해보세요",
-            # 광고 느낌 제거
-            "고객님께": "님께",
-            "고객 여러분": "",
-            "특별히 준비한": "준비한",
-            "엄선된": "",
-            "특별히 제작된": "만든",
-            "탁월한 성분을 담았답니다": "좋은 성분이 가득해요",
-        }
+            ("출시되었습니다", "출시됐어요"),
+            ("출시했습니다", "출시했어요"),
+            ("제공합니다", "제공해요"),
+            ("만들어줍니다", "만들어줘요"),
+            ("도와줍니다", "도와줘요"),
+            ("전달합니다", "전달해요"),
+            ("담았습니다", "담았어요"),
+            ("소개드립니다", "준비했어요"),
+            ("안내드립니다", "알려드려요"),
+            ("추천드립니다", "추천드려요"),
+            ("선보입니다", "나왔어요"),
+            ("있습니다", "있어요"),
+            ("됩니다", "돼요"),
+            ("합니다", "해요"),
+            ("입니다", "예요"),
+            ("습니다", "어요"),
+            # 광고/딱딱한 느낌 제거
+            ("소중한 ", ""),  # "소중한 OO님께" 패턴
+            ("님께,", "님,"),  # 쉼표 앞 "께" 제거
+            ("고객님께", "님께"),
+            ("고객 여러분", ""),
+            ("특별히 준비한", "준비한"),
+            ("엄선된", ""),
+            ("특별히 제작된", "만든"),
+            ("탁월한 성분을 담았답니다", "좋은 성분이 가득해요"),
+            ("프리미엄 솔루션입니다", "프리미엄 솔루션이에요"),
+            ("완성하세요", "완성해보세요"),
+            ("케어하며", "케어해주고"),
+        ]
 
-        for old, new in friendly_replacements.items():
+        for old, new in friendly_replacements:
             title = title.replace(old, new)
             body = body.replace(old, new)
 
@@ -442,6 +457,13 @@ class MessageGenerator:
         # 깨진 텍스트 패턴 제거
         body = re.sub(r'함서\w*님', '', body)
         title = re.sub(r'함서\w*님', '', title)
+
+        # ★ 이름에서 나이 제거 - "서수진(33세)님" → "서수진님"
+        # 패턴: 이름(숫자세)님 또는 이름(숫자)님, 또는 이름(숫자세) (님 없는 경우도)
+        body = re.sub(r'([가-힣]{2,4})\(\d+세?\)님', r'\1님', body)
+        body = re.sub(r'([가-힣]{2,4})\(\d+세?\)', r'\1', body)  # 님 없는 경우
+        title = re.sub(r'([가-힣]{2,4})\(\d+세?\)님', r'\1님', title)
+        title = re.sub(r'([가-힣]{2,4})\(\d+세?\)', r'\1', title)  # 님 없는 경우
 
         # ★ 이름 환각(hallucination) 교정 - Qwen이 잘못 생성한 이름 수정
         # 고객 이름이 2-4글자 한글이라 가정하고, 잘못된 이름 패턴을 찾아서 교체
@@ -571,36 +593,33 @@ class MessageGenerator:
 
         if brand == "설화수":
             all_extensions = [
-                f" {name}님의 {skin_type} 피부를 위해 엄선된 한방 성분이 깊은 영양을 전합니다.",
-                f" 특히 {concern} 고민이 있으시다면 더욱 효과적입니다.",
-                " 오랜 세월 검증된 한방의 지혜로 피부 본연의 빛을 되찾아 드립니다.",
+                " 한방 성분이 피부 깊숙이 영양을 전달해줘요.",
+                f" {concern} 고민이 있다면 더욱 효과적이에요.",
+                " 피부 본연의 빛을 되찾을 수 있어요.",
                 f" {feature} 효과와 함께 피부 탄력까지 케어해보세요.",
-                " 지금 아모레몰에서 설화수의 프리미엄 케어를 경험해보세요.",
-                f" {name}님만을 위한 특별한 혜택을 놓치지 마세요.",
+                " 지금 바로 이 기회를 놓치지 마세요!",
                 " 피부 속부터 채워지는 깊은 보습감을 느껴보세요.",
-                " 한방 명품 스킨케어의 진가를 경험하실 수 있습니다.",
+                " 오늘이 마지막일 수 있어요.",
             ]
         elif brand == "이니스프리":
             all_extensions = [
-                f" 제주의 청정 자연 성분으로 {name}님의 피부 고민을 케어해 드려요.",
+                " 제주의 청정 자연 성분이 피부 고민을 케어해줘요.",
                 f" {concern} 걱정은 이제 자연에게 맡겨보세요.",
-                " 자연이 주는 건강한 아름다움을 매일 피부로 느껴보세요.",
-                f" {feature} 효과와 함께 자연 유래 순한 성분으로 피부 진정까지!",
-                " 아모레몰에서 제주의 자연을 만나보세요!",
-                f" {name}님만을 위한 특별한 혜택을 놓치지 마세요.",
-                " 피부에도 환경에도 좋은 클린뷰티를 경험해보세요.",
-                " 제주 녹차의 싱그러운 수분감이 하루종일 지속됩니다.",
+                " 자연이 주는 건강한 아름다움을 느껴보세요.",
+                f" {feature} 효과와 함께 순한 성분으로 피부 진정까지!",
+                " 지금 바로 이 기회를 놓치지 마세요!",
+                " 피부에도 환경에도 좋은 클린뷰티예요.",
+                " 오늘이 마지막일 수 있어요.",
             ]
         else:  # 라네즈, 헤라, 아이오페 등 기타 브랜드
             all_extensions = [
-                f" {name}님에게 딱 맞는 제품이에요!",
-                f" {concern} 고민, 이제 {brand}와 함께 해결해보세요.",
-                " 매일 쓸수록 달라지는 피부결을 직접 경험해보세요.",
-                f" {feature} 효과로 하루종일 촉촉하고 건강한 피부를 유지할 수 있어요.",
-                f" 지금 바로 아모레몰에서 {brand}를 만나보세요!",
-                f" {name}님만을 위한 특별한 혜택을 놓치지 마세요.",
-                " 트렌디하면서도 실속있는 스킨케어를 경험해보세요.",
-                " 피부 컨디션이 좋아지는 걸 직접 느끼실 수 있어요.",
+                " 딱 맞는 제품이에요!",
+                f" {concern} 고민, 이제 해결해보세요.",
+                " 매일 쓸수록 달라지는 피부결을 경험해보세요.",
+                f" {feature} 효과로 하루종일 촉촉한 피부를 유지해요.",
+                " 지금 바로 이 기회를 놓치지 마세요!",
+                " 피부 컨디션이 좋아지는 걸 느끼실 거예요.",
+                " 오늘이 마지막일 수 있어요.",
             ]
 
         # 300자가 될 때까지 계속 추가
@@ -680,6 +699,88 @@ class MessageGenerator:
         # 기본값
         return instructions.get("맞춤 제품 추천", "")
 
+    def _validate_message(self, title: str, body: str, customer_name: str) -> dict:
+        """
+        메시지 품질 검증
+
+        Returns:
+            {
+                'valid': True/False,
+                'issues': ['글자수 부족', '이름 횟수 초과', ...],
+                'stats': {'body_len': 300, 'name_count': 2, ...}
+            }
+        """
+        issues = []
+
+        # 본문 글자수 체크 (300~350자)
+        body_len = len(body)
+        if body_len < 300:
+            issues.append(f'본문 글자수 부족 ({body_len}자 < 300자)')
+        elif body_len > 400:
+            issues.append(f'본문 글자수 초과 ({body_len}자 > 400자)')
+
+        # 제목 글자수 체크 (40자 이내)
+        title_len = len(title)
+        if title_len > 45:
+            issues.append(f'제목 글자수 초과 ({title_len}자 > 45자)')
+
+        # 이름 횟수 체크 (2~4번 허용)
+        name_pattern = f'{customer_name}님'
+        name_count = body.count(name_pattern) + title.count(name_pattern)
+        if name_count < 1:
+            issues.append(f'이름 부족 ({name_count}번 < 1번)')
+        elif name_count > 4:
+            issues.append(f'이름 과다 ({name_count}번 > 4번)')
+
+        # 금지어 체크
+        banned_words = ['귀하', '고객님', '분들께', '소개드립니다', '(제품명)', '(피부타입)']
+        found_banned = [w for w in banned_words if w in body or w in title]
+        if found_banned:
+            issues.append(f'금지어 포함: {", ".join(found_banned)}')
+
+        return {
+            'valid': len(issues) == 0,
+            'issues': issues,
+            'stats': {
+                'body_len': body_len,
+                'title_len': title_len,
+                'name_count': name_count
+            }
+        }
+
+    def _fix_message(self, title: str, body: str, customer_name: str, validation: dict) -> tuple:
+        """
+        검증 실패 시 간단한 후처리 수정
+        """
+        fixed_title = title
+        fixed_body = body
+
+        # 이름이 3번 이상이면 중간 것들 제거
+        name_pattern = f'{customer_name}님'
+        name_count = validation['stats']['name_count']
+
+        if name_count > 3:
+            # 본문에서 중간에 있는 이름들 제거 (첫번째, 마지막만 유지)
+            parts = fixed_body.split(name_pattern)
+            if len(parts) > 3:
+                # 첫 부분 + 이름 + 중간들(이름 없이) + 이름 + 마지막 부분
+                fixed_body = parts[0] + name_pattern + ''.join(parts[1:-1]) + name_pattern + parts[-1]
+
+        # 금지어 대체
+        replacements = {
+            '귀하': '',
+            '고객님': f'{customer_name}님',
+            '분들께': '',
+            '소개드립니다': '준비했어요',
+            '(제품명)': '',
+            '(피부타입)': ''
+        }
+        for old, new in replacements.items():
+            fixed_title = fixed_title.replace(old, new)
+            fixed_body = fixed_body.replace(old, new)
+
+        return fixed_title, fixed_body
+
     def generate(self, persona, brand, purpose, products):
         """
         개인화된 마케팅 메시지 생성
@@ -720,26 +821,22 @@ class MessageGenerator:
             # context_builder로 최적화된 컨텍스트 생성
             optimized_context = self.context_builder.build(persona, purpose, brand, products)
 
-            # 고객 이름 추출 (persona에서)
-            customer_name = persona.get("name", "고객")
+            # 고객 이름 추출 (persona에서) - 나이 제거
+            raw_name = persona.get("name", "고객")
+            # "서수진(33세)" -> "서수진" 추출
+            if '(' in raw_name:
+                customer_name = raw_name.split('(')[0].strip()
+            else:
+                customer_name = raw_name
 
-            # 프롬프트 생성 (v11 - Ollama 최적화, 간결하고 명확한 지시)
-            formatted_prompt = f"""[작성 요청]
-브랜드: {brand}
-고객명: {customer_name} (반드시 이 이름만 사용!)
+            # 프롬프트 생성 (v12 - 간결하고 명확한 지시)
+            formatted_prompt = f"""브랜드: {brand}
+고객: {customer_name}
 목적: {purpose_kr}
 
-[고객 정보]
 {optimized_context}
 
-[추천 제품]
-- 첫 번째 제품만 메인으로 언급하세요
-
-{few_shot_examples}
-
-[출력 형식]
-반드시 아래 JSON 형식으로만 출력하세요:
-{{"title": "제목 (25-35자)", "body": "본문 (300-350자)"}}"""""
+JSON으로 출력: {{"title":"...", "body":"..."}}"""""
 
             # API 호출 (OpenAI 또는 HuggingFace)
             headers = {
@@ -747,30 +844,83 @@ class MessageGenerator:
                 "Content-Type": "application/json"
             }
 
-            # 시스템 메시지 (Ollama/OpenAI 공통)
-            system_message = f"""한국 화장품 CRM 메시지 작성 전문가입니다.
-
-[브랜드] {brand} - {tone_info["tone"]}
+            # 발신목적별 시스템 메시지 템플릿
+            common_rules = f"""당신은 아모레퍼시픽 CRM 마케팅 메시지 작성 전문가입니다.
 
 [필수 규칙]
-- 고객명: "{customer_name}님" (정확히 2번만 사용)
-- 제품명: 숫자/용량 제외, 이름만 (예: "자음생 에센스")
-- 문장: 정확히 5~6문장
-- 언어: 한국어만 (영어/중국어/특수문자 금지)
+1. 본문 300~350자 (7~9문장)
+2. "{customer_name}님" 2~3번만 사용 (첫문장 + 중간 or 마지막)
+3. 친근한 말투: ~해요, ~예요, ~세요 (합니다/입니다 금지)
+4. 고객 프로필(피부타입, 관심사, 라이프스타일)을 자연스럽게 반영
+5. 추천 상품의 특징과 혜택을 구체적으로 언급
 
-[문체]
-- 종결: "~해요", "~예요", "~세요"
-- 금지: "소개드립니다", "~하십시오", "분들", "고객님"
+[금지 사항]
+- 이름에 나이 붙이기: (33세), (25세) 등
+- 괄호 안 데이터: (280,000원), (+10% 할인) 등
+- 상투적 마무리: "오늘도 당신의 아름다움을 응원합니다"
+- 이모지: 📈, 📊, ✨ 등
+- 플레이스홀더: (제품명), (피부타입)
 
-[본문 순서]
-1. "{customer_name}님," + 공감 인사
-2. 제품 이름 + 추천 이유
-3. 핵심 효과 1가지
-4. 할인/사은품 혜택
-5. 긴급성 + CTA
+[마무리 예시]
+- "지금 바로 이 기회를 놓치지 마세요!"
+- "오늘이 마지막일 수 있어요."
+- "장바구니에 담아보세요!"
+- "이번 기회 놓치면 아쉬울 거예요."""
 
-[글자수] 제목 25~35자, 본문 300~350자
-[출력] JSON만: {{"title":"...", "body":"..."}}"""
+            priority_prompts = {
+                "onboarding": f"""{common_rules}
+
+[발신목적: 온보딩 - 신규 고객 환영]
+- 환영하는 톤, 구매 압박 없이 브랜드 소개
+- 첫 방문 혜택, 베스트셀러 가볍게 언급
+
+[좋은 예시]
+{customer_name}님, {brand}에 처음 오신 것을 환영해요! 저희는 피부 본연의 아름다움을 지켜드리는 브랜드예요. 복합성 피부도 편안하게 사용할 수 있는 순한 제품들을 준비했어요. 베스트셀러 윤조에센스는 많은 분들이 첫 제품으로 선택하고 계세요. 피부 깊숙이 수분을 전달하고 촉촉함이 오래 지속되는 게 특징이에요. 신규 회원 혜택으로 특별 쿠폰도 받으실 수 있어요. 천천히 둘러보시면서 피부에 맞는 제품을 찾아보세요. {customer_name}님의 뷰티 여정을 함께할 수 있어서 기뻐요!""",
+
+                "engagement": f"""{common_rules}
+
+[발신목적: 참여유도 - 탐색 중인 고객]
+- 가벼운 권유, 구매보다 탐색/찜 유도
+- 인기 상품, 리뷰 언급으로 관심 유도
+
+[좋은 예시]
+바쁜 일상 속에도 피부 건강을 잊지 않는 {customer_name}님! {brand}에서 요즘 가장 인기 있는 아이템들을 모아봤어요. 건조한 계절에 딱 맞는 고보습 라인이 많은 사랑을 받고 있어요. 가볍게 발리면서도 촉촉함이 하루 종일 유지되는 게 장점이에요. 마음에 드시는 제품이 있다면 찜 버튼으로 담아두셔도 좋아요. 실제 사용자들의 생생한 리뷰도 한번 살펴보세요. 지금 보시는 제품들은 할인 중이라 더 좋은 기회예요. {customer_name}님, 부담 없이 편하게 둘러보시다 가세요!""",
+
+                "conversion": f"""{common_rules}
+
+[발신목적: 전환유도 - 구매 직전 고객]
+- 혜택과 신뢰 강조, 마지막 한 푸시
+- 할인율, 사은품, 무료배송 등 구체적 혜택 언급
+
+[좋은 예시]
+{customer_name}님, 관심 가지셨던 {brand} 제품 소식이에요! 지금이 정말 좋은 타이밍이에요. 특별 할인 중이라 평소보다 훨씬 합리적인 가격에 만나볼 수 있어요. 피부에 깊은 영양을 전달하고 탄력을 케어해 줘요. 실제 사용자들의 리뷰도 정말 좋아서 재구매율이 높은 제품이에요. 지금 구매하시면 미니어처 사은품도 함께 받으실 수 있어요. 무료 배송은 물론 교환과 반품도 부담 없이 가능해요. {customer_name}님, 망설이셨던 그 제품 지금 장바구니에 담아보세요!""",
+
+                "reactivation": f"""{common_rules}
+
+[발신목적: 재활성화 - 휴면 고객]
+- 부드러운 재회, 구매 압박 없이
+- 신제품/리뉴얼 소식, 돌아온 고객 혜택 언급
+
+[좋은 예시]
+{customer_name}님, 정말 오랜만이에요! 그동안 잘 지내셨나요? {brand}에 그사이 새롭고 좋은 소식들이 많이 생겼어요. 인기 라인이 리뉴얼되어서 더욱 좋아졌어요. 예전에 좋아하셨던 보습 라인도 성분이 업그레이드됐어요. 오랜만에 찾아주시는 분께 드리는 특별 혜택도 준비되어 있어요. 부담 없이 가볍게 구경만 하셔도 괜찮아요. 시간 되실 때 편하게 한번 들러보시는 건 어떠세요? {customer_name}님을 다시 만나면 정말 반가울 것 같아요!""",
+
+                "default": f"""{common_rules}
+
+[발신목적: 프로모션 - 할인/혜택 안내]
+- 친근하게 프로모션 안내
+- 구체적 할인율, 상품 특징, 긴급성 강조
+
+[좋은 예시]
+바쁜 일상 속에도 피부 건강을 잊지 않는 {customer_name}님! {brand}가 특별한 프로모션을 준비했어요. 복합성 피부의 모공과 피지 고민을 효과적으로 해결할 제품을 만나보세요. 피부 속부터 수분을 채워주고 깊은 보습감을 전달해요. 꾸준히 사용하면 피부결이 부드러워지고 탄력도 느낄 수 있어요. 지금 구매하시면 40% 할인 혜택까지 받을 수 있어요. 무료 배송에 사은품까지 드려요. {customer_name}님, 지금 바로 이 기회를 놓치지 마세요! 오늘이 마지막일 수 있어요."""
+            }
+
+            # 고객의 발신목적 코드 가져오기
+            from core.customer_analytics import get_message_priority
+            priority_info = get_message_priority(persona)
+            priority_code = priority_info.get('priority_code', 'default')
+
+            # 발신목적에 맞는 시스템 메시지 선택
+            system_message = priority_prompts.get(priority_code, priority_prompts["default"])
 
             # OpenAI / Ollama 모델은 시스템 메시지 사용
             if self.provider in ("openai", "ollama"):
@@ -779,34 +929,64 @@ class MessageGenerator:
                     {"role": "user", "content": formatted_prompt}
                 ]
             else:
-                # HuggingFace (Qwen 등) - 시스템 메시지 + 한국어 강화 + 이름 규칙
-                qwen_system = f"""당신은 한국 화장품 브랜드의 CRM 마케팅 메시지 작성 전문가입니다.
+                # HuggingFace (Qwen 등) - 발신목적별 지시 + 친근한 톤 강화
 
-🚨🚨🚨 가장 중요한 규칙 🚨🚨🚨
-고객 이름은 "{customer_name}"입니다!
-- 반드시 "{customer_name}님"이라고만 쓰세요!
-- 다른 이름 절대 사용 금지!
-- 이름을 바꾸거나 변형하면 안 됩니다!
+                # 발신목적별 톤 지시
+                purpose_tone_guide = {
+                    "onboarding": f"""[온보딩 메시지 - 신규 고객 환영]
+- 환영하고 안내하는 톤, 구매 압박 금지
+- "처음 오신 것을 환영해요", "천천히 둘러보세요" 느낌
+- 브랜드 소개 + 베스트셀러 가볍게 언급""",
 
-🚨 절대 규칙:
-1. 한국어만 사용 (중국어/영어/일본어 절대 금지)
-2. 친근한 말투 사용 ("~해요", "~예요", "~세요")
-3. "소개드립니다", "~하십시오" 같은 딱딱한 표현 금지
-4. JSON 형식으로만 출력
+                    "engagement": f"""[참여유도 메시지 - 탐색 고객]
+- 가벼운 권유, 구매보다 탐색/찜 유도
+- "한번 구경해보세요", "마음에 드시면 담아두세요" 느낌
+- 인기 제품 소개 + 리뷰 언급""",
 
-✅ 좋은 표현:
-- "{customer_name}님, 바쁜 일상 속에도 피부 건강을 잊지 않으셨군요!"
-- "~는 어떠세요?"
-- "놓치지 마세요!"
-- "오늘이 마지막일 수 있어요."
+                    "conversion": f"""[전환유도 메시지 - 구매 전환]
+- 관심 존중 + 혜택/신뢰 강조
+- "관심 가지셨던", "지금이 좋은 기회예요" 느낌
+- 할인/사은품 혜택 강조 + 후기 언급""",
 
-❌ 금지 표현:
-- "소개드립니다" → "준비했어요"
-- "~하십시오" → "~해보세요"
-- "첫선을 보입니다" → "드디어 나왔어요"
-- "~드리겠습니다" → "~드려요"
-- 영어 단어 (Trial, OK 등)
-- 중국어 (禁止使用中文)"""
+                    "reactivation": f"""[재활성화 메시지 - 휴면 고객]
+- 부드러운 재회, 구매 압박 금지
+- "오랜만이에요", "그동안 새로운 것들이 생겼어요" 느낌
+- 신제품/리뉴얼 소식 + 특별 혜택 언급""",
+
+                    "default": f"""[프로모션 메시지]
+- 친근하게 혜택 안내
+- "특별한 기회예요", "놓치면 아쉬워요" 느낌
+- 할인율/사은품 구체적으로 언급"""
+                }
+
+                tone_guide = purpose_tone_guide.get(priority_code, purpose_tone_guide["default"])
+
+                qwen_system = f"""한국 화장품 CRM 메시지 작성 전문가.
+
+[글자수 규칙 - 가장 중요!]
+- 본문: 반드시 320~350자 작성 (현재 200자 수준으로 너무 짧음!)
+- 9~10문장 필수 (각 문장 35~40자)
+- 200자대는 실패! 최소 320자 이상!
+
+[이름 규칙]
+- "{customer_name}님"만 사용
+- 절대 금지: 나이, 괄호, (33세), (20세) 등
+
+[말투 규칙]
+- ~해요/~예요만 사용
+- 금지: ~합니다, ~입니다, 경험하실 수 있습니다
+
+[금지 사항]
+- (280,000원), (+10% 할인), (+6일) 등 괄호 데이터
+- "오늘도 당신의 아름다움을 응원합니다" 같은 상투적 마무리
+- "감사해요" 마무리
+
+{tone_guide}
+
+[320자 예시 - 이 길이를 참고!]
+{customer_name}님, 바쁜 일상 속에도 피부 건강을 잊지 않으셨군요! {brand}가 특별한 프로모션을 준비했어요. 복합성 피부의 고민을 효과적으로 해결할 제품들을 만나보세요. 피부 속부터 수분을 채워주는 보습 라인이에요. 꾸준히 쓰시는 분들 사이에서 피부결이 달라졌다는 후기가 정말 많아요. 지금 구매하시면 특별 할인에 미니어처 세트까지 드려요. 무료 배송은 물론 교환과 반품도 부담 없이 가능해요. 이번 기회를 놓치면 정말 아쉬울 거예요. {customer_name}님, 지금 바로 장바구니에 담아보세요!
+
+출력: JSON만 {{"title":"...","body":"..."}}"""
 
                 messages = [
                     {"role": "system", "content": qwen_system},
@@ -886,25 +1066,102 @@ class MessageGenerator:
             title = temp_result["title"]
             body = temp_result["body"]
 
-            # 본문이 300자 미만이면 자동 보강 (톤 검증 후 실행!)
+            # ========== 후처리 검증 ==========
+            # customer_name은 이미 위에서 나이 제거된 상태
+            validation = self._validate_message(title, body, customer_name)
+
+            # 검증 실패 시 후처리 수정 시도
+            if not validation['valid']:
+                title, body = self._fix_message(title, body, customer_name, validation)
+                # 수정 후 재검증
+                validation = self._validate_message(title, body, customer_name)
+
             original_len = len(body)
             extended = False
-            if original_len < 300:
+
+            # ========== 글자수 부족 시 자동 보강 ==========
+            if len(body) < 300:
                 body = self._extend_body(body, persona, brand, products)
                 extended = True
+
+            # ========== 이름 누락 패턴 수정 ==========
+            # "의 선택", "께,", "님께 딱" 등 이름 없이 조사만 있는 패턴 수정
+            name_missing_patterns = [
+                (r'\s+의\s+(?:선택|피부|알뜰)', f' {customer_name}님의 '),  # " 의 선택" → "OO님의 선택"
+                (r'\s+께,', f' {customer_name}님,'),  # " 께," → "OO님,"
+                (r'\s+께\s+', f' {customer_name}님께 '),  # " 께 " → "OO님께 "
+                (r'(?<![가-힣])님께\s+딱', f'{customer_name}님께 딱'),  # "님께 딱" → "OO님께 딱"
+                (r',\s+이번', f'. {customer_name}님, 이번'),  # ", 이번" → ". OO님, 이번"
+            ]
+            for pattern, replacement in name_missing_patterns:
+                body = re.sub(pattern, replacement, body)
+
+            # ========== 어색한 표현 수정 ==========
+            awkward_fixes = [
+                # 가격/기간 플레이스홀더 제거
+                (r'\s*\(\+\d+일\)', ''),  # "(+6일)" 제거
+                (r'\s*\(\d{1,3}(,\d{3})*원\)', ''),  # "(280,000원)" 제거
+                (r'\s*\(\+\d+%\s*할인\)', ''),  # "(+10% 할인)" 제거
+                # 상투적/어색한 마무리 제거
+                (r'감사해요,?\s*[가-힣]+님\.?', ''),  # "감사해요, OO님." 제거
+                (r'오늘도\s*당신의\s*아름다움을\s*응원합니다\.?', ''),  # 상투적 마무리
+                (r'오늘도\s*당신의\s*아름다움을\s*응원해요\.?', ''),
+                # 말투 통일 (ㅂ니다/이죠/답니다 → 해요/예요)
+                (r'효과적예요', '효과적이에요'),
+                (r'될\s*것예요', '될 거예요'),
+                (r'있을\s*것예요', '있을 거예요'),
+                (r'경험하실\s*수\s*있습니다', '경험해보세요'),
+                (r'전합니다', '전해요'),
+                (r'부여해\s*준답니다', '부여해줘요'),
+                (r'준답니다', '줘요'),
+                (r'이죠', '이에요'),
+                (r'거든요', '거예요'),
+                (r'있답니다', '있어요'),
+                (r'해준답니다', '해줘요'),
+                # 반복/불필요한 표현
+                (r'지금\s*바로\s*장바구니에\s*담아보세요!\s*망설이는\s*순간이\s*기회를\s*잃는\s*순간이\s*될\s*수\s*있어요\.', '지금 바로 장바구니에 담아보세요!'),
+            ]
+            for pattern, replacement in awkward_fixes:
+                body = re.sub(pattern, replacement, body)
+                title = re.sub(pattern, replacement, title)
+
+            # ========== 이름 연속 반복 제거 ==========
+            # "서수진님. 서수진님," → "서수진님,"
+            name_pattern = f'{customer_name}님'
+            body = re.sub(rf'{re.escape(name_pattern)}[.\s]+{re.escape(name_pattern)}', name_pattern, body)
+
+            # 이름이 5번 이상이면 중간 것들 제거 (첫 2번 + 마지막 1번만 유지)
+            name_count = body.count(name_pattern)
+            if name_count > 4:
+                parts = body.split(name_pattern)
+                if len(parts) > 5:
+                    # 첫 2번 + 마지막 1번만 유지
+                    new_body = parts[0] + name_pattern + parts[1] + name_pattern
+                    new_body += ''.join(parts[2:-1])
+                    new_body += name_pattern + parts[-1]
+                    body = new_body
+
+            # 최종 검증
+            validation = self._validate_message(title, body, customer_name)
 
             # 실행 시간 기록
             from datetime import datetime
             now = datetime.now()
             timestamp = now.strftime("%m/%d %H:%M")
-            print(f"[LOG] {timestamp} | 모델: {self.model} | 성공")
 
-            # 최종 결과 (디버그 정보 + 비용 포함)
+            # 검증 결과 로깅
+            if validation['valid']:
+                print(f"[LOG] {timestamp} | 모델: {self.model} | 성공 | {validation['stats']['body_len']}자")
+            else:
+                print(f"[LOG] {timestamp} | 모델: {self.model} | 검증실패: {', '.join(validation['issues'])}")
+
+            # 최종 결과 (디버그 정보 + 비용 + 검증 포함)
             result = {
                 "title": title,
                 "body": body,
                 "title_over": len(title) > 40,
                 "body_over": len(body) > 350,
+                "validation": validation,
                 "debug_info": {
                     "original_len": original_len,
                     "final_len": len(body),
@@ -912,6 +1169,8 @@ class MessageGenerator:
                     "model": self.model,
                     "provider": self.provider,
                     "timestamp": timestamp,
+                    "validation_passed": validation['valid'],
+                    "validation_issues": validation['issues'],
                     # 토큰 & 비용 정보
                     "input_tokens": input_tokens,
                     "output_tokens": output_tokens,

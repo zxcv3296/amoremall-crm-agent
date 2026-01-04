@@ -500,6 +500,33 @@ class ProductRAG:
         # 점수 순으로 정렬
         filtered.sort(key=lambda x: x[1], reverse=True)
 
+        # ========== 제품명 기반 중복 제거 ==========
+        # 같은 제품의 색상/호수 변형 제거 (예: 비글로우 볼륨 쿠션 21호, 22호, 23호)
+        import re
+        def get_base_product_name(name):
+            """제품명에서 호수/색상 정보 제거하여 기본 제품명 추출"""
+            # 호수 패턴 제거 (21호, 22호, 13호 등)
+            name = re.sub(r'\s*\d+호\s*', ' ', name)
+            # 색상명 제거 (베이지, 아이보리, 페탈, 바닐라, 포슬린 등)
+            colors = ['베이지', '아이보리', '페탈', '바닐라', '포슬린', '로제', '코랄', '핑크', '레드', '브라운', '누드']
+            for color in colors:
+                name = name.replace(color, '')
+            # 연속 공백 정리
+            name = re.sub(r'\s+', ' ', name).strip()
+            return name
+
+        # 중복 제거된 리스트 생성
+        seen_base_names = set()
+        deduplicated = []
+        for p, score in filtered:
+            base_name = get_base_product_name(p['name'])
+            if base_name not in seen_base_names:
+                deduplicated.append((p, score))
+                seen_base_names.add(base_name)
+
+        # 중복 제거된 리스트로 교체
+        filtered = deduplicated
+
         # 목적별 다양화 전략 (영문 ID 기반)
         result = []
 

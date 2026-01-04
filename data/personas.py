@@ -240,7 +240,7 @@ personas = [
         "persona_cluster": "테크니컬 홈케어족",
         "persona_confidence": 0.92,
 
-        # 행동 데이터
+        # 행동 데이터 - 전환유도 (구매주기 도래)
         "activity": {
             "last_visit_days_ago": 7,
             "visit_frequency": "낮음",
@@ -250,7 +250,7 @@ personas = [
 
         "purchase": {
             "total_count": 23,
-            "last_purchase_days_ago": 14,
+            "last_purchase_days_ago": 35,  # 구매주기 85% 도래 (35/41=0.85)
             "avg_interval": 41,
             "total_amount": 1663268,
             "avg_amount": 72316,
@@ -313,9 +313,9 @@ personas = [
         "persona_cluster": "하이엔드 품격가",
         "persona_confidence": 0.89,
 
-        # 행동 데이터
+        # 행동 데이터 - 재활성화 (휴면 위험)
         "activity": {
-            "last_visit_days_ago": 7,
+            "last_visit_days_ago": 45,
             "visit_frequency": "높음",
             "avg_session_minutes": 36,
             "signup_days_ago": 210
@@ -323,7 +323,7 @@ personas = [
 
         "purchase": {
             "total_count": 17,
-            "last_purchase_days_ago": 14,
+            "last_purchase_days_ago": 90,  # 오래된 구매
             "avg_interval": 41,
             "total_amount": 1253903,
             "avg_amount": 73759,
@@ -350,9 +350,9 @@ personas = [
         },
 
         "risk": {
-            "level": "낮음",
-            "factors": [],
-            "churn_probability": 0.08
+            "level": "높음",
+            "factors": ["장기 미구매"],
+            "churn_probability": 0.45  # 재활성화 조건 충족 (35% 이상)
         },
 
         "seasonal": {
@@ -458,19 +458,19 @@ personas = [
         "persona_cluster": "연구소 기반 해결사",
         "persona_confidence": 0.85,
 
-        # 행동 데이터
+        # 행동 데이터 - 온보딩 (신규 고객)
         "activity": {
-            "last_visit_days_ago": 7,
+            "last_visit_days_ago": 3,
             "visit_frequency": "중간",
             "avg_session_minutes": 11,
-            "signup_days_ago": 90
+            "signup_days_ago": 45  # 신규 가입 90일 이하
         },
 
         "purchase": {
-            "total_count": 10,
-            "last_purchase_days_ago": 14,
+            "total_count": 2,  # 구매 5회 미만
+            "last_purchase_days_ago": 7,
             "avg_interval": 21,
-            "total_amount": 504520,
+            "total_amount": 100904,
             "avg_amount": 50452,
             "recent_categories": ["클렌징", "스킨케어"]
         },
@@ -531,9 +531,9 @@ personas = [
         "persona_cluster": "트렌디 Z세대",
         "persona_confidence": 0.95,
 
-        # 행동 데이터
+        # 행동 데이터 - 재활성화 (이탈 위험)
         "activity": {
-            "last_visit_days_ago": 7,
+            "last_visit_days_ago": 60,
             "visit_frequency": "중간",
             "avg_session_minutes": 20,
             "signup_days_ago": 165
@@ -541,7 +541,7 @@ personas = [
 
         "purchase": {
             "total_count": 41,
-            "last_purchase_days_ago": 14,
+            "last_purchase_days_ago": 120,  # 오래된 구매
             "avg_interval": 45,
             "total_amount": 1307326,
             "avg_amount": 31886,
@@ -570,8 +570,8 @@ personas = [
 
         "risk": {
             "level": "높음",
-            "factors": ["충성도 낮음"],
-            "churn_probability": 0.35
+            "factors": ["충성도 낮음", "장기 미방문"],
+            "churn_probability": 0.65  # 재활성화 조건 충족 (35% 이상)
         },
 
         "seasonal": {
@@ -604,9 +604,9 @@ personas = [
         "persona_cluster": "합리적 큐레이터",
         "persona_confidence": 0.87,
 
-        # 행동 데이터
+        # 행동 데이터 - 전환유도 (구매주기 도래)
         "activity": {
-            "last_visit_days_ago": 7,
+            "last_visit_days_ago": 5,
             "visit_frequency": "중간",
             "avg_session_minutes": 13,
             "signup_days_ago": 108
@@ -614,7 +614,7 @@ personas = [
 
         "purchase": {
             "total_count": 18,
-            "last_purchase_days_ago": 14,
+            "last_purchase_days_ago": 18,  # 구매주기 90% 도래 (18/20=0.9)
             "avg_interval": 20,
             "total_amount": 1217502,
             "avg_amount": 67639,
@@ -677,19 +677,19 @@ personas = [
         "persona_cluster": "실속형 가계 수호자",
         "persona_confidence": 0.93,
 
-        # 행동 데이터
+        # 행동 데이터 - 온보딩 (신규 고객)
         "activity": {
-            "last_visit_days_ago": 7,
+            "last_visit_days_ago": 2,
             "visit_frequency": "낮음",
             "avg_session_minutes": 7,
-            "signup_days_ago": 320
+            "signup_days_ago": 30  # 신규 가입 90일 이하
         },
 
         "purchase": {
-            "total_count": 41,
-            "last_purchase_days_ago": 14,
+            "total_count": 3,  # 구매 5회 미만
+            "last_purchase_days_ago": 5,
             "avg_interval": 26,
-            "total_amount": 1399863,
+            "total_amount": 102429,
             "avg_amount": 34143,
             "recent_categories": ["클렌징", "헤어케어"]
         },

@@ -18,6 +18,7 @@ from sklearn.model_selection import train_test_split
 
 # derived_data.py import
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'data'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'core'))
 try:
     from derived_data import (
         calc_age, calc_diversity, calc_full_price_ratio, calc_discount_sensitivity,
@@ -26,6 +27,13 @@ try:
     HAS_DERIVED_DATA = True
 except ImportError:
     HAS_DERIVED_DATA = False
+
+# churn_calculator import
+try:
+    from churn_calculator import calculate_churn_probability
+    HAS_CHURN_CALCULATOR = True
+except ImportError:
+    HAS_CHURN_CALCULATOR = False
 
 
 # ============================================================
@@ -273,16 +281,16 @@ def calculate_derived_data_df(df, target_date=None):
 
     return result_df
 
-# 브랜드 클러스터 정의 (7개 클러스터 - 30개 브랜드)
-# 2024.01 라벨링 데이터 기반 업데이트
+# 브랜드 클러스터 정의 (7개 클러스터)
+# 2026.01 규칙 문서 기반 업데이트
 BRAND_CLUSTERS = {
-    "테크니컬 홈케어족": ["메이크온", "아이오페", "에이피뷰티", "바이탈뷰티", "홀리추얼"],
-    "하이엔드 품격가": ["설화수", "헤라", "아모레퍼시픽", "에이피뷰티", "홀리추얼"],
-    "웰니스 힐링 탐험가": ["퍼즐우드", "오설록", "롱테이크", "해피바스"],
-    "연구소 기반 해결사": ["아이오페", "에스트라", "프리메라", "마몽드", "한율", "비레디", "려", "미쟝센"],
-    "트렌디 Z세대": ["에뛰드", "에스쁘아", "아모레성수", "롱테이크", "앞바다즈"],
-    "합리적 큐레이터": ["라네즈", "이니스프리", "미쟝센", "바이탈뷰티", "오딧세이"],
-    "실속형 가계 수호자": ["일리윤", "라보에이치", "메디안", "해피바스", "아모레베이직", "이니스프리"]
+    "테크니컬 홈케어족": ["메이크온", "바이탈뷰티", "아이오페"],
+    "하이엔드 품격가": ["설화수", "헤라", "에이피뷰티"],
+    "웰니스 힐링 탐험가": ["롱테이크", "퍼즐우드", "오설록"],
+    "연구소 기반 해결사": ["미쟝센", "한율", "에스트라", "프리메라", "비레디", "마몽드", "려"],
+    "트렌디 Z세대": ["라네즈", "에스쁘아", "앞바다즈", "에뛰드", "해피바스"],
+    "합리적 큐레이터": ["아모레퍼시픽", "홀리추얼", "오딧세이", "이니스프리", "아모레성수"],
+    "실속형 가계 수호자": ["라보에이치", "일리윤", "아모레베이직", "메디안"]
 }
 
 # 페르소나별 특성 정의 (CRM 메시지 생성용)
@@ -778,24 +786,49 @@ def convert_to_app_persona(customer_data, predicted_persona, confidence, target_
     if pd.isna(avg_session):
         avg_session = 10
 
-    # 이탈 위험도 계산 (파생 데이터 기반)
-    if discount_sens_val >= 0.35 and full_price_ratio < 0.3:
-        risk_level = "높음"
-        churn_prob = 0.4
-    elif discount_sens_val >= 0.25:
-        risk_level = "중"
-        churn_prob = 0.25
-    else:
-        risk_level = "낮음"
-        churn_prob = 0.1
-
-    # 브랜드 충성도 (diversity 기반)
+    # 브랜드 충성도 (diversity 기반) - 이탈 위험도 계산 전에 필요
     if diversity < 0.3:
         loyalty = "높음"
     elif diversity < 0.6:
         loyalty = "중간"
     else:
         loyalty = "낮음"
+
+    # 이탈 위험도 계산 (churn_calculator 사용)
+    # churn_calculator에 전달할 임시 페르소나 구조 생성
+    temp_persona_for_churn = {
+        'purchase': {
+            'last_purchase_days_ago': int(purchase_days_ago),
+            'avg_interval': 30,
+            'total_count': int(total_count)
+        },
+        'activity': {
+            'visit_frequency': visit_freq,
+            'last_visit_days_ago': int(visit_days_ago)
+        },
+        'brand': {
+            'loyalty': loyalty
+        },
+        'promotion': {
+            'discount_sensitivity': discount_sens,
+            'full_price_ratio': float(full_price_ratio)
+        }
+    }
+
+    if HAS_CHURN_CALCULATOR:
+        churn_prob, risk_level, risk_factors = calculate_churn_probability(temp_persona_for_churn)
+    else:
+        # fallback: 단순 계산
+        if discount_sens_val >= 0.35 and full_price_ratio < 0.3:
+            risk_level = "높음"
+            churn_prob = 0.4
+        elif discount_sens_val >= 0.25:
+            risk_level = "중"
+            churn_prob = 0.25
+        else:
+            risk_level = "낮음"
+            churn_prob = 0.1
+        risk_factors = []
 
     return {
         "id": customer_data.get('customer_id', 0),
@@ -848,7 +881,7 @@ def convert_to_app_persona(customer_data, predicted_persona, confidence, target_
 
         "risk": {
             "level": risk_level,
-            "factors": [],
+            "factors": risk_factors,
             "churn_probability": churn_prob
         },
 

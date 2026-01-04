@@ -14,15 +14,30 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier,
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 
-# 브랜드 클러스터 정의 (7개 클러스터 - 30개 브랜드)
+# 브랜드 클러스터 정의 (7개 클러스터)
 BRAND_CLUSTERS = {
-    "테크니컬 홈케어족": ["메이크온", "아이오페", "바이탈뷰티"],
-    "하이엔드 품격가": ["설화수", "헤라", "에이피뷰티", "라네즈", "아모레퍼시픽"],
-    "웰니스 힐링 탐험가": ["퍼즐우드", "오설록", "롱테이크"],
-    "연구소 기반 해결사": ["프리메라", "한율", "에스트라", "비레디", "려", "미쟝센", "마몽드"],
-    "트렌디 Z세대": ["앞바다즈", "에스쁘아", "에뛰드", "아모레성수"],
-    "합리적 큐레이터": ["오딧세이", "이니스프리", "홀리추얼"],
-    "실속형 가계 수호자": ["일리윤", "라보에이치", "해피바스", "아모레베이직", "메디안"]
+    "테크니컬 홈케어족": ["메이크온", "바이탈뷰티", "아이오페"],
+    "하이엔드 품격가": ["설화수", "헤라", "에이피뷰티"],
+    "웰니스 힐링 탐험가": ["롱테이크", "퍼즐우드", "오설록"],
+    "연구소 기반 해결사": ["미쟝센", "한율", "에스트라", "프리메라", "비레디", "마몽드", "려"],
+    "트렌디 Z세대": ["라네즈", "에스쁘아", "앞바다즈", "에뛰드", "해피바스"],
+    "합리적 큐레이터": ["아모레퍼시픽", "홀리추얼", "오딧세이", "이니스프리", "아모레성수"],
+    "실속형 가계 수호자": ["라보에이치", "일리윤", "아모레베이직", "메디안"]
+}
+
+# 카테고리 클러스터 정의
+CATEGORY_CLUSTERS = {
+    "테크니컬 홈케어족": [
+        "뷰티디바이스", "페이셜케어 기기", "구강케어 기기", "헤어케어 기기",
+        "헬스케어 기기", "기타 디바이스", "스킨케어", "클렌징", "모이스처라이징",
+        "스페셜 케어", "선케어", "세트", "리필"
+    ],
+    "웰니스 힐링 탐험가": [
+        "뷰티푸드", "건강식품", "차(TEA)", "간식", "향수", "캔들", "디퓨저", "소품&도구"
+    ],
+    "연구소 기반 해결사": [
+        "스킨케어", "클렌징", "모이스처라이징", "스페셜 케어", "선케어", "세트", "리필"
+    ]
 }
 
 # 페르소나별 특성 정의 (CRM 메시지 생성용)
@@ -90,6 +105,26 @@ def count_brand_matches(brands, target_brands):
     return count
 
 
+def count_category_matches(categories, target_categories):
+    """카테고리 매칭 개수 계산"""
+    if not categories:
+        return 0
+    count = 0
+    for cat in categories:
+        for target in target_categories:
+            if target in cat or cat in target:
+                count += 1
+                break
+    return count
+
+
+def parse_categories(category_str):
+    """카테고리 문자열을 리스트로 파싱"""
+    if pd.isna(category_str) or category_str == "":
+        return []
+    return [c.strip() for c in str(category_str).split(",")]
+
+
 def get_dominant_persona_by_brand(brands):
     """
     브랜드 기반으로 가장 매칭이 많은 페르소나 반환
@@ -112,9 +147,15 @@ def get_dominant_persona_by_brand(brands):
     return best_persona, max_score, len(brands)
 
 
-def rule_based_classify(row):
+def rule_based_classify(row, avg_amount_top10_threshold=None, total_amount_q1=None, avg_session_q3=None):
     """
     규칙 기반 페르소나 분류
+
+    Args:
+        row: 고객 데이터 행
+        avg_amount_top10_threshold: avg_amount 상위 10% 기준값 (외부에서 계산하여 전달)
+        total_amount_q1: total_amount 1분위수 기준값
+        avg_session_q3: avg_session_minutes 3분위수 기준값
 
     Returns:
         dict: {
@@ -129,167 +170,227 @@ def rule_based_classify(row):
         age = 30
 
     primary_brands = parse_brands(row.get('primary_brand', ''))
-
-    discount_sens = row.get('discount_sensitivity', '중간')
-    discount_map = {"낮음": 0.25, "중간": 0.5, "높음": 0.75, "매우 높음": 1.0}
-    discount_value = discount_map.get(str(discount_sens), 0.5)
-
-    full_price_ratio = row.get('full_price_ratio', 0.5)
-    if pd.isna(full_price_ratio):
-        full_price_ratio = 0.5
-
-    coupon_usage_rate = row.get('coupon_usage_rate', 0.5)
-    if pd.isna(coupon_usage_rate):
-        coupon_usage_rate = 0.5
-
-    diversity = row.get('diversity', 0.5)
-    if pd.isna(diversity):
-        diversity = 0.5
+    primary_categories = parse_categories(row.get('primary_category', ''))
 
     avg_amount = row.get('avg_amount', 30000)
     if pd.isna(avg_amount):
         avg_amount = 30000
 
-    tier = row.get('membership_tier', 'M')
+    total_amount = row.get('total_amount', 0)
+    if pd.isna(total_amount):
+        total_amount = 0
 
-    # 브랜드 매칭 점수 계산
-    brand_persona, brand_match_count, total_brands = get_dominant_persona_by_brand(primary_brands)
-    brand_match_ratio = brand_match_count / total_brands if total_brands > 0 else 0
+    average_transaction_value = row.get('average_transaction_value', 50000)
+    if pd.isna(average_transaction_value):
+        average_transaction_value = 50000
 
-    # ==========================================
-    # 규칙 기반 분류 (우선순위 순)
-    # ==========================================
+    preferred_promotion = str(row.get('preferred_promotion', ''))
 
-    # 각 페르소나별 브랜드 매칭 수 계산
-    curator_brands = BRAND_CLUSTERS["합리적 큐레이터"]
-    curator_match = count_brand_matches(primary_brands, curator_brands)
+    visit_frequency = str(row.get('visit_frequency', '중'))
 
-    research_brands = BRAND_CLUSTERS["연구소 기반 해결사"]
-    research_match = count_brand_matches(primary_brands, research_brands)
+    diversity = row.get('diversity', 0.5)
+    if pd.isna(diversity):
+        diversity = 0.5
 
-    practical_brands = BRAND_CLUSTERS["실속형 가계 수호자"]
-    practical_match = count_brand_matches(primary_brands, practical_brands)
+    avg_session_minutes = row.get('avg_session_minutes', 5)
+    if pd.isna(avg_session_minutes):
+        avg_session_minutes = 5
 
-    wellness_brands = BRAND_CLUSTERS["웰니스 힐링 탐험가"]
-    wellness_match = count_brand_matches(primary_brands, wellness_brands)
+    skin_type = str(row.get('skin_type', ''))
+    concerns = str(row.get('concerns', ''))
 
-    trendy_brands = BRAND_CLUSTERS["트렌디 Z세대"]
-    trendy_match = count_brand_matches(primary_brands, trendy_brands)
+    # 기본 임계값 설정 (외부에서 전달되지 않은 경우)
+    if avg_amount_top10_threshold is None:
+        avg_amount_top10_threshold = 100000  # 기본값
+    if total_amount_q1 is None:
+        total_amount_q1 = 50000  # 기본값
+    if avg_session_q3 is None:
+        avg_session_q3 = 10  # 기본값
+
+    # 각 페르소나별 브랜드/카테고리 매칭 수 계산
+    tech_brands = BRAND_CLUSTERS["테크니컬 홈케어족"]
+    tech_match = count_brand_matches(primary_brands, tech_brands)
+    tech_cat_match = count_category_matches(primary_categories, CATEGORY_CLUSTERS.get("테크니컬 홈케어족", []))
 
     highend_brands = BRAND_CLUSTERS["하이엔드 품격가"]
     highend_match = count_brand_matches(primary_brands, highend_brands)
 
-    tech_brands = BRAND_CLUSTERS["테크니컬 홈케어족"]
-    tech_match = count_brand_matches(primary_brands, tech_brands)
+    wellness_brands = BRAND_CLUSTERS["웰니스 힐링 탐험가"]
+    wellness_match = count_brand_matches(primary_brands, wellness_brands)
+    wellness_cat_match = count_category_matches(primary_categories, CATEGORY_CLUSTERS.get("웰니스 힐링 탐험가", []))
 
-    # 1. 트렌디 Z세대: 나이 < 25 AND 브랜드 매칭
-    if age < 25 and trendy_match >= 1:
+    research_brands = BRAND_CLUSTERS["연구소 기반 해결사"]
+    research_match = count_brand_matches(primary_brands, research_brands)
+    research_cat_match = count_category_matches(primary_categories, CATEGORY_CLUSTERS.get("연구소 기반 해결사", []))
+
+    trendy_brands = BRAND_CLUSTERS["트렌디 Z세대"]
+    trendy_match = count_brand_matches(primary_brands, trendy_brands)
+
+    curator_brands = BRAND_CLUSTERS["합리적 큐레이터"]
+    curator_match = count_brand_matches(primary_brands, curator_brands)
+
+    practical_brands = BRAND_CLUSTERS["실속형 가계 수호자"]
+    practical_match = count_brand_matches(primary_brands, practical_brands)
+
+    # ==========================================
+    # 규칙 기반 분류 (문서 기준)
+    # ==========================================
+
+    # 1. 테크니컬 홈케어족
+    # 조건: 브랜드(메이크온, 바이탈뷰티, 아이오페 중 1개 이상)
+    #       AND 카테고리(뷰티디바이스, 스킨케어 등 1개 이상)
+    #       AND avg_amount 상위 10%
+    if tech_match >= 1 and tech_cat_match >= 1 and avg_amount >= avg_amount_top10_threshold:
         return {
-            'persona': '트렌디 Z세대',
-            'rule': f'age({age}) < 25 AND 트렌디 브랜드 매칭({trendy_match}개)',
+            'persona': '테크니컬 홈케어족',
+            'rule': f'브랜드({tech_match}개) AND 카테고리({tech_cat_match}개) AND avg_amount({avg_amount:,.0f}) >= 상위10%({avg_amount_top10_threshold:,.0f})',
             'confidence': 0.9
         }
 
-    # 2. 테크니컬 홈케어족: 메이크온 포함 AND (avg_amount > 100000 OR 아이오페/바이탈뷰티 포함)
-    has_makeon = any('메이크온' in b for b in primary_brands)
-    has_iope_vital = any(('아이오페' in b or '바이탈뷰티' in b) for b in primary_brands)
-    if has_makeon and (avg_amount > 100000 or has_iope_vital):
-        return {
-            'persona': '테크니컬 홈케어족',
-            'rule': f'메이크온 포함 AND (avg_amount({avg_amount}) > 100000 OR 아이오페/바이탈뷰티)',
-            'confidence': 0.85
-        }
-
-    # 2-1. 테크니컬 홈케어족: 바이탈뷰티가 주 브랜드인 경우 (wellness보다 우선)
-    has_vital_primary = any('바이탈뷰티' in b for b in primary_brands[:2]) if len(primary_brands) >= 1 else False
-    if has_vital_primary and wellness_match == 0:
-        return {
-            'persona': '테크니컬 홈케어족',
-            'rule': f'바이탈뷰티 주 브랜드 AND 웰니스 브랜드 없음',
-            'confidence': 0.8
-        }
-
-    # 3. 하이엔드 품격가: 설화수/헤라 포함 AND full_price_ratio > 0.6 AND tier in [R, E]
-    has_sulwhasoo_hera = any(('설화수' in b or '헤라' in b) for b in primary_brands)
-    if has_sulwhasoo_hera and full_price_ratio > 0.6 and tier in ['R', 'E']:
+    # 2. 하이엔드 품격가
+    # 조건: 브랜드(설화수, 헤라, 에이피뷰티 중 1개 이상)
+    #       AND preferred_promotion(신상품, 한정판매 중 하나)
+    #       AND average_transaction_value >= 90,000
+    highend_promotion = preferred_promotion in ['신상품', '한정판매']
+    if highend_match >= 1 and highend_promotion and average_transaction_value >= 90000:
         return {
             'persona': '하이엔드 품격가',
-            'rule': f'설화수/헤라 포함 AND full_price_ratio({full_price_ratio:.2f}) > 0.6 AND tier={tier}',
+            'rule': f'브랜드({highend_match}개) AND 프로모션({preferred_promotion}) AND 객단가({average_transaction_value:,.0f}) >= 90,000',
             'confidence': 0.9
         }
 
-    # 4. 웰니스 힐링 탐험가: 오설록/퍼즐우드/롱테이크 중 2개 이상 OR (1개 AND diversity > 0.5)
-    # 단, 바이탈뷰티만 있는 경우는 테크니컬로 분류
-    if wellness_match >= 2 or (wellness_match >= 1 and diversity > 0.5 and not has_vital_primary):
+    # 3. 웰니스 힐링 탐험가
+    # 조건: 브랜드(롱테이크, 퍼즐우드, 오설록 중 1개 이상)
+    #       AND 카테고리(뷰티푸드, 향수, 캔들 등 1개 이상)
+    #       AND total_amount >= 1분위수
+    if wellness_match >= 1 and wellness_cat_match >= 1 and total_amount >= total_amount_q1:
         return {
             'persona': '웰니스 힐링 탐험가',
-            'rule': f'웰니스 브랜드 {wellness_match}개 매칭 AND diversity({diversity:.2f})',
-            'confidence': 0.85
+            'rule': f'브랜드({wellness_match}개) AND 카테고리({wellness_cat_match}개) AND total_amount({total_amount:,.0f}) >= Q1({total_amount_q1:,.0f})',
+            'confidence': 0.9
         }
 
-    # 5. 합리적 큐레이터: 이니스프리/홀리추얼/오딧세이 포함
-    #    - curator 브랜드가 research 브랜드보다 많거나 같으면 curator
-    #    - 또는 curator만 있고 research가 없는 경우
-    skin_type = str(row.get('skin_type', ''))
-    concerns = str(row.get('concerns', ''))
-    is_sensitive = '민감' in skin_type or '민감' in concerns or '진정' in concerns
-
-    if curator_match >= 1:
-        # curator 브랜드가 더 많거나 같은 경우
-        if curator_match >= research_match:
-            return {
-                'persona': '합리적 큐레이터',
-                'rule': f'합리적 큐레이터 브랜드({curator_match}) >= 연구소 브랜드({research_match})',
-                'confidence': 0.85
-            }
-        # curator 브랜드가 있고, 민감성이 아닌 경우
-        elif not is_sensitive:
-            return {
-                'persona': '합리적 큐레이터',
-                'rule': f'합리적 큐레이터 브랜드 매칭({curator_match}) AND 비민감성',
-                'confidence': 0.8
-            }
-
-    # 6. 연구소 기반 해결사: 프리메라/에스트라/한율/비레디 포함 AND 민감성/진정 관련
-    has_research_core = any((b in ['프리메라', '에스트라', '한율', '비레디']) for b in primary_brands) or \
-                        any(('프리메라' in b or '에스트라' in b or '한율' in b or '비레디' in b) for b in primary_brands)
-    if has_research_core and is_sensitive:
+    # 4. 연구소 기반 해결사
+    # 조건: 브랜드(미쟝센, 한율, 에스트라, 프리메라, 비레디, 마몽드, 려 중 1개 이상)
+    #       AND 카테고리(스킨케어 1개 이상)
+    #       AND skin_type/concerns != '없음', '고민없음'
+    has_skin_concern = (
+        skin_type not in ['', '없음', '고민없음', 'nan', 'None'] and
+        concerns not in ['', '없음', '고민없음', 'nan', 'None']
+    )
+    if research_match >= 1 and research_cat_match >= 1 and has_skin_concern:
         return {
             'persona': '연구소 기반 해결사',
-            'rule': f'연구소 핵심 브랜드 포함 AND 민감성/진정 관련',
-            'confidence': 0.85
+            'rule': f'브랜드({research_match}개) AND 카테고리({research_cat_match}개) AND 피부고민 있음',
+            'confidence': 0.9
         }
 
-    # 6-1. 연구소 기반 해결사: 연구소 브랜드가 2개 이상
-    if research_match >= 2:
+    # 5. 트렌디 Z세대
+    # 조건: 브랜드(라네즈, 에스쁘아, 앞바다즈, 에뛰드, 해피바스 중 1개 이상)
+    #       AND age < 25
+    #       AND preferred_promotion(신상품, 사은품증정 중 하나)
+    trendy_promotion = preferred_promotion in ['신상품', '사은품증정']
+    if trendy_match >= 1 and age < 25 and trendy_promotion:
         return {
-            'persona': '연구소 기반 해결사',
-            'rule': f'연구소 브랜드 {research_match}개 매칭',
-            'confidence': 0.8
+            'persona': '트렌디 Z세대',
+            'rule': f'브랜드({trendy_match}개) AND age({age}) < 25 AND 프로모션({preferred_promotion})',
+            'confidence': 0.9
         }
 
-    # 7. 실속형 가계 수호자: 일리윤/라보에이치/해피바스/메디안 포함 AND coupon_usage_rate > 0.5
-    if practical_match >= 1 and coupon_usage_rate > 0.5:
+    # 6. 합리적 큐레이터
+    # 조건: visit_frequency(높음 또는 중)
+    #       AND 브랜드(아모레퍼시픽, 홀리추얼, 오딧세이, 이니스프리, 아모레성수 중 1개 이상)
+    #       AND diversity >= 0.5
+    #       AND avg_session_minutes >= 3분위수
+    valid_visit_freq = visit_frequency in ['높음', '중', '중간']
+    if valid_visit_freq and curator_match >= 1 and diversity >= 0.5 and avg_session_minutes >= avg_session_q3:
+        return {
+            'persona': '합리적 큐레이터',
+            'rule': f'방문빈도({visit_frequency}) AND 브랜드({curator_match}개) AND diversity({diversity:.2f}) >= 0.5 AND 체류시간({avg_session_minutes:.1f}분) >= Q3({avg_session_q3:.1f})',
+            'confidence': 0.9
+        }
+
+    # 7. 실속형 가계 수호자
+    # 조건: average_transaction_value <= 50,000
+    #       AND preferred_promotion = 할인판매
+    #       AND 브랜드(라보에이치, 일리윤, 아모레베이직, 메디안 중 1개 이상)
+    discount_promotion = preferred_promotion == '할인판매'
+    if average_transaction_value <= 50000 and discount_promotion and practical_match >= 1:
         return {
             'persona': '실속형 가계 수호자',
-            'rule': f'실속형 브랜드 {practical_match}개 매칭 AND coupon_usage_rate({coupon_usage_rate:.2f}) > 0.5',
-            'confidence': 0.8
+            'rule': f'객단가({average_transaction_value:,.0f}) <= 50,000 AND 프로모션({preferred_promotion}) AND 브랜드({practical_match}개)',
+            'confidence': 0.9
         }
 
-    # 8. 하이엔드 품격가 (조건 완화): 설화수/헤라/라네즈/에이피뷰티 포함
-    if highend_match >= 2 or (highend_match >= 1 and full_price_ratio > 0.5):
+    # ==========================================
+    # Fallback: 조건을 완화하여 분류 시도
+    # ==========================================
+
+    # Fallback 1: 테크니컬 홈케어족 - 브랜드 + 카테고리만
+    if tech_match >= 1 and tech_cat_match >= 1:
+        return {
+            'persona': '테크니컬 홈케어족',
+            'rule': f'[완화] 브랜드({tech_match}개) AND 카테고리({tech_cat_match}개)',
+            'confidence': 0.7
+        }
+
+    # Fallback 2: 하이엔드 품격가 - 브랜드 + 객단가만
+    if highend_match >= 1 and average_transaction_value >= 90000:
         return {
             'persona': '하이엔드 품격가',
-            'rule': f'하이엔드 브랜드 {highend_match}개 OR full_price_ratio({full_price_ratio:.2f}) > 0.5',
-            'confidence': 0.75
+            'rule': f'[완화] 브랜드({highend_match}개) AND 객단가({average_transaction_value:,.0f}) >= 90,000',
+            'confidence': 0.7
         }
 
-    # 9. 브랜드 매칭이 50% 이상이면 해당 페르소나로 분류
-    if brand_persona and brand_match_ratio >= 0.5:
+    # Fallback 3: 웰니스 힐링 탐험가 - 브랜드 + 카테고리만
+    if wellness_match >= 1 and wellness_cat_match >= 1:
+        return {
+            'persona': '웰니스 힐링 탐험가',
+            'rule': f'[완화] 브랜드({wellness_match}개) AND 카테고리({wellness_cat_match}개)',
+            'confidence': 0.7
+        }
+
+    # Fallback 4: 연구소 기반 해결사 - 브랜드 + 피부고민만
+    if research_match >= 1 and has_skin_concern:
+        return {
+            'persona': '연구소 기반 해결사',
+            'rule': f'[완화] 브랜드({research_match}개) AND 피부고민 있음',
+            'confidence': 0.7
+        }
+
+    # Fallback 5: 트렌디 Z세대 - 브랜드 + 나이만
+    if trendy_match >= 1 and age < 25:
+        return {
+            'persona': '트렌디 Z세대',
+            'rule': f'[완화] 브랜드({trendy_match}개) AND age({age}) < 25',
+            'confidence': 0.7
+        }
+
+    # Fallback 6: 합리적 큐레이터 - 브랜드 + diversity만
+    if curator_match >= 1 and diversity >= 0.5:
+        return {
+            'persona': '합리적 큐레이터',
+            'rule': f'[완화] 브랜드({curator_match}개) AND diversity({diversity:.2f}) >= 0.5',
+            'confidence': 0.7
+        }
+
+    # Fallback 7: 실속형 가계 수호자 - 브랜드 + 객단가만
+    if practical_match >= 1 and average_transaction_value <= 50000:
+        return {
+            'persona': '실속형 가계 수호자',
+            'rule': f'[완화] 브랜드({practical_match}개) AND 객단가({average_transaction_value:,.0f}) <= 50,000',
+            'confidence': 0.7
+        }
+
+    # ==========================================
+    # 브랜드만으로 분류 (최후의 수단)
+    # ==========================================
+    brand_persona, brand_match_count, total_brands = get_dominant_persona_by_brand(primary_brands)
+    if brand_persona and brand_match_count >= 1:
         return {
             'persona': brand_persona,
-            'rule': f'브랜드 매칭 비율 {brand_match_ratio:.0%} ({brand_match_count}/{total_brands})',
-            'confidence': 0.7 + (brand_match_ratio * 0.2)
+            'rule': f'[브랜드만] {brand_persona} 브랜드 {brand_match_count}개 매칭',
+            'confidence': 0.5
         }
 
     # 규칙에 해당하지 않음 → ML로 fallback
@@ -437,12 +538,15 @@ class HybridPersonaClassifier:
 
         return len(X_train)
 
-    def predict(self, customer_data):
+    def predict(self, customer_data, avg_amount_top10_threshold=None, total_amount_q1=None, avg_session_q3=None):
         """
         단일 고객 데이터로 페르소나 예측 (하이브리드)
 
         Args:
             customer_data: dict 형태의 고객 데이터
+            avg_amount_top10_threshold: avg_amount 상위 10% 기준값
+            total_amount_q1: total_amount 1분위수 기준값
+            avg_session_q3: avg_session_minutes 3분위수 기준값
 
         Returns:
             dict: {
@@ -454,7 +558,12 @@ class HybridPersonaClassifier:
             }
         """
         # 1차: 규칙 기반 분류 시도
-        rule_result = rule_based_classify(customer_data)
+        rule_result = rule_based_classify(
+            customer_data,
+            avg_amount_top10_threshold=avg_amount_top10_threshold,
+            total_amount_q1=total_amount_q1,
+            avg_session_q3=avg_session_q3
+        )
 
         if rule_result['persona'] is not None:
             return {
@@ -512,13 +621,32 @@ class HybridPersonaClassifier:
         Returns:
             DataFrame with predictions
         """
+        # 데이터 기반 임계값 계산
+        avg_amount_top10_threshold = None
+        total_amount_q1 = None
+        avg_session_q3 = None
+
+        if 'avg_amount' in customers_df.columns:
+            avg_amount_top10_threshold = customers_df['avg_amount'].quantile(0.9)
+
+        if 'total_amount' in customers_df.columns:
+            total_amount_q1 = customers_df['total_amount'].quantile(0.25)
+
+        if 'avg_session_minutes' in customers_df.columns:
+            avg_session_q3 = customers_df['avg_session_minutes'].quantile(0.75)
+
         predictions = []
         confidences = []
         methods = []
         rules = []
 
         for idx, row in customers_df.iterrows():
-            result = self.predict(row.to_dict())
+            result = self.predict(
+                row.to_dict(),
+                avg_amount_top10_threshold=avg_amount_top10_threshold,
+                total_amount_q1=total_amount_q1,
+                avg_session_q3=avg_session_q3
+            )
             predictions.append(result['persona'])
             confidences.append(result['confidence'])
             methods.append(result['method'])
