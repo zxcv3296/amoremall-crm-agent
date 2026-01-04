@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 고객 데이터 생성 스크립트
-- 500개: 컬럼별 제약조건 기반 랜덤 생성
-- 500개: 페르소나 규칙 기반 생성 (7개 페르소나 균등 분배)
-- 총 1000개 + 파생데이터 추가
+========================
+[1] 500개: 컬럼별 제약조건 기반 랜덤 생성 (라벨 없음)
+[2] 500개: 페르소나 필터링 규칙 기반 생성 (라벨 없음, 테스트용)
+[3] 파생데이터는 마지막에 추가
+[4] 별도 CSV로 분리 저장
 """
 import json
 import random
@@ -21,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # 상수 정의
 # ============================================================
 
-# 30개 브랜드 (삭제된 3개 제외)
+# 30개 브랜드
 BRANDS = [
     "라네즈", "라보에이치", "려", "롱테이크", "마몽드", "메디안", "메이크온",
     "미쟝센", "바이탈뷰티", "비레디", "설화수", "아모레베이직", "아모레성수",
@@ -30,14 +32,14 @@ BRANDS = [
     "프리메라", "한율", "해피바스", "헤라", "홀리추얼"
 ]
 
-# 페르소나별 브랜드 매핑
+# 페르소나별 브랜드 매핑 (BRAND_CLUSTERS와 일치)
 PERSONA_BRANDS = {
-    "테크니컬 홈케어족": ["메이크온", "바이탈뷰티", "아이오페"],
-    "하이엔드 품격가": ["설화수", "헤라", "에이피뷰티"],
-    "웰니스 힐링 탐험가": ["퍼즐우드", "오설록", "롱테이크", "바이탈뷰티"],
-    "연구소 기반 해결사": ["에스트라", "마몽드", "비레디", "프리메라", "한율", "려", "미쟝센"],
+    "테크니컬 홈케어족": ["메이크온", "아이오페", "바이탈뷰티"],
+    "하이엔드 품격가": ["설화수", "헤라", "에이피뷰티", "라네즈", "아모레퍼시픽"],
+    "웰니스 힐링 탐험가": ["퍼즐우드", "오설록", "롱테이크"],
+    "연구소 기반 해결사": ["프리메라", "한율", "에스트라", "비레디", "려", "미쟝센", "마몽드"],
     "트렌디 Z세대": ["앞바다즈", "에스쁘아", "에뛰드", "아모레성수"],
-    "합리적 큐레이터": ["라네즈", "한율", "프리메라", "려", "미쟝센", "오딧세이"],
+    "합리적 큐레이터": ["오딧세이", "이니스프리", "홀리추얼"],
     "실속형 가계 수호자": ["일리윤", "라보에이치", "해피바스", "아모레베이직", "메디안"]
 }
 
@@ -77,7 +79,7 @@ PERSONA_CATEGORIES = {
 SKIN_TYPES = ["복합성", "건성", "극건성", "지성", "수분부족지성", "중성"]
 
 # 피부고민
-CONCERNS_LIST = ["민감성", "트러블", "탄력저하", "주름", "칙칙함", "건조함", "모공", "피지", "홍조", "미백"]
+CONCERNS_LIST = ["민감성", "트러블", "탄력저하", "주름", "칙칙함", "건조함", "모공"]
 
 # 프로모션 선호 (비중: 할인>한정>사은품>신상품)
 PROMOTIONS = ["할인판매", "한정판매", "사은품증정", "신상품"]
@@ -91,15 +93,19 @@ VISIT_FREQ = ["높음", "중간", "낮음"]
 
 
 # ============================================================
+# 브랜드별 카테고리 매핑 로드
+# ============================================================
+def load_brand_categories():
+    mapping_file = os.path.join(BASE_DIR, "brand_category_mapping.json")
+    with open(mapping_file, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+BRAND_CATEGORIES = None  # 전역 변수로 로드
+
+
+# ============================================================
 # 유틸리티 함수
 # ============================================================
-
-def random_date(start_date, end_date):
-    """시작일과 종료일 사이의 랜덤 날짜 생성"""
-    delta = end_date - start_date
-    random_days = random.randint(0, delta.days)
-    return start_date + timedelta(days=random_days)
-
 
 def format_date(dt):
     """날짜 포맷"""
@@ -120,50 +126,32 @@ def generate_name():
     return random.choice(last_names) + random.choice(first_names)
 
 
-def generate_birthday():
-    """생년월일 생성 (2011년 이전, 즉 만 15세 이상)"""
-    # 1960년 ~ 2010년
-    year = random.randint(1960, 2010)
+def generate_birthday(min_age=14, max_age=65):
+    """생년월일 생성 (2011년 이전 = 만 14세 이상)"""
+    year = random.randint(2026 - max_age, 2011)  # 1961 ~ 2011
     month = random.randint(1, 12)
     day = random.randint(1, 28)
     return datetime(year, month, day)
 
 
 def calculate_age(birthday):
-    """나이 계산 (2026년 기준)"""
-    return 2026 - birthday.year
-
-
-def generate_signup_day(last_visit_day):
-    """가입일 생성 (마지막 방문일보다 이전)"""
-    # 최소 30일 전 ~ 최대 3년 전
-    days_before = random.randint(30, 1095)
-    signup = last_visit_day - timedelta(days=days_before)
-    return signup
+    """만 나이 계산 (2026년 1월 3일 기준)"""
+    age = TODAY.year - birthday.year
+    if (TODAY.month, TODAY.day) < (birthday.month, birthday.day):
+        age -= 1
+    return age
 
 
 def generate_dates():
     """날짜 데이터 생성 (제약조건 준수)"""
-    # last_visit_day: 오늘로부터 1~60일 전
     last_visit_day = TODAY - timedelta(days=random.randint(1, 60))
-
-    # last_purchase_day: last_visit_day와 같거나 이전 (최대 90일 전)
     days_before_visit = random.randint(0, 90)
     last_purchase_day = last_visit_day - timedelta(days=days_before_visit)
-
-    # last_view_day, last_save_day, last_cart_day: last_visit_day와 같거나 이전
     last_view_day = last_visit_day - timedelta(days=random.randint(0, 30))
     last_save_day = last_visit_day - timedelta(days=random.randint(0, 60))
     last_cart_day = last_visit_day - timedelta(days=random.randint(0, 45))
-
-    # last_view_day는 last_save_day, last_cart_day와 같거나 최근이어야 함
-    if last_view_day < last_save_day:
-        last_view_day = last_save_day
-    if last_view_day < last_cart_day:
-        last_view_day = last_cart_day
-
-    # signup_day
-    signup_day = generate_signup_day(last_visit_day)
+    days_before = random.randint(30, 1095)
+    signup_day = last_visit_day - timedelta(days=days_before)
 
     return {
         "signup_day": signup_day,
@@ -176,13 +164,7 @@ def generate_dates():
 
 
 def get_membership_tier(signup_days_ago, total_count):
-    """멤버십 티어 결정 (가입일수, 구매횟수 고려)"""
-    # E: VIP (가입 1년 이상 + 구매 20회 이상)
-    # R: 골드 (가입 6개월 이상 + 구매 10회 이상)
-    # O: 실버 (가입 3개월 이상 + 구매 5회 이상)
-    # M: 일반
-    # A: 신규 (가입 30일 이내)
-
+    """멤버십 티어 결정"""
     if signup_days_ago <= 30:
         return "A"
     elif signup_days_ago >= 365 and total_count >= 20:
@@ -196,7 +178,7 @@ def get_membership_tier(signup_days_ago, total_count):
 
 
 def get_visit_frequency(total_count):
-    """방문빈도 결정 (구매횟수 고려)"""
+    """방문빈도 결정"""
     if total_count >= 20:
         return random.choices(["높음", "중간", "낮음"], weights=[0.7, 0.25, 0.05])[0]
     elif total_count >= 10:
@@ -211,9 +193,7 @@ def select_brands(n=None, preferred_brands=None):
         n = random.randint(1, 5)
 
     if preferred_brands:
-        # 선호 브랜드 중에서 우선 선택
         selected = random.sample(preferred_brands, min(len(preferred_brands), n))
-        # 부족하면 다른 브랜드에서 추가
         if len(selected) < n:
             others = [b for b in BRANDS if b not in selected]
             selected.extend(random.sample(others, min(len(others), n - len(selected))))
@@ -223,22 +203,20 @@ def select_brands(n=None, preferred_brands=None):
 
 
 def select_categories(brands, n=None, preferred_categories=None):
-    """카테고리 선택 (브랜드별 취급 카테고리 고려, 최대 5개)"""
-    # 브랜드별 카테고리 매핑 로드
-    mapping_file = os.path.join(BASE_DIR, "brand_category_mapping.json")
-    with open(mapping_file, "r", encoding="utf-8") as f:
-        brand_categories = json.load(f)
+    """카테고리 선택 (브랜드별 취급 카테고리 고려)"""
+    global BRAND_CATEGORIES
+    if BRAND_CATEGORIES is None:
+        BRAND_CATEGORIES = load_brand_categories()
 
     if n is None:
         n = random.randint(1, 5)
 
     available_cats = set()
     for brand in brands:
-        if brand in brand_categories:
-            available_cats.update(brand_categories[brand]["categories"][:5])
+        if brand in BRAND_CATEGORIES:
+            available_cats.update(BRAND_CATEGORIES[brand]["categories"][:5])
 
     if preferred_categories:
-        # 선호 카테고리 우선
         matching = [c for c in preferred_categories if c in available_cats]
         if matching:
             selected = random.sample(matching, min(len(matching), n))
@@ -268,42 +246,22 @@ def generate_concerns():
 # ============================================================
 
 def generate_random_customer(customer_id):
-    """제약조건 기반 랜덤 고객 생성 (500개용)"""
-    # 날짜 생성
+    """[1] 컬럼별 제약조건 기반 랜덤 고객 생성 (라벨 없음)"""
     dates = generate_dates()
     birthday = generate_birthday()
-
-    # 구매 데이터
-    total_count = random.randint(1, 40)  # 최대 40회
+    total_count = random.randint(1, 40)
     avg_amount = random.randint(15000, 200000)
-
-    # 가입일로부터 경과일수
     signup_days_ago = (TODAY - dates["signup_day"]).days
-
-    # 멤버십, 방문빈도
     membership_tier = get_membership_tier(signup_days_ago, total_count)
     visit_frequency = get_visit_frequency(total_count)
-
-    # 브랜드, 카테고리
     primary_brands = select_brands()
     primary_categories = select_categories(primary_brands)
-
-    # 프로모션 비율
-    full_price_ratio = round(random.uniform(0.1, 0.9), 2)
-    discount_sensitivity = round(1 - full_price_ratio, 2)
-    coupon_usage_rate = round(random.uniform(0.1, 0.9), 2)
-    event_participation_rate = round(random.uniform(0.1, 0.95), 2)
-
-    # 프로모션 선호
+    coupon_usage_rate = round(random.uniform(0.1, 0.5), 2)
+    event_participation_rate = round(random.uniform(0.1, min(0.5, 1 - coupon_usage_rate)), 2)
     preferred_promotion = random.choices(PROMOTIONS, weights=PROMOTION_WEIGHTS)[0]
-
-    # 다양성, 세션시간
-    diversity = round(random.uniform(0.1, 0.99), 2)
     avg_session_minutes = random.randint(3, 40)
 
     return {
-        "brand_cluster": "",  # 나중에 라벨링
-        "persona": "",  # 나중에 라벨링
         "customer_id": customer_id,
         "name": generate_name(),
         "birthday": format_date(birthday),
@@ -321,140 +279,132 @@ def generate_random_customer(customer_id):
         "visit_frequency": visit_frequency,
         "primary_brand": ",".join(primary_brands),
         "primary_category": ", ".join(primary_categories),
-        "full_price_ratio": full_price_ratio,
-        "discount_sensitivity": discount_sensitivity,
         "coupon_usage_rate": coupon_usage_rate,
         "event_participation_rate": event_participation_rate,
         "preferred_promotion": preferred_promotion,
-        "diversity": diversity,
         "avg_session_minutes": avg_session_minutes
     }
 
 
-def generate_persona_customer(customer_id, persona):
-    """페르소나 규칙 기반 고객 생성 (500개용 - 균등 분배)"""
-    # 기본 데이터는 랜덤 생성과 동일
+def generate_persona_customer_unlabeled(customer_id, persona):
+    """[2] 페르소나 필터링 규칙 기반 생성 (라벨 없음 - 테스트용)
+
+    페르소나 분류 규칙에 맞는 데이터를 생성하되, 라벨은 포함하지 않음
+    나중에 수기 라벨링하거나 분류기로 테스트할 용도
+    """
     customer = generate_random_customer(customer_id)
 
-    # 페르소나별 특성 적용
     preferred_brands = PERSONA_BRANDS.get(persona, BRANDS)
     preferred_categories = PERSONA_CATEGORIES.get(persona, [])
 
-    # 브랜드 재설정 (페르소나 브랜드 우선)
-    primary_brands = select_brands(preferred_brands=preferred_brands)
+    # 브랜드 재설정 (페르소나 브랜드 우선 - 최소 2개 이상)
+    n_persona_brands = min(len(preferred_brands), random.randint(2, 4))
+    primary_brands = random.sample(preferred_brands, n_persona_brands)
+
+    # 추가 브랜드 (0~2개)
+    if random.random() < 0.3:
+        others = [b for b in BRANDS if b not in primary_brands]
+        extra = random.sample(others, min(len(others), random.randint(0, 2)))
+        primary_brands.extend(extra)
+
     primary_categories = select_categories(primary_brands, preferred_categories=preferred_categories)
 
     customer["primary_brand"] = ",".join(primary_brands)
     customer["primary_category"] = ", ".join(primary_categories)
 
-    # 페르소나별 특성 조정
+    # 페르소나별 특성 조정 (분류 규칙에 맞게)
     if persona == "테크니컬 홈케어족":
-        customer["avg_amount"] = random.randint(80000, 200000)  # 상위 10%
-        customer["full_price_ratio"] = round(random.uniform(0.5, 0.9), 2)
+        # 메이크온 포함 AND (avg_amount > 100000 OR 아이오페/바이탈뷰티)
+        customer["avg_amount"] = random.randint(80000, 200000)
 
     elif persona == "하이엔드 품격가":
-        customer["avg_amount"] = random.randint(100000, 250000)  # 100,000원 이상
+        # 설화수/헤라 포함 AND full_price_ratio > 0.6 AND tier in [R, E]
+        customer["avg_amount"] = random.randint(100000, 250000)
+        customer["coupon_usage_rate"] = round(random.uniform(0.05, 0.2), 2)
+        customer["event_participation_rate"] = round(random.uniform(0.05, 0.15), 2)
+        customer["membership_tier"] = random.choice(["R", "E"])
         customer["preferred_promotion"] = random.choice(["신상품", "한정판매"])
-        customer["full_price_ratio"] = round(random.uniform(0.6, 0.95), 2)
 
     elif persona == "웰니스 힐링 탐험가":
-        customer["avg_amount"] = random.randint(30000, 100000)  # 1분위수 이상
+        # 오설록/퍼즐우드/롱테이크 중 2개 이상 OR (1개 AND diversity > 0.5)
+        customer["avg_amount"] = random.randint(30000, 100000)
 
     elif persona == "연구소 기반 해결사":
-        # skin_type, concerns 반드시 있어야 함
-        customer["skin_type"] = random.choice(SKIN_TYPES)
-        customer["concerns"] = generate_concerns()
-        while customer["concerns"] == "고민없음":
-            customer["concerns"] = generate_concerns()
+        # 프리메라/에스트라/한율/비레디 포함 AND 민감성/진정 관련
+        customer["skin_type"] = random.choice(["민감성", "복합성", "건성"])
+        concerns = ["민감성"]
+        if random.random() < 0.5:
+            concerns.append(random.choice(["건조함", "트러블", "진정"]))
+        customer["concerns"] = ",".join(concerns)
 
     elif persona == "트렌디 Z세대":
-        # 25세 미만
-        birthday = generate_birthday()
-        while calculate_age(birthday) >= 25:
-            birthday = generate_birthday()
+        # 나이 < 25 AND 트렌디 브랜드 매칭
+        birthday = generate_birthday(min_age=14, max_age=24)
         customer["birthday"] = format_date(birthday)
         customer["preferred_promotion"] = random.choice(["신상품", "사은품증정"])
 
     elif persona == "합리적 큐레이터":
+        # 이니스프리/홀리추얼/오딧세이 포함
         customer["visit_frequency"] = random.choice(["높음", "중간"])
-        customer["diversity"] = round(random.uniform(0.5, 0.99), 2)
-        customer["avg_session_minutes"] = random.randint(15, 40)  # 3분위수 이상
+        customer["avg_session_minutes"] = random.randint(15, 40)
+        customer["coupon_usage_rate"] = round(random.uniform(0.2, 0.4), 2)
+        customer["event_participation_rate"] = round(random.uniform(0.1, 0.25), 2)
 
     elif persona == "실속형 가계 수호자":
-        customer["avg_amount"] = random.randint(15000, 50000)  # 50,000원 이하
+        # 일리윤/라보에이치/해피바스/메디안 포함 AND coupon_usage_rate > 0.5
+        customer["avg_amount"] = random.randint(15000, 50000)
+        customer["coupon_usage_rate"] = round(random.uniform(0.5, 0.7), 2)
+        customer["event_participation_rate"] = round(random.uniform(0.1, 0.3), 2)
         customer["preferred_promotion"] = "할인판매"
 
-    # 페르소나 라벨 설정
-    cluster_map = {
-        "테크니컬 홈케어족": "프리미엄 기능",
-        "하이엔드 품격가": "프리미엄 밸런스",
-        "웰니스 힐링 탐험가": "중가 라이프스타일",
-        "연구소 기반 해결사": "중가 필수케어",
-        "트렌디 Z세대": "대중 감성",
-        "합리적 큐레이터": "대중 밸런스",
-        "실속형 가계 수호자": "대중 필수케어"
-    }
-
-    customer["persona"] = persona
-    customer["brand_cluster"] = cluster_map.get(persona, "")
-
+    # 라벨은 포함하지 않음 (테스트/수기라벨링용)
     return customer
 
 
 def add_derived_columns(customer):
-    """파생 데이터 추가"""
-    # age 계산
+    """[3] 파생 데이터 추가"""
     birthday = datetime.strptime(customer["birthday"], "%Y.%m.%d")
+    signup_day = datetime.strptime(customer["signup_day"], "%Y.%m.%d")
+    last_visit_day = datetime.strptime(customer["last_visit_day"], "%Y.%m.%d")
+    last_view_day = datetime.strptime(customer["last_view_day"], "%Y.%m.%d")
+    last_save_day = datetime.strptime(customer["last_save_day"], "%Y.%m.%d")
+    last_cart_day = datetime.strptime(customer["last_cart_day"], "%Y.%m.%d")
+    last_purchase_day = datetime.strptime(customer["last_purchase_day"], "%Y.%m.%d")
+
+    # age
     customer["age"] = calculate_age(birthday)
 
-    # total_amount 계산
+    # total_amount
     customer["total_amount"] = customer["total_count"] * customer["avg_amount"]
 
-    # avg_interval (평균 구매 주기) 계산
-    last_purchase = datetime.strptime(customer["last_purchase_day"], "%Y.%m.%d")
-    signup = datetime.strptime(customer["signup_day"], "%Y.%m.%d")
-    days_since_signup = (last_purchase - signup).days
-    if customer["total_count"] > 1:
-        customer["avg_interval"] = round(days_since_signup / (customer["total_count"] - 1), 1)
-    else:
-        customer["avg_interval"] = days_since_signup
+    # average_transaction_value
+    customer["average_transaction_value"] = customer["avg_amount"]
+
+    # diversity
+    brand_count = len(customer["primary_brand"].split(",")) if customer["primary_brand"] else 1
+    category_count = len(customer["primary_category"].split(", ")) if customer["primary_category"] else 1
+    diversity = (2 - ((1 / brand_count) + (1 / category_count))) / 2
+    customer["diversity"] = round(max(0, min(1, diversity)), 2)
+
+    # full_price_ratio
+    full_price_ratio = 1 - (customer["coupon_usage_rate"] + customer["event_participation_rate"])
+    customer["full_price_ratio"] = round(max(0, full_price_ratio), 2)
+
+    # discount_sensitivity
+    customer["discount_sensitivity"] = round(1 - customer["full_price_ratio"], 2)
+
+    # days_ago 파생변수
+    customer["signup_days_ago"] = (TODAY - signup_day).days
+    customer["visit_days_ago"] = (TODAY - last_visit_day).days
+    customer["view_days_ago"] = (TODAY - last_view_day).days
+    customer["save_days_ago"] = (TODAY - last_save_day).days
+    customer["cart_days_ago"] = (TODAY - last_cart_day).days
+    customer["purchase_days_ago"] = (TODAY - last_purchase_day).days
 
     return customer
 
 
-def generate_all_customers():
-    """전체 1000개 고객 데이터 생성"""
-    customers = []
-
-    # 1. 랜덤 500개
-    print("랜덤 고객 데이터 500개 생성 중...")
-    for i in range(1, 501):
-        customer = generate_random_customer(generate_customer_id(i))
-        customers.append(customer)
-
-    # 2. 페르소나 기반 500개 (7개 페르소나 균등 분배: 각 ~71개)
-    print("페르소나 기반 고객 데이터 500개 생성 중...")
-    personas = list(PERSONA_BRANDS.keys())
-    per_persona = 500 // len(personas)  # 71개
-    remainder = 500 % len(personas)  # 3개
-
-    idx = 501
-    for i, persona in enumerate(personas):
-        count = per_persona + (1 if i < remainder else 0)
-        for _ in range(count):
-            customer = generate_persona_customer(generate_customer_id(idx), persona)
-            customers.append(customer)
-            idx += 1
-
-    # 3. 파생 데이터 추가
-    print("파생 데이터 추가 중...")
-    for customer in customers:
-        add_derived_columns(customer)
-
-    return customers
-
-
-def save_to_csv(customers, filename):
+def save_to_csv(customers, filename, include_label_columns=False):
     """CSV로 저장 (UTF-8 BOM)"""
     import csv
 
@@ -462,14 +412,22 @@ def save_to_csv(customers, filename):
 
     # 컬럼 순서
     columns = [
-        "brand_cluster", "persona", "customer_id", "name", "birthday", "age",
+        "customer_id", "name", "birthday", "age",
         "signup_day", "last_purchase_day", "last_visit_day", "last_view_day",
-        "last_save_day", "last_cart_day", "skin_type", "concerns", "membership_tier",
-        "total_count", "avg_amount", "total_amount", "avg_interval", "visit_frequency",
-        "primary_brand", "primary_category", "full_price_ratio", "discount_sensitivity",
-        "coupon_usage_rate", "event_participation_rate", "preferred_promotion",
-        "diversity", "avg_session_minutes"
+        "last_save_day", "last_cart_day",
+        "skin_type", "concerns", "membership_tier",
+        "total_count", "avg_amount", "total_amount", "average_transaction_value",
+        "visit_frequency", "primary_brand", "primary_category",
+        "full_price_ratio", "discount_sensitivity", "coupon_usage_rate",
+        "event_participation_rate", "preferred_promotion",
+        "diversity", "avg_session_minutes",
+        "signup_days_ago", "visit_days_ago", "view_days_ago",
+        "save_days_ago", "cart_days_ago", "purchase_days_ago"
     ]
+
+    # 라벨 컬럼 추가 옵션
+    if include_label_columns:
+        columns = ["brand_cluster", "persona"] + columns
 
     with open(output_path, "w", encoding="utf-8-sig", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=columns, extrasaction="ignore")
@@ -486,29 +444,71 @@ def main():
     print(f"기준 날짜: {format_date(TODAY)}")
     print("=" * 60)
 
-    # 데이터 생성
-    customers = generate_all_customers()
+    # ==========================================
+    # [1] 랜덤 500개 생성 (라벨 없음)
+    # ==========================================
+    print("\n[1] 컬럼 제약조건 기반 랜덤 고객 500개 생성 중...")
+    random_customers = []
+    for i in range(1, 501):
+        customer = generate_random_customer(generate_customer_id(i))
+        random_customers.append(customer)
 
-    print(f"\n총 {len(customers)}개 고객 데이터 생성 완료")
+    # 파생데이터 추가
+    for customer in random_customers:
+        add_derived_columns(customer)
 
-    # 페르소나 분포 확인
+    print(f"    생성 완료: {len(random_customers)}개")
+
+    # ==========================================
+    # [2] 페르소나 기반 500개 생성 (라벨 없음, 테스트용)
+    # ==========================================
+    print("\n[2] 페르소나 필터링 규칙 기반 테스트 데이터 500개 생성 중...")
+    test_customers = []
+    personas = list(PERSONA_BRANDS.keys())
+    per_persona = 500 // len(personas)  # 71개
+    remainder = 500 % len(personas)  # 3개
+
+    idx = 501
     persona_counts = defaultdict(int)
-    for c in customers:
-        if c["persona"]:
-            persona_counts[c["persona"]] += 1
-        else:
-            persona_counts["미라벨링"] += 1
+    for i, persona in enumerate(personas):
+        count = per_persona + (1 if i < remainder else 0)
+        persona_counts[persona] = count
+        for _ in range(count):
+            customer = generate_persona_customer_unlabeled(generate_customer_id(idx), persona)
+            test_customers.append(customer)
+            idx += 1
 
-    print("\n페르소나 분포:")
-    for persona, count in sorted(persona_counts.items()):
-        print(f"  {persona}: {count}개")
+    # 파생데이터 추가
+    for customer in test_customers:
+        add_derived_columns(customer)
 
-    # CSV 저장
-    save_to_csv(customers, "customer_data_1000.csv")
+    print(f"    생성 완료: {len(test_customers)}개")
+    print("    페르소나별 분포 (생성 기준, 라벨 미포함):")
+    for persona, count in persona_counts.items():
+        print(f"      {persona}: {count}개")
+
+    # ==========================================
+    # [3] CSV 분리 저장
+    # ==========================================
+    print("\n[3] CSV 파일 저장 중...")
+
+    # 랜덤 500개
+    save_to_csv(random_customers, "customer_data_500_random.csv", include_label_columns=True)
+
+    # 테스트 500개
+    save_to_csv(test_customers, "customer_data_500_test.csv", include_label_columns=True)
+
+    # 전체 1000개 (통합)
+    all_customers = random_customers + test_customers
+    save_to_csv(all_customers, "customer_data_1000.csv", include_label_columns=True)
 
     print("\n" + "=" * 60)
     print("완료!")
     print("=" * 60)
+    print("\n생성된 파일:")
+    print("  - customer_data_500_random.csv  : 랜덤 생성 (수기 라벨링용)")
+    print("  - customer_data_500_test.csv    : 페르소나 규칙 기반 (테스트용)")
+    print("  - customer_data_1000.csv        : 전체 통합")
 
 
 if __name__ == "__main__":

@@ -125,15 +125,29 @@ def calculate_discount_dependency(persona: Dict[str, Any]) -> Dict[str, Any]:
     할인 의존도
 
     계산: (1 - 정가구매비율) × 할인민감도 점수
+    2024.01 업데이트: discount_sensitivity가 숫자형(0~1)으로 변경됨
     """
     promotion = persona.get('promotion', {})
 
     # 정가 구매 비율 (0~1)
     full_price_ratio = promotion.get('full_price_ratio', 0.5)
 
-    # 할인 민감도 점수화
-    sensitivity = promotion.get('discount_sensitivity', '중')
-    sensitivity_score = {'높음': 1.0, '중': 0.6, '낮음': 0.3}.get(sensitivity, 0.6)
+    # 할인 민감도 - 숫자형 또는 텍스트형 지원
+    sensitivity = promotion.get('discount_sensitivity', 0.25)
+    if isinstance(sensitivity, str):
+        # 텍스트형 (호환성)
+        sensitivity_score = {'높음': 1.0, '중간': 0.6, '중': 0.6, '낮음': 0.3}.get(sensitivity, 0.6)
+        sensitivity_text = sensitivity
+    else:
+        # 숫자형 (새 데이터 구조)
+        sensitivity_score = float(sensitivity) * 2.5  # 0~1 -> 0~2.5 스케일
+        sensitivity_score = min(1.0, sensitivity_score)  # 최대 1.0
+        if sensitivity >= 0.35:
+            sensitivity_text = "높음"
+        elif sensitivity >= 0.2:
+            sensitivity_text = "중간"
+        else:
+            sensitivity_text = "낮음"
 
     # 쿠폰 사용률
     coupon_usage = promotion.get('coupon_usage_rate', 0.5)
@@ -161,7 +175,7 @@ def calculate_discount_dependency(persona: Dict[str, Any]) -> Dict[str, Any]:
         'level': level,
         'level_color': level_color,
         'full_price_ratio': full_price_ratio,
-        'sensitivity': sensitivity,
+        'sensitivity': sensitivity_text,
         'coupon_usage': coupon_usage,
         'recommendation': recommendation
     }
@@ -445,7 +459,19 @@ def classify_customer_type(persona: Dict[str, Any]) -> Dict[str, Any]:
     loyalty_score = {'높음': 0.9, '중': 0.6, '낮음': 0.3}.get(loyalty, 0.6)
 
     full_price_ratio = promotion.get('full_price_ratio', 0.5)
-    discount_sensitivity = promotion.get('discount_sensitivity', '중')
+
+    # discount_sensitivity - 숫자형 또는 텍스트형 지원
+    discount_sensitivity_raw = promotion.get('discount_sensitivity', 0.25)
+    if isinstance(discount_sensitivity_raw, str):
+        discount_sensitivity = discount_sensitivity_raw
+    else:
+        # 숫자형 -> 텍스트형 변환
+        if discount_sensitivity_raw >= 0.35:
+            discount_sensitivity = '높음'
+        elif discount_sensitivity_raw >= 0.2:
+            discount_sensitivity = '중'
+        else:
+            discount_sensitivity = '낮음'
 
     tier = persona.get('tier', 'mid')
 
@@ -566,12 +592,27 @@ def get_shopping_persona(persona: Dict[str, Any]) -> Dict[str, Any]:
     diversity = brand_info.get('diversity', 0.5)
     loyalty = brand_info.get('loyalty', '중')
     loyalty_score = {'높음': 0.9, '중': 0.6, '낮음': 0.3}.get(loyalty, 0.6)
-    discount_sensitivity = promotion.get('discount_sensitivity', '중')
+
+    # discount_sensitivity - 숫자형 또는 텍스트형 지원
+    discount_sensitivity_raw = promotion.get('discount_sensitivity', 0.25)
+    if isinstance(discount_sensitivity_raw, str):
+        discount_sensitivity = discount_sensitivity_raw
+        is_high_discount_sensitivity = discount_sensitivity == '높음'
+    else:
+        # 숫자형 -> 텍스트형 변환
+        is_high_discount_sensitivity = discount_sensitivity_raw >= 0.35
+        if is_high_discount_sensitivity:
+            discount_sensitivity = '높음'
+        elif discount_sensitivity_raw >= 0.2:
+            discount_sensitivity = '중'
+        else:
+            discount_sensitivity = '낮음'
+
     full_price_ratio = promotion.get('full_price_ratio', 0.5)
     tier = persona.get('tier', 'mid')
 
     # 스마트세이버형: 할인 민감 + 정가비율 낮음
-    if discount_sensitivity == '높음' and full_price_ratio < 0.4:
+    if is_high_discount_sensitivity and full_price_ratio < 0.4:
         return {
             'type': '스마트세이버형',
             'type_code': 'smart_saver',

@@ -13,8 +13,16 @@
 # 지원 모델 목록 및 비용 (2024-12 기준)
 # 비용: 입력 ~400토큰 + 출력 ~300토큰 기준
 MODEL_OPTIONS = {
+    "qwen2.5:7b": {
+        "display_name": "Qwen 2.5 7B 로컬 (무료, 빠름) ⭐추천",
+        "provider": "ollama",
+        "api_url": "http://localhost:11434/v1/chat/completions",
+        "cost_per_call_krw": 0,
+        "quality_score": 80,
+        "stability": 5,
+    },
     "Qwen/Qwen2.5-7B-Instruct": {
-        "display_name": "Qwen 2.5 7B (무료)",
+        "display_name": "Qwen 2.5 7B HuggingFace (무료, 느림)",
         "provider": "huggingface",
         "api_url": "https://router.huggingface.co/v1/chat/completions",
         "cost_per_call_krw": 0,
@@ -62,6 +70,7 @@ MODEL_PRICING = {
     "gpt-4.1-nano": {"input": 0.10, "output": 0.40},
     "gpt-4o-mini": {"input": 0.15, "output": 0.60},
     "Qwen/Qwen2.5-7B-Instruct": {"input": 0, "output": 0},  # 무료
+    "qwen2.5:7b": {"input": 0, "output": 0},  # 로컬 무료
 }
 
 # 환율 (원/달러)
@@ -155,6 +164,23 @@ MAX_HISTORY_COUNT = 10
 # 추천 상품 기본 개수
 DEFAULT_PRODUCT_COUNT = 3
 MAX_PRODUCT_COUNT = 5
+
+# ========================================
+# Ollama 설정 (로컬 LLM)
+# ========================================
+
+# Ollama 기본 URL (로컬)
+OLLAMA_LOCAL_URL = "http://localhost:11434"
+
+# Cloudflare Tunnel URL (외부 접속용, 선택사항)
+# start_tunnel.bat 실행 후 표시되는 URL을 여기에 입력하세요
+# 예: "https://random-name.trycloudflare.com"
+OLLAMA_TUNNEL_URL = None  # None이면 로컬 URL 사용
+
+def get_ollama_url():
+    """Ollama API URL 반환 (터널 URL이 있으면 터널, 없으면 로컬)"""
+    base_url = OLLAMA_TUNNEL_URL if OLLAMA_TUNNEL_URL else OLLAMA_LOCAL_URL
+    return f"{base_url}/v1/chat/completions"
 
 # ========================================
 # 캐시 설정

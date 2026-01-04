@@ -303,7 +303,11 @@ class ProductRAG:
             if p.get('promotions'):
                 promo_info = f"\n            프로모션: {', '.join(p['promotions'])}"
 
-            # 상품 정보를 자연어로 구조화 (할인/프로모션 포함)
+            # 신상품 여부
+            is_new = p.get('is_new', False)
+            new_info = "\n            신상품: 예" if is_new else ""
+
+            # 상품 정보를 자연어로 구조화 (할인/프로모션/신상품 포함)
             content = f"""
             상품명: {p['name']}
             브랜드: {p['brand']}
@@ -311,7 +315,7 @@ class ProductRAG:
             특징: {', '.join(p['features'])}
             적합피부: {', '.join(p['target_skin'])}
             설명: {p['description']}
-            가격: {price_info}{discount_info}{promo_info}
+            가격: {price_info}{discount_info}{promo_info}{new_info}
             """
 
             # Document 객체 생성 (메타데이터 포함)
@@ -323,7 +327,8 @@ class ProductRAG:
                     "category": p['category'],
                     "price": p.get('price', 0),
                     "discount_rate": p.get('discount_rate', 0),
-                    "promotions": p.get('promotions', [])
+                    "promotions": p.get('promotions', []),
+                    "is_new": is_new
                 }
             )
             documents.append(doc)

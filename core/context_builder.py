@@ -146,14 +146,62 @@ class MessageContextBuilder:
         return ""
 
     def _get_customer_type_context(self, persona: dict) -> str:
-        """고객 성향 유형별 LLM 톤 지시"""
+        """고객 성향 유형별 LLM 톤 지시 (2024.01 업데이트 - 7개 페르소나 클러스터 반영)"""
         try:
             cust_type = classify_customer_type(persona)
             shop_persona = get_shopping_persona(persona)
             dormancy = get_dormancy_status(persona)
 
             type_code = cust_type.get('type_code', 'general')
-            llm_instruction = cust_type.get('llm_instruction', '')
+
+            # 페르소나 클러스터 가져오기
+            persona_cluster = persona.get('persona_cluster', '')
+
+            # 7개 페르소나 클러스터별 LLM 톤 지시 (2024.01 업데이트)
+            cluster_instructions = {
+                '테크니컬 홈케어족': {
+                    'tone': '전문적이고 기술적인',
+                    'focus': '기술력, 효능, 피부과급 케어 강조',
+                    'keywords': ['뷰티디바이스', 'LED', '갈바닉', '고기능성', '홈케어'],
+                    'avoid': '가격 할인 과도 강조, 캐주얼한 표현'
+                },
+                '하이엔드 품격가': {
+                    'tone': '고급스럽고 우아한',
+                    'focus': '프리미엄, 명품, 선물, 품격 강조',
+                    'keywords': ['럭셔리', '프리미엄', '한방', '선물세트', 'VIP'],
+                    'avoid': '할인/특가 과도 강조, 캐주얼한 표현'
+                },
+                '웰니스 힐링 탐험가': {
+                    'tone': '편안하고 여유로운',
+                    'focus': '새로운 경험, 힐링, 라이프스타일 강조',
+                    'keywords': ['웰니스', '힐링', '향기', '티', '체험'],
+                    'avoid': '압박감 주는 표현, 긴급성 강조'
+                },
+                '연구소 기반 해결사': {
+                    'tone': '전문적이고 신뢰감 있는',
+                    'focus': '성분, 효능, 과학적 검증, 피부 고민 해결 강조',
+                    'keywords': ['더마', '성분', '효능', '연구', '과학적'],
+                    'avoid': '감성적 표현 과다, 트렌드 강조'
+                },
+                '트렌디 Z세대': {
+                    'tone': '발랄하고 트렌디한',
+                    'focus': 'SNS, 트렌드, 이벤트, 한정판 강조',
+                    'keywords': ['SNS', '핫템', '신상', '이벤트', '인스타'],
+                    'avoid': '격식체, 어른스러운 표현'
+                },
+                '합리적 큐레이터': {
+                    'tone': '실용적이고 합리적인',
+                    'focus': '가성비, 리뷰, 검증된 제품, 가치 강조',
+                    'keywords': ['리뷰', '가성비', '베스트셀러', '검증', '합리적'],
+                    'avoid': '과도한 프리미엄 강조'
+                },
+                '실속형 가계 수호자': {
+                    'tone': '실용적이고 혜택 중심의',
+                    'focus': '할인, 대용량, 사은품, 가족용 강조',
+                    'keywords': ['할인', '대용량', '사은품', '가족', '알뜰'],
+                    'avoid': '고가 제품 추천, 프리미엄 강조'
+                }
+            }
 
             # 쇼핑 페르소나별 추가 지시
             persona_instructions = {
@@ -179,13 +227,23 @@ class MessageContextBuilder:
             dormancy_code = dormancy.get('status_code', 'active')
             dormancy_instruction = dormancy_instructions.get(dormancy_code, '')
 
+            # 페르소나 클러스터 정보 추가
+            cluster_info = cluster_instructions.get(persona_cluster, {})
+            cluster_tone = cluster_info.get('tone', '')
+            cluster_focus = cluster_info.get('focus', '')
+            cluster_keywords = ', '.join(cluster_info.get('keywords', [])[:3])
+            cluster_avoid = cluster_info.get('avoid', '')
+
             context = f"""고객 유형 맞춤 지시:
+- 페르소나: {persona_cluster}
 - 성향: {cust_type['type']} ({cust_type['description'][:20]})
-- 쇼핑: {shop_persona['type']} (비중 {shop_persona['weight']})
 - 상태: {dormancy['status']} (이탈 {dormancy['churn_probability']:.0%})
 
 💬 톤앤매너 지시:
-{llm_instruction}
+- 톤: {cluster_tone}
+- 강조: {cluster_focus}
+- 핵심 키워드: {cluster_keywords}
+- 피해야 할 표현: {cluster_avoid}
 {shop_instruction}
 {dormancy_instruction}"""
 

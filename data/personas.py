@@ -208,69 +208,145 @@ brand_tones = {
 }
 
 # ============================================================
-# 페르소나 데이터 (ML 분류 기반 5명 샘플)
+# 페르소나 데이터 (ML 분류 기반 7명 샘플 - 2025.01 업데이트)
 # ============================================================
+# customer_data_1000.csv 기준 데이터 구조 반영
 # 7개 페르소나 클러스터:
-# - 하이엔드 품격가
-# - 트렌디 Z세대
-# - 테크니컬 홈케어족
-# - 실속형 가계 수호자
-# - 합리적 큐레이터
-# - 연구소 기반 해결사
-# - 웰니스 힐링 탐험가
+# 1. 테크니컬 홈케어족 - 뷰티디바이스, 스킨케어, 뷰티푸드
+# 2. 하이엔드 품격가 - 스킨케어, 메이크업, 선물추천
+# 3. 웰니스 힐링 탐험가 - 뷰티푸드, 차(TEA), 바디
+# 4. 연구소 기반 해결사 - 스킨케어, 남성, 세트
+# 5. 트렌디 Z세대 - 메이크업, 향수, 바디
+# 6. 합리적 큐레이터 - 스킨케어, 헤어, 바디
+# 7. 실속형 가계 수호자 - 바디, 생활용품, 구강
+#
+# 멤버십 티어: A(일반) < B(브론즈) < C(실버) < D(골드) < E(VIP)
 
 personas = [
-    # ===== 페르소나 1: 김서연 (42세) - 하이엔드 품격가 =====
+    # ===== 페르소나 1: 서수진 (33세) - 테크니컬 홈케어족 =====
     {
         "id": 1,
-        "name": "김서연",
-        "display_name": "김서연(42세)",
-        "age": 42,
-        "skin_type": "민감성",
-        "concerns": ["주름", "탄력"],
-        "interests": ["크림", "세럼", "에센스"],
-        "shopping_pattern": "프리미엄 브랜드 충성, 정가 구매 비율 높음",
-        "lifestyle": "프리미엄 럭셔리 브랜드를 선호하는 품격있는 고객",
+        "name": "서수진",
+        "display_name": "서수진(33세)",
+        "age": 33,
+        "skin_type": "복합성",
+        "concerns": ["보습"],
+        "interests": ["뷰티디바이스", "스킨케어", "뷰티푸드"],
+        "shopping_pattern": "프리미엄 기능성 제품 선호, 기술력과 효능 중시",
+        "lifestyle": "뷰티 디바이스와 고기능성 스킨케어를 선호하는 전문 홈케어 고객",
         "tier": "premium",
 
         # 페르소나 클러스터 정보
-        "persona_cluster": "하이엔드 품격가",
-        "persona_confidence": 0.98,
+        "persona_cluster": "테크니컬 홈케어족",
+        "persona_confidence": 0.92,
 
         # 행동 데이터
         "activity": {
-            "last_visit_days_ago": 5,
-            "visit_frequency": "높음",
-            "avg_session_minutes": 15,
-            "signup_days_ago": 1200
+            "last_visit_days_ago": 7,
+            "visit_frequency": "낮음",
+            "avg_session_minutes": 8,
+            "signup_days_ago": 150
         },
 
         "purchase": {
-            "total_count": 28,
-            "last_purchase_days_ago": 12,
-            "avg_interval": 35,
-            "total_amount": 4060000,
-            "avg_amount": 145000,
-            "recent_categories": ["크림", "세럼", "에센스"]
+            "total_count": 23,
+            "last_purchase_days_ago": 14,
+            "avg_interval": 41,
+            "total_amount": 1663268,
+            "avg_amount": 72316,
+            "recent_categories": ["선케어"]
         },
 
         "brand": {
             "purchase_counts": {
-                "설화수": 20,
-                "헤라": 5,
-                "아모레퍼시픽": 3
+                "에이피뷰티": 10,
+                "아모레퍼시픽": 8,
+                "미쟝센": 3,
+                "비레디": 2
             },
-            "primary_brand": "설화수",
+            "primary_brand": "에이피뷰티",
             "loyalty": "높음",
-            "diversity": 0.25
+            "diversity": 0.16
         },
 
         "promotion": {
             "discount_sensitivity": "낮음",
-            "event_participation_rate": 0.3,
+            "event_participation_rate": 0.55,
             "preferred_type": "샘플",
-            "coupon_usage_rate": 0.15,
-            "full_price_ratio": 0.82
+            "coupon_usage_rate": 0.18,
+            "full_price_ratio": 0.63
+        },
+
+        "risk": {
+            "level": "낮음",
+            "factors": [],
+            "churn_probability": 0.12
+        },
+
+        "seasonal": {
+            "gift_purchases": True,
+            "peak_seasons": [],
+            "seasonal_events": []
+        },
+
+        "membership": {
+            "tier": "VIP",
+            "tier_criteria": "E등급",
+            "points": 50000
+        }
+    },
+
+    # ===== 페르소나 2: 홍소희 (48세) - 하이엔드 품격가 =====
+    {
+        "id": 2,
+        "name": "홍소희",
+        "display_name": "홍소희(48세)",
+        "age": 48,
+        "skin_type": "복합성",
+        "concerns": ["모공"],
+        "interests": ["스킨케어", "메이크업", "선물추천"],
+        "shopping_pattern": "프리미엄 브랜드 충성, 샘플/사은품 선호",
+        "lifestyle": "프리미엄 럭셔리 브랜드를 선호하는 품격있는 VIP 고객",
+        "tier": "premium",
+
+        # 페르소나 클러스터 정보
+        "persona_cluster": "하이엔드 품격가",
+        "persona_confidence": 0.89,
+
+        # 행동 데이터
+        "activity": {
+            "last_visit_days_ago": 7,
+            "visit_frequency": "높음",
+            "avg_session_minutes": 36,
+            "signup_days_ago": 210
+        },
+
+        "purchase": {
+            "total_count": 17,
+            "last_purchase_days_ago": 14,
+            "avg_interval": 41,
+            "total_amount": 1253903,
+            "avg_amount": 73759,
+            "recent_categories": ["클렌징"]
+        },
+
+        "brand": {
+            "purchase_counts": {
+                "아모레퍼시픽": 8,
+                "설화수": 5,
+                "헤라": 4
+            },
+            "primary_brand": "아모레퍼시픽",
+            "loyalty": "높음",
+            "diversity": 0.12
+        },
+
+        "promotion": {
+            "discount_sensitivity": "중간",
+            "event_participation_rate": 0.51,
+            "preferred_type": "사은품",
+            "coupon_usage_rate": 0.30,
+            "full_price_ratio": 0.60
         },
 
         "risk": {
@@ -286,208 +362,137 @@ personas = [
         },
 
         "membership": {
-            "tier": "VIP",
-            "tier_criteria": "연 300만원 이상",
-            "points": 220000
+            "tier": "골드",
+            "tier_criteria": "D등급",
+            "points": 120000
         }
     },
 
-    # ===== 페르소나 2: 이지우 (21세) - 트렌디 Z세대 =====
-    {
-        "id": 2,
-        "name": "이지우",
-        "display_name": "이지우(21세)",
-        "age": 21,
-        "skin_type": "지성",
-        "concerns": ["모공", "피지"],
-        "interests": ["쿠션", "립", "선케어"],
-        "shopping_pattern": "트렌디한 제품 선호, 가성비 중시",
-        "lifestyle": "트렌드에 민감한 MZ세대, SNS 영향력",
-        "tier": "affordable",
-
-        # 페르소나 클러스터 정보
-        "persona_cluster": "트렌디 Z세대",
-        "persona_confidence": 0.997,
-
-        # 행동 데이터
-        "activity": {
-            "last_visit_days_ago": 2,
-            "visit_frequency": "높음",
-            "avg_session_minutes": 20,
-            "signup_days_ago": 300
-        },
-
-        "purchase": {
-            "total_count": 12,
-            "last_purchase_days_ago": 8,
-            "avg_interval": 25,
-            "total_amount": 384000,
-            "avg_amount": 32000,
-            "recent_categories": ["쿠션", "립", "선케어"]
-        },
-
-        "brand": {
-            "purchase_counts": {
-                "에뛰드": 6,
-                "에스쁘아": 4,
-                "아모레성수": 2
-            },
-            "primary_brand": "에뛰드",
-            "loyalty": "중간",
-            "diversity": 0.7
-        },
-
-        "promotion": {
-            "discount_sensitivity": "높음",
-            "event_participation_rate": 0.8,
-            "preferred_type": "할인",
-            "coupon_usage_rate": 0.65,
-            "full_price_ratio": 0.35
-        },
-
-        "risk": {
-            "level": "낮음",
-            "factors": [],
-            "churn_probability": 0.12
-        },
-
-        "seasonal": {
-            "gift_purchases": False,
-            "peak_seasons": ["여름"],
-            "seasonal_events": []
-        },
-
-        "membership": {
-            "tier": "실버",
-            "tier_criteria": "연 30만원 이상",
-            "points": 15000
-        }
-    },
-
-    # ===== 페르소나 3: 박민지 (38세) - 테크니컬 홈케어족 =====
+    # ===== 페르소나 3: 장태영 (29세) - 웰니스 힐링 탐험가 =====
     {
         "id": 3,
-        "name": "박민지",
-        "display_name": "박민지(38세)",
-        "age": 38,
-        "skin_type": "민감성",
-        "concerns": ["진정", "보습"],
-        "interests": ["디바이스", "세럼", "마스크"],
-        "shopping_pattern": "고가 제품 선호, 기술력 중시",
-        "lifestyle": "기술 기반 홈케어 디바이스와 고기능성 스킨케어를 선호",
-        "tier": "premium",
+        "name": "장태영",
+        "display_name": "장태영(29세)",
+        "age": 29,
+        "skin_type": "복합성",
+        "concerns": ["보습"],
+        "interests": ["뷰티푸드", "바디", "스킨케어"],
+        "shopping_pattern": "새로운 브랜드/제품 탐색, 체험 중시, 샘플 선호",
+        "lifestyle": "웰니스, 힐링, 라이프스타일 브랜드에 관심있는 탐험형 고객",
+        "tier": "mid",
 
-        # 페르소나 클러스터 정보 (신뢰도가 낮아 연구소 기반 해결사로 분류됨)
-        "persona_cluster": "연구소 기반 해결사",
-        "persona_confidence": 0.567,
+        # 페르소나 클러스터 정보
+        "persona_cluster": "웰니스 힐링 탐험가",
+        "persona_confidence": 0.88,
 
         # 행동 데이터
         "activity": {
-            "last_visit_days_ago": 10,
-            "visit_frequency": "중",
-            "avg_session_minutes": 18,
-            "signup_days_ago": 800
+            "last_visit_days_ago": 7,
+            "visit_frequency": "낮음",
+            "avg_session_minutes": 6,
+            "signup_days_ago": 160
         },
 
         "purchase": {
-            "total_count": 18,
-            "last_purchase_days_ago": 25,
-            "avg_interval": 40,
-            "total_amount": 2250000,
-            "avg_amount": 125000,
-            "recent_categories": ["세럼", "크림", "마스크"]
+            "total_count": 26,
+            "last_purchase_days_ago": 14,
+            "avg_interval": 36,
+            "total_amount": 1111084,
+            "avg_amount": 42734,
+            "recent_categories": ["립"]
         },
 
         "brand": {
             "purchase_counts": {
-                "메이크온": 8,
-                "아이오페": 6,
-                "에스트라": 4
+                "오설록": 10,
+                "해피바스": 8,
+                "롱테이크": 5,
+                "라네즈": 3
             },
-            "primary_brand": "메이크온",
-            "loyalty": "높음",
-            "diversity": 0.3
+            "primary_brand": "오설록",
+            "loyalty": "중간",
+            "diversity": 0.42
         },
 
         "promotion": {
-            "discount_sensitivity": "낮음",
-            "event_participation_rate": 0.4,
-            "preferred_type": "샘플",
-            "coupon_usage_rate": 0.22,
-            "full_price_ratio": 0.78
+            "discount_sensitivity": "중간",
+            "event_participation_rate": 0.76,
+            "preferred_type": "포인트",
+            "coupon_usage_rate": 0.48,
+            "full_price_ratio": 0.38
         },
 
         "risk": {
-            "level": "낮음",
+            "level": "중간",
             "factors": [],
-            "churn_probability": 0.1
+            "churn_probability": 0.25
         },
 
         "seasonal": {
             "gift_purchases": True,
-            "peak_seasons": ["겨울"],
+            "peak_seasons": [],
             "seasonal_events": []
         },
 
         "membership": {
-            "tier": "골드",
-            "tier_criteria": "연 100만원 이상",
-            "points": 85000
+            "tier": "VIP",
+            "tier_criteria": "E등급",
+            "points": 30000
         }
     },
 
-    # ===== 페르소나 4: 최수현 (35세) - 실속형 가계 수호자 =====
+    # ===== 페르소나 4: 정지호 (28세) - 연구소 기반 해결사 =====
     {
         "id": 4,
-        "name": "최수현",
-        "display_name": "최수현(35세)",
-        "age": 35,
+        "name": "정지호",
+        "display_name": "정지호(28세)",
+        "age": 28,
         "skin_type": "복합성",
-        "concerns": ["각질", "탄력"],
-        "interests": ["바디케어", "헤어케어", "클렌징"],
-        "shopping_pattern": "할인/쿠폰 적극 활용, 대용량 선호",
-        "lifestyle": "가족용/생활용품 대량 구매, 할인에 민감",
-        "tier": "affordable",
+        "concerns": ["보습"],
+        "interests": ["스킨케어", "더마케어", "세트"],
+        "shopping_pattern": "성분과 효능 중시, 문제 해결형 구매, 꼼꼼한 비교",
+        "lifestyle": "피부 고민 해결을 위해 과학적/더마 브랜드를 선호하는 고객",
+        "tier": "mid",
 
         # 페르소나 클러스터 정보
-        "persona_cluster": "실속형 가계 수호자",
-        "persona_confidence": 0.986,
+        "persona_cluster": "연구소 기반 해결사",
+        "persona_confidence": 0.85,
 
         # 행동 데이터
         "activity": {
-            "last_visit_days_ago": 3,
-            "visit_frequency": "높음",
-            "avg_session_minutes": 12,
-            "signup_days_ago": 600
+            "last_visit_days_ago": 7,
+            "visit_frequency": "중간",
+            "avg_session_minutes": 11,
+            "signup_days_ago": 90
         },
 
         "purchase": {
-            "total_count": 22,
-            "last_purchase_days_ago": 7,
-            "avg_interval": 20,
-            "total_amount": 836000,
-            "avg_amount": 38000,
-            "recent_categories": ["바디케어", "헤어케어", "클렌징"]
+            "total_count": 10,
+            "last_purchase_days_ago": 14,
+            "avg_interval": 21,
+            "total_amount": 504520,
+            "avg_amount": 50452,
+            "recent_categories": ["클렌징", "스킨케어"]
         },
 
         "brand": {
             "purchase_counts": {
-                "일리윤": 8,
-                "라보에이치": 6,
-                "메디안": 5,
-                "아모레베이직": 3
+                "마몽드": 4,
+                "아이오페": 3,
+                "에스트라": 2,
+                "프리메라": 1
             },
-            "primary_brand": "일리윤",
+            "primary_brand": "마몽드",
             "loyalty": "높음",
-            "diversity": 0.45
+            "diversity": 0.33
         },
 
         "promotion": {
-            "discount_sensitivity": "높음",
-            "event_participation_rate": 0.85,
-            "preferred_type": "할인",
-            "coupon_usage_rate": 0.75,
-            "full_price_ratio": 0.42
+            "discount_sensitivity": "중간",
+            "event_participation_rate": 0.56,
+            "preferred_type": "사은품",
+            "coupon_usage_rate": 0.33,
+            "full_price_ratio": 0.56
         },
 
         "risk": {
@@ -503,82 +508,228 @@ personas = [
         },
 
         "membership": {
-            "tier": "실버",
-            "tier_criteria": "연 50만원 이상",
-            "points": 28000
+            "tier": "VIP",
+            "tier_criteria": "E등급",
+            "points": 15000
         }
     },
 
-    # ===== 페르소나 5: 정하은 (29세) - 합리적 큐레이터 =====
+    # ===== 페르소나 5: 신수진 (20세) - 트렌디 Z세대 =====
     {
         "id": 5,
-        "name": "정하은",
-        "display_name": "정하은(29세)",
-        "age": 29,
-        "skin_type": "건성",
-        "concerns": ["보습", "주름"],
-        "interests": ["스킨케어", "세럼", "크림"],
-        "shopping_pattern": "가성비 중시, 리뷰 꼼꼼히 확인",
-        "lifestyle": "합리적인 가격대에서 좋은 품질을 추구",
-        "tier": "mid",
+        "name": "신수진",
+        "display_name": "신수진(20세)",
+        "age": 20,
+        "skin_type": "복합성",
+        "concerns": ["보습"],
+        "interests": ["메이크업", "향수", "바디"],
+        "shopping_pattern": "트렌디한 제품 선호, 가성비 중시, 이벤트 참여 활발",
+        "lifestyle": "트렌드에 민감한 MZ세대, SNS 영향력이 큰 활발한 소비자",
+        "tier": "affordable",
 
         # 페르소나 클러스터 정보
-        "persona_cluster": "합리적 큐레이터",
-        "persona_confidence": 0.965,
+        "persona_cluster": "트렌디 Z세대",
+        "persona_confidence": 0.95,
 
         # 행동 데이터
         "activity": {
             "last_visit_days_ago": 7,
-            "visit_frequency": "중",
-            "avg_session_minutes": 15,
-            "signup_days_ago": 450
+            "visit_frequency": "중간",
+            "avg_session_minutes": 20,
+            "signup_days_ago": 165
         },
 
         "purchase": {
-            "total_count": 15,
-            "last_purchase_days_ago": 18,
-            "avg_interval": 30,
-            "total_amount": 720000,
-            "avg_amount": 48000,
-            "recent_categories": ["스킨케어", "세럼", "크림"]
+            "total_count": 41,
+            "last_purchase_days_ago": 14,
+            "avg_interval": 45,
+            "total_amount": 1307326,
+            "avg_amount": 31886,
+            "recent_categories": ["립", "스킨케어"]
         },
 
         "brand": {
             "purchase_counts": {
-                "라네즈": 5,
-                "이니스프리": 4,
-                "한율": 3,
-                "프리메라": 3
+                "롱테이크": 15,
+                "에뛰드": 12,
+                "헤라": 8,
+                "설화수": 6
             },
-            "primary_brand": "라네즈",
-            "loyalty": "중간",
-            "diversity": 0.55
+            "primary_brand": "롱테이크",
+            "loyalty": "낮음",
+            "diversity": 0.74
+        },
+
+        "promotion": {
+            "discount_sensitivity": "낮음",
+            "event_participation_rate": 0.89,
+            "preferred_type": "샘플",
+            "coupon_usage_rate": 0.26,
+            "full_price_ratio": 0.43
+        },
+
+        "risk": {
+            "level": "높음",
+            "factors": ["충성도 낮음"],
+            "churn_probability": 0.35
+        },
+
+        "seasonal": {
+            "gift_purchases": True,
+            "peak_seasons": ["여름"],
+            "seasonal_events": []
+        },
+
+        "membership": {
+            "tier": "브론즈",
+            "tier_criteria": "B등급",
+            "points": 35000
+        }
+    },
+
+    # ===== 페르소나 6: 장수빈 (25세) - 합리적 큐레이터 =====
+    {
+        "id": 6,
+        "name": "장수빈",
+        "display_name": "장수빈(25세)",
+        "age": 25,
+        "skin_type": "복합성",
+        "concerns": ["보습"],
+        "interests": ["스킨케어", "헤어", "바디"],
+        "shopping_pattern": "가성비 중시, 리뷰 꼼꼼히 확인, 다양한 브랜드 시도",
+        "lifestyle": "합리적인 가격대에서 좋은 품질을 추구하는 똑똑한 소비자",
+        "tier": "mid",
+
+        # 페르소나 클러스터 정보
+        "persona_cluster": "합리적 큐레이터",
+        "persona_confidence": 0.87,
+
+        # 행동 데이터
+        "activity": {
+            "last_visit_days_ago": 7,
+            "visit_frequency": "중간",
+            "avg_session_minutes": 13,
+            "signup_days_ago": 108
+        },
+
+        "purchase": {
+            "total_count": 18,
+            "last_purchase_days_ago": 14,
+            "avg_interval": 20,
+            "total_amount": 1217502,
+            "avg_amount": 67639,
+            "recent_categories": ["메이크업", "선케어"]
+        },
+
+        "brand": {
+            "purchase_counts": {
+                "라보에이치": 6,
+                "라네즈": 5,
+                "아이오페": 4,
+                "이니스프리": 3
+            },
+            "primary_brand": "라보에이치",
+            "loyalty": "높음",
+            "diversity": 0.24
         },
 
         "promotion": {
             "discount_sensitivity": "중간",
-            "event_participation_rate": 0.6,
-            "preferred_type": "포인트",
-            "coupon_usage_rate": 0.45,
-            "full_price_ratio": 0.52
+            "event_participation_rate": 0.79,
+            "preferred_type": "사은품",
+            "coupon_usage_rate": 0.14,
+            "full_price_ratio": 0.54
         },
 
         "risk": {
             "level": "낮음",
             "factors": [],
-            "churn_probability": 0.18
+            "churn_probability": 0.05
         },
 
         "seasonal": {
-            "gift_purchases": True,
-            "peak_seasons": ["가을", "겨울"],
+            "gift_purchases": False,
+            "peak_seasons": [],
             "seasonal_events": []
         },
 
         "membership": {
             "tier": "골드",
-            "tier_criteria": "연 70만원 이상",
-            "points": 42000
+            "tier_criteria": "D등급",
+            "points": 85000
+        }
+    },
+
+    # ===== 페르소나 7: 류예린 (31세) - 실속형 가계 수호자 =====
+    {
+        "id": 7,
+        "name": "류예린",
+        "display_name": "류예린(31세)",
+        "age": 31,
+        "skin_type": "복합성",
+        "concerns": ["보습"],
+        "interests": ["바디", "생활용품", "헤어케어"],
+        "shopping_pattern": "할인/쿠폰 적극 활용, 대용량 선호, 사은품 중시",
+        "lifestyle": "가족용 생활용품 중심 구매, 할인/쿠폰에 민감한 알뜰 소비자",
+        "tier": "affordable",
+
+        # 페르소나 클러스터 정보
+        "persona_cluster": "실속형 가계 수호자",
+        "persona_confidence": 0.93,
+
+        # 행동 데이터
+        "activity": {
+            "last_visit_days_ago": 7,
+            "visit_frequency": "낮음",
+            "avg_session_minutes": 7,
+            "signup_days_ago": 320
+        },
+
+        "purchase": {
+            "total_count": 41,
+            "last_purchase_days_ago": 14,
+            "avg_interval": 26,
+            "total_amount": 1399863,
+            "avg_amount": 34143,
+            "recent_categories": ["클렌징", "헤어케어"]
+        },
+
+        "brand": {
+            "purchase_counts": {
+                "해피바스": 18,
+                "롱테이크": 10,
+                "미쟝센": 8,
+                "이니스프리": 5
+            },
+            "primary_brand": "해피바스",
+            "loyalty": "높음",
+            "diversity": 0.15
+        },
+
+        "promotion": {
+            "discount_sensitivity": "높음",
+            "event_participation_rate": 0.86,
+            "preferred_type": "할인",
+            "coupon_usage_rate": 0.62,
+            "full_price_ratio": 0.26
+        },
+
+        "risk": {
+            "level": "낮음",
+            "factors": [],
+            "churn_probability": 0.10
+        },
+
+        "seasonal": {
+            "gift_purchases": False,
+            "peak_seasons": [],
+            "seasonal_events": []
+        },
+
+        "membership": {
+            "tier": "브론즈",
+            "tier_criteria": "B등급",
+            "points": 45000
         }
     },
 ]

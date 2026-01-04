@@ -2,9 +2,142 @@
 """
 아모레몰 상품 데이터 (1,053개)
 자동 생성됨 - 수정하지 마세요
+
+2024.01 업데이트: products.csv와 reviews.csv 통합 로더 추가
 """
 
-products = [
+import os
+import pandas as pd
+
+# CSV 데이터 경로
+DATA_DIR = os.path.dirname(os.path.abspath(__file__))
+PRODUCTS_CSV = os.path.join(DATA_DIR, 'products.csv')
+REVIEWS_CSV = os.path.join(DATA_DIR, 'reviews.csv')
+
+
+def load_products_from_csv():
+    """
+    products.csv에서 상품 데이터를 로드하여 기존 형식으로 변환
+    reviews.csv에서 리뷰 요약을 가져와 description에 추가
+    """
+    if not os.path.exists(PRODUCTS_CSV):
+        return None
+
+    try:
+        products_df = pd.read_csv(PRODUCTS_CSV, encoding='utf-8-sig')
+    except:
+        products_df = pd.read_csv(PRODUCTS_CSV, encoding='utf-8')
+
+    # 리뷰 데이터 로드 (있는 경우)
+    reviews_dict = {}
+    if os.path.exists(REVIEWS_CSV):
+        try:
+            reviews_df = pd.read_csv(REVIEWS_CSV, encoding='utf-8-sig')
+            # 상품별 리뷰 요약 (첫 번째 리뷰만 사용)
+            for _, row in reviews_df.groupby('onlineProdSn').first().reset_index().iterrows():
+                prod_sn = row['onlineProdSn']
+                content = str(row['content'])[:200] if pd.notna(row['content']) else ''
+                reviews_dict[prod_sn] = content
+        except:
+            pass
+
+    products_list = []
+    for idx, row in products_df.iterrows():
+        # 카테고리 결정
+        main_cat = str(row.get('mainCategory', '')) if pd.notna(row.get('mainCategory')) else ''
+        sub_cat = str(row.get('subCategory', '')) if pd.notna(row.get('subCategory')) else ''
+        detail_cat = str(row.get('detailCategory', '')) if pd.notna(row.get('detailCategory')) else ''
+
+        category = main_cat
+        if sub_cat:
+            category = sub_cat
+        if detail_cat:
+            category = detail_cat
+        if not category:
+            category = '기타'
+
+        # 특징 추출 (카테고리 기반)
+        features = []
+        category_lower = category.lower()
+        if '보습' in category_lower or '모이스' in category_lower:
+            features.append('보습')
+        if '클렌징' in category_lower or '클렌저' in category_lower:
+            features.append('클렌징')
+        if '선케어' in category_lower or '선블' in category_lower:
+            features.append('자외선차단')
+        if '마스크' in category_lower or '팩' in category_lower:
+            features.append('집중케어')
+        if '에센스' in category_lower or '세럼' in category_lower:
+            features.append('영양')
+        if '립' in category_lower:
+            features.append('립케어')
+        if not features:
+            features = ['기본케어']
+
+        # 가격 처리
+        price = row.get('salePrice', row.get('price', 0))
+        if pd.isna(price):
+            price = 0
+        price = int(price)
+
+        original_price = row.get('price', price)
+        if pd.isna(original_price):
+            original_price = price
+
+        # 할인율
+        discount_rate = row.get('discountRate', 0)
+        if pd.isna(discount_rate):
+            discount_rate = 0
+        discount_rate = int(discount_rate)
+
+        # 리뷰 가져오기
+        prod_sn = row.get('onlineProdSn', '')
+        review_text = reviews_dict.get(prod_sn, '')
+
+        # 설명 생성
+        brand_name = str(row.get('brandName', '')) if pd.notna(row.get('brandName')) else ''
+        prod_name = str(row.get('prodName', '')) if pd.notna(row.get('prodName')) else ''
+        avg_rating = row.get('avgRating', 0)
+        if pd.isna(avg_rating):
+            avg_rating = 0
+        review_count = row.get('reviewCount', 0)
+        if pd.isna(review_count):
+            review_count = 0
+
+        description = f"{brand_name}의 {prod_name}"
+        if review_count > 0:
+            description += f" (평점 {avg_rating:.1f}, 리뷰 {int(review_count)}개)"
+        if review_text:
+            description += f" | 고객리뷰: {review_text[:100]}..."
+
+        product = {
+            "id": idx + 1,
+            "name": prod_name,
+            "brand": brand_name,
+            "category": category,
+            "features": features,
+            "target_skin": ['모든피부'],
+            "price": price,
+            "original_price": int(original_price),
+            "discount_rate": discount_rate,
+            "is_new": False,
+            "img_url": str(row.get('imageUrl', '')) if pd.notna(row.get('imageUrl')) else '',
+            "description": description,
+            "review_count": int(review_count),
+            "avg_rating": float(avg_rating),
+            "online_prod_sn": str(prod_sn) if pd.notna(prod_sn) else ''
+        }
+        products_list.append(product)
+
+    return products_list
+
+
+# CSV에서 상품 로드 시도, 실패하면 기존 하드코딩 데이터 사용
+_csv_products = load_products_from_csv()
+
+
+# 기존 하드코딩 상품 데이터 (CSV 로드 실패 시 사용)
+_hardcoded_products = [
     {
         "id": 1,
         "name": '[1위 클렌징] 마일드 앤 퍼펙트 클렌징 오일 투 폼 200ml',
@@ -13695,3 +13828,6 @@ products = [
         "description": '에뛰드의 진저슈가 오버나이트 립마스크 23g',
     },
 ]
+
+# CSV 상품 데이터 우선 사용, 없으면 하드코딩 데이터 사용
+products = _csv_products if _csv_products else _hardcoded_products
